@@ -1,0 +1,49 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+
+interface AuthGuardProps {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+}
+
+export default function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (requireAuth && !isAuthenticated) {
+        router.push('/login');
+      } else if (!requireAuth && isAuthenticated) {
+        router.push('/dashboard');
+      }
+    }
+  }, [isAuthenticated, isLoading, requireAuth, router]);
+
+  // Show loading spinner while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render children if auth check fails
+  if (requireAuth && !isAuthenticated) {
+    return null;
+  }
+
+  if (!requireAuth && isAuthenticated) {
+    return null;
+  }
+
+  return <>{children}</>;
+}

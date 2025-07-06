@@ -1,12 +1,15 @@
+export interface CustomThreadFormData {
+  id?: string;
+  name: string;
+  description: string;
+  targetAmount: number;
+  startDate: Date;
+  endDate: Date;
+}
+
 export interface CustomThreadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateThread: (label: string, startDate: Date, endDate: Date) => void;
-  className?: string;
-}
-
-export interface CustomThreadForm {
-  label: string;
-  startDate: string;
-  endDate: string;
+  mode: 'create' | 'edit';
+  threadData?: CustomThreadFormData;
 }

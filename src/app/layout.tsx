@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "../store/ReduxProvider";
+import ErrorBoundary from "../components/ErrorBoundary";
+import AppLayout from "../components/AppLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +17,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "KuttyBank - Family Budget Tracker",
-  description: "A Threads-style family budget tracker PWA",
+  description: "A Threads-style family budget tracker PWA for real-time family expense tracking",
   manifest: "/manifest.json",
+  keywords: "family budget, expense tracker, financial management, PWA",
+  authors: [{ name: "Threedot Family" }],
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: "#000000",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -31,9 +40,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <ReduxProvider>
-          {children}
-        </ReduxProvider>
+        <ErrorBoundary>
+          <ReduxProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </ReduxProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

@@ -1,76 +1,110 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Calendar, Sparkles, Save } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Fragment } from 'react';
+import { X, Sparkles, Calendar, Target, FileText, Trash2 } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 import { format } from 'date-fns';
-import { CustomThreadModalProps, CustomThreadForm } from './types';
+import { CustomThreadModalProps, CustomThreadFormData } from './types';
+import { createCustomThread, updateCustomThread, removeSavedThread } from '@/store/slices/threadsSlice';
 
-export default function CustomThreadModal({
-  isOpen,
-  onClose,
-  onCreateThread,
-  className
+export default function CustomThreadModal({ 
+  isOpen, 
+  onClose, 
+  mode = 'create',
+  threadData 
 }: CustomThreadModalProps) {
-  const [form, setForm] = useState<CustomThreadForm>({
-    label: '',
-    startDate: format(new Date(), 'yyyy-MM-dd'),
-    endDate: format(new Date(), 'yyyy-MM-dd')
+  const dispatch = useDispatch();
+  
+  const [formData, setFormData] = useState<CustomThreadFormData>({
+    name: '',
+    description: '',
+    targetAmount: 0,
+    startDate: new Date(),
+    endDate: new Date(),
   });
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const validationErrors: { [key: string]: string } = {};
-    
-    if (!form.label.trim()) {
-      validationErrors.label = 'Thread name is required';
+  // Initialize form data when modal opens or threadData changes
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === 'edit' && threadData) {
+        setFormData(threadData);
+      } else {
+        // Reset form for create mode
+        const today = new Date();
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        setFormData({
+          name: '',
+          description: '',
+          targetAmount: 0,
+          startDate: today,
+          endDate: endOfMonth,
+        });
+      }
+      setShowDeleteConfirm(false);
     }
-    
-    if (!form.startDate) {
-      validationErrors.startDate = 'Start date is required';
-    }
-    
-    if (!form.endDate) {
-      validationErrors.endDate = 'End date is required';
-    }
-    
-    if (form.startDate && form.endDate && new Date(form.startDate) > new Date(form.endDate)) {
-      validationErrors.endDate = 'End date must be after start date';
-    }
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    
-    onCreateThread(form.label, new Date(form.startDate), new Date(form.endDate));
-    handleClose();
+  }, [isOpen, mode, threadData]);
+
+  const handleInputChange = (field: keyof CustomThreadFormData, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleClose = () => {
-    setForm({
-      label: '',
-      startDate: format(new Date(), 'yyyy-MM-dd'),
-      endDate: format(new Date(), 'yyyy-MM-dd')
-    });
-    setErrors({});
+  const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
+    const date = new Date(value);
+    setFormData(prev => ({
+      ...prev,
+      [field]: date
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (!formData.name.trim()) return;
+
+    if (mode === 'create') {
+      dispatch(createCustomThread({
+        label: formData.name,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        description: formData.description,
+        targetAmount: formData.targetAmount,
+      }));
+    } else if (mode === 'edit' && threadData?.id) {
+      dispatch(updateCustomThread({
+        id: threadData.id,
+        label: formData.name,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        description: formData.description,
+        targetAmount: formData.targetAmount,
+      }));
+    }
+
     onClose();
   };
 
-  const handleInputChange = (field: keyof CustomThreadForm, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+  const handleDelete = () => {
+    if (threadData?.id) {
+      dispatch(removeSavedThread(threadData.id));
+      onClose();
     }
+  };
+
+  const getPreviewText = () => {
+    if (!formData.name) return 'Custom Thread';
+    const start = format(formData.startDate, 'MMM dd');
+    const end = format(formData.endDate, 'MMM dd');
+    return `${formData.name} • ${start} - ${end}`;
   };
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={handleClose}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -80,11 +114,11 @@ export default function CustomThreadModal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -94,125 +128,173 @@ export default function CustomThreadModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className={clsx(
-                'w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-900 border border-gray-700 p-6 text-left align-middle shadow-xl transition-all',
-                className
-              )}>
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 p-6 text-left align-middle shadow-xl transition-all">
+                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="text-purple-400" size={24} />
-                    <Dialog.Title className="text-xl font-semibold text-white">
-                      Create Custom Thread
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <Dialog.Title className="text-lg font-medium text-white">
+                      {mode === 'create' ? 'Create Custom Thread' : 'Edit Thread'}
                     </Dialog.Title>
                   </div>
                   <button
-                    onClick={handleClose}
-                    className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-white transition-colors"
                   >
-                    <X size={18} className="text-gray-400" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Thread Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Thread Name
-                    </label>
-                    <input
-                      type="text"
-                      value={form.label}
-                      onChange={(e) => handleInputChange('label', e.target.value)}
-                      placeholder="e.g., Vacation Fund, Q1 Budget"
-                      className={clsx(
-                        'w-full px-4 py-3 rounded-xl bg-gray-800 border text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500',
-                        errors.label ? 'border-red-500' : 'border-gray-600'
-                      )}
-                    />
-                    {errors.label && (
-                      <p className="text-red-400 text-sm mt-1">{errors.label}</p>
-                    )}
+                {/* Delete Confirmation */}
+                {showDeleteConfirm ? (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+                        <Trash2 className="w-6 h-6 text-red-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-white mb-2">Delete Thread</h3>
+                      <p className="text-gray-400 text-sm">
+                        Are you sure you want to delete &ldquo;{formData.name}&rdquo;? This action cannot be undone.
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Date Range */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Start Date
-                      </label>
-                      <div className="relative">
-                        <Calendar size={18} className="absolute left-3 top-3 text-gray-400" />
+                ) : (
+                  <>
+                    {/* Form */}
+                    <div className="space-y-5">
+                      {/* Thread Name */}
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                          <FileText className="w-4 h-4" />
+                          Thread Name
+                        </label>
                         <input
-                          type="date"
-                          value={form.startDate}
-                          onChange={(e) => handleInputChange('startDate', e.target.value)}
-                          className={clsx(
-                            'w-full pl-10 pr-4 py-3 rounded-xl bg-gray-800 border text-white focus:outline-none focus:ring-2 focus:ring-purple-500',
-                            errors.startDate ? 'border-red-500' : 'border-gray-600'
-                          )}
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          placeholder="e.g., Vacation Fund, Q1 Budget"
+                          className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         />
                       </div>
-                      {errors.startDate && (
-                        <p className="text-red-400 text-sm mt-1">{errors.startDate}</p>
-                      )}
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        End Date
-                      </label>
-                      <div className="relative">
-                        <Calendar size={18} className="absolute left-3 top-3 text-gray-400" />
-                        <input
-                          type="date"
-                          value={form.endDate}
-                          onChange={(e) => handleInputChange('endDate', e.target.value)}
-                          className={clsx(
-                            'w-full pl-10 pr-4 py-3 rounded-xl bg-gray-800 border text-white focus:outline-none focus:ring-2 focus:ring-purple-500',
-                            errors.endDate ? 'border-red-500' : 'border-gray-600'
-                          )}
+                      {/* Description */}
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                          <FileText className="w-4 h-4" />
+                          Description
+                        </label>
+                        <textarea
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          placeholder="Brief description of this thread's purpose..."
+                          rows={3}
+                          className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                         />
                       </div>
-                      {errors.endDate && (
-                        <p className="text-red-400 text-sm mt-1">{errors.endDate}</p>
+
+                      {/* Target Amount */}
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                          <Target className="w-4 h-4" />
+                          Target Amount
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                          <input
+                            type="number"
+                            value={formData.targetAmount || ''}
+                            onChange={(e) => handleInputChange('targetAmount', parseFloat(e.target.value) || 0)}
+                            placeholder="0"
+                            className="w-full pl-8 pr-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Date Range */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                            <Calendar className="w-4 h-4" />
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={format(formData.startDate, 'yyyy-MM-dd')}
+                            onChange={(e) => handleDateChange('startDate', e.target.value)}
+                            className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                            <Calendar className="w-4 h-4" />
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={format(formData.endDate, 'yyyy-MM-dd')}
+                            onChange={(e) => handleDateChange('endDate', e.target.value)}
+                            className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Preview */}
+                      <div className="p-3 bg-gray-700/30 rounded-lg border border-gray-600/50">
+                        <div className="text-xs text-gray-400 mb-1">Preview</div>
+                        <div className="text-sm text-white font-medium">{getPreviewText()}</div>
+                        {formData.description && (
+                          <div className="text-xs text-gray-400 mt-1">{formData.description}</div>
+                        )}
+                        {formData.targetAmount > 0 && (
+                          <div className="text-xs text-green-400 mt-1">Target: ₹{formData.targetAmount.toLocaleString()}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 mt-6">
+                      {mode === 'edit' && (
+                        <button
+                          onClick={() => setShowDeleteConfirm(true)}
+                          className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
                       )}
+                      <button
+                        onClick={onClose}
+                        className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSubmit}
+                        disabled={!formData.name.trim()}
+                        className="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        {mode === 'create' ? 'Create Thread' : 'Save Changes'}
+                      </button>
                     </div>
-                  </div>
-
-                  {/* Preview */}
-                  <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <h4 className="text-sm font-medium text-gray-300 mb-2">Preview</h4>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white font-medium">
-                        {form.label || 'Custom Thread'}
-                      </span>
-                      <span className="text-gray-400 text-sm">
-                        {form.startDate && form.endDate
-                          ? `${format(new Date(form.startDate), 'MMM dd')} - ${format(new Date(form.endDate), 'MMM dd')}`
-                          : 'Select dates'
-                        }
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleClose}
-                      className="flex-1 px-4 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-medium transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <Save size={18} />
-                      <span>Create Thread</span>
-                    </button>
-                  </div>
-                </form>
+                  </>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>

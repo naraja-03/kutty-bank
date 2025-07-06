@@ -1,6 +1,6 @@
 export interface TransactionPostProps {
+  id?: string;
   userName: string;
-  profileImage?: string;
   amount: number;
   category: string;
   timestamp: string | Date;
@@ -8,6 +8,10 @@ export interface TransactionPostProps {
   note?: string;
   image?: string;
   className?: string;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onUpdateNote?: (id: string, note: string) => void;
+  showActions?: boolean;
 }
 
 export interface TransactionData {

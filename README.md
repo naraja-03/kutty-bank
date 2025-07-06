@@ -44,8 +44,7 @@ src/
 │   │   ├── FamilyPage/     # Family management
 │   │   ├── ThreadsHeader/  # Thread navigation header
 │   │   ├── ThreadSidebar/  # Thread management sidebar
-│   │   ├── ThreadBottomBar/# Thread selector bottom bar
-│   │   └── CustomThreadModal/ # Custom thread creation modal
+│   │   └── ThreadBottomBar/# Thread selector bottom bar
 │   └── AppLayout.tsx       # Main app layout
 └── store/                  # Redux store
     ├── api/                # RTK Query APIs

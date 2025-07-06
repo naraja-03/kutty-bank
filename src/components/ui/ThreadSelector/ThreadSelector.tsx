@@ -19,7 +19,6 @@ export default function ThreadSelector({
     const now = new Date();
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
     switch (thread.value) {
@@ -32,11 +31,6 @@ export default function ThreadSelector({
         return {
           start: startOfMonth,
           end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0)
-        };
-      case 'quarter':
-        return {
-          start: startOfQuarter,
-          end: new Date(startOfQuarter.getFullYear(), startOfQuarter.getMonth() + 3, 0)
         };
       case 'year':
         return {
@@ -65,7 +59,7 @@ export default function ThreadSelector({
   };
 
   return (
-    <div className={clsx('bg-gray-900 border border-gray-800 rounded-xl p-4', className)}>
+    <div className={clsx('bg-gray-900/95 border border-gray-800 rounded-xl p-4', className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Clock size={16} className="text-gray-400" />

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Camera, IndianRupee, Calendar, Tag, FileText } from 'lucide-react';
+import { X, IndianRupee, Calendar, Tag, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
 import { 
   AddEntryModalProps, 
@@ -15,7 +15,8 @@ export default function AddEntryModal({
   isOpen,
   onClose,
   onSubmit,
-  isLoading = false
+  isLoading = false,
+  editData
 }: AddEntryModalProps) {
   const [formData, setFormData] = useState<TransactionFormData>({
     amount: 0,
@@ -26,7 +27,31 @@ export default function AddEntryModal({
     image: undefined
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // const fileInputRef = useRef<HTMLInputElement>(null);
+  const isEditMode = !!editData;
+
+  // Populate form data when editing
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        amount: editData.amount,
+        date: editData.date,
+        category: editData.category,
+        type: editData.type,
+        note: editData.note || '',
+        image: undefined
+      });
+    } else {
+      setFormData({
+        amount: 0,
+        date: new Date().toISOString().split('T')[0],
+        category: '',
+        type: 'expense',
+        note: '',
+        image: undefined
+      });
+    }
+  }, [editData, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +73,12 @@ export default function AddEntryModal({
     onClose();
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, image: file }));
-    }
-  };
+  // const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setFormData(prev => ({ ...prev, image: file }));
+  //   }
+  // };
 
   const categories = formData.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
@@ -83,16 +108,16 @@ export default function AddEntryModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-black border border-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md sm:max-w-lg lg:max-w-xl transform overflow-hidden rounded-2xl bg-black border border-gray-800 p-4 sm:p-6 text-left align-middle shadow-xl transition-all mx-4">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <Dialog.Title className="text-lg font-semibold text-white">
-                    Add Transaction
+                  <Dialog.Title className="text-lg sm:text-xl font-semibold text-white">
+                    {isEditMode ? 'Edit Transaction' : 'Add Transaction'}
                   </Dialog.Title>
                   <button
                     onClick={handleClose}
                     disabled={isLoading}
-                    className="text-gray-400 hover:text-white transition-colors p-1"
+                    className="text-gray-400 hover:text-white transition-colors p-1 touch-manipulation"
                   >
                     <X size={20} />
                   </button>
@@ -101,7 +126,7 @@ export default function AddEntryModal({
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Type Toggle */}
-                  <div className="flex bg-gray-900 rounded-lg p-1">
+                  <div className="flex bg-gray-900/95 rounded-lg p-1">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, type: 'expense', category: '' }))}
@@ -139,7 +164,7 @@ export default function AddEntryModal({
                         type="number"
                         value={formData.amount || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                         placeholder="0"
                         min="0"
                         step="0.01"
@@ -159,7 +184,7 @@ export default function AddEntryModal({
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                         required
                       />
                     </div>
@@ -175,7 +200,7 @@ export default function AddEntryModal({
                       <select
                         value={formData.category}
                         onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent appearance-none"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent appearance-none"
                         required
                       >
                         <option value="">Select category</option>
@@ -198,7 +223,7 @@ export default function AddEntryModal({
                       <textarea
                         value={formData.note}
                         onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent resize-none"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent resize-none"
                         rows={3}
                         placeholder="Add a note about this transaction..."
                       />
@@ -206,14 +231,14 @@ export default function AddEntryModal({
                   </div>
 
                   {/* Image Upload */}
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
                       Attach Image (Optional)
                     </label>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3 px-4 bg-gray-900 border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
+                      className="w-full py-3 px-4 bg-gray-900/95 border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
                     >
                       <Camera size={16} />
                       <span>{formData.image ? formData.image.name : 'Add photo'}</span>
@@ -225,7 +250,7 @@ export default function AddEntryModal({
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                  </div>
+                  </div> */}
 
                   {/* Submit Button */}
                   <button
@@ -239,7 +264,13 @@ export default function AddEntryModal({
                         : 'bg-red-600 hover:bg-red-700 text-white'
                     )}
                   >
-                    {isLoading ? 'Adding...' : `Add ${formData.type === 'income' ? 'Income' : 'Expense'}`}
+                    {isLoading ? 
+                      (isEditMode ? 'Updating...' : 'Adding...') : 
+                      (isEditMode ? 
+                        `Update ${formData.type === 'income' ? 'Income' : 'Expense'}` : 
+                        `Add ${formData.type === 'income' ? 'Income' : 'Expense'}`
+                      )
+                    }
                   </button>
                 </form>
               </Dialog.Panel>

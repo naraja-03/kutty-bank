@@ -2,21 +2,48 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { TransactionData } from '../../components/ui/TransactionPost/types';
 import { RootState } from '../index';
 
+export interface UpdateTransactionRequest {
+  amount?: number;
+  category?: string;
+  type?: 'income' | 'expense';
+  note?: string;
+  imageUrl?: string;
+}
+
 export interface CreateTransactionRequest {
   amount: number;
   category: string;
   type: 'income' | 'expense';
+  userId: string;
+  familyId?: string;
   note?: string;
   date: string;
   imageUrl?: string;
 }
 
+export interface TransactionResponse {
+  transactions: TransactionData[];
+  pagination: {
+    current: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 export interface TransactionStats {
   totalIncome: number;
-  totalExpenses: number;
+  totalExpense: number;
   balance: number;
   monthlyIncome: number;
-  monthlyExpenses: number;
+  monthlyExpense: number;
+  monthlyBalance: number;
+  categoryBreakdown: {
+    category: string;
+    total: number;
+    count: number;
+  }[];
+  recentTransactions: TransactionData[];
 }
 
 export const transactionApi = createApi({
@@ -35,7 +62,7 @@ export const transactionApi = createApi({
   }),
   tagTypes: ['Transaction', 'Stats'],
   endpoints: (builder) => ({
-    getTransactions: builder.query<TransactionData[], { limit?: number; offset?: number }>({
+    getTransactions: builder.query<TransactionResponse, { limit?: number; offset?: number }>({
       query: ({ limit = 20, offset = 0 }) => `?limit=${limit}&offset=${offset}`,
       providesTags: ['Transaction'],
     }),
@@ -48,6 +75,14 @@ export const transactionApi = createApi({
         url: '',
         method: 'POST',
         body: transaction,
+      }),
+      invalidatesTags: ['Transaction', 'Stats'],
+    }),
+    updateTransaction: builder.mutation<TransactionData, { id: string; data: UpdateTransactionRequest }>({
+      query: ({ id, data }) => ({
+        url: `/${id}`,
+        method: 'PUT',
+        body: data,
       }),
       invalidatesTags: ['Transaction', 'Stats'],
     }),
@@ -65,5 +100,6 @@ export const {
   useGetTransactionsQuery,
   useGetTransactionStatsQuery,
   useCreateTransactionMutation,
+  useUpdateTransactionMutation,
   useDeleteTransactionMutation,
 } = transactionApi;

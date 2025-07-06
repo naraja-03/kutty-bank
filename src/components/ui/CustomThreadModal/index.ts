@@ -1,2 +1,2 @@
 export { default } from './CustomThreadModal';
-export type { CustomThreadModalProps, CustomThreadForm } from './types';
+export type { CustomThreadModalProps, CustomThreadFormData } from './types';

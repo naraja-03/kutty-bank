@@ -156,7 +156,7 @@ export default function ThreadBottomBar({
       </div>
 
       {/* Thread Info Bar */}
-      <div className="px-4 py-2 bg-gray-900/50 border-t border-gray-800">
+      <div className="px-4 py-2 bg-gray-900/95/50 border-t border-gray-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className={clsx(

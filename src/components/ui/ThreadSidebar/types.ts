@@ -4,13 +4,12 @@ export interface ThreadSidebarProps {
   threads: ThreadPeriod[];
   activeThread: ThreadPeriod;
   onThreadSelect: (thread: ThreadPeriod) => void;
-  onNewThread: () => void;
 }
 
 export interface ThreadPeriod {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'quarter' | 'year' | 'custom';
+  value: 'week' | 'month' | 'year' | 'custom';
   startDate?: Date;
   endDate?: Date;
   isActive?: boolean;
@@ -21,4 +20,7 @@ export interface SavedThread extends ThreadPeriod {
   createdAt: Date;
   totalTransactions: number;
   totalAmount: number;
+  isCustom?: boolean;
+  description?: string;
+  targetAmount?: number;
 }

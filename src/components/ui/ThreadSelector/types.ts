@@ -7,16 +7,10 @@ export interface ThreadSelectorProps {
 export interface ThreadPeriod {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'quarter' | 'year' | 'custom';
+  value: 'week' | 'month' | 'year' | 'custom';
   startDate?: Date;
   endDate?: Date;
   isActive?: boolean;
-}
-
-export interface CustomThreadModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (thread: ThreadPeriod) => void;
 }
 
 export interface ThreadSidebarProps {
@@ -30,10 +24,9 @@ export interface ThreadSidebarProps {
 
 export const DEFAULT_THREADS: ThreadPeriod[] = [
   {
-    id: 'current-week',
-    label: 'This Week',
-    value: 'week',
-    isActive: true
+    id: 'current-year',
+    label: 'This Year',
+    value: 'year'
   },
   {
     id: 'current-month',
@@ -41,13 +34,9 @@ export const DEFAULT_THREADS: ThreadPeriod[] = [
     value: 'month'
   },
   {
-    id: 'current-quarter',
-    label: 'This Quarter',
-    value: 'quarter'
-  },
-  {
-    id: 'current-year',
-    label: 'This Year',
-    value: 'year'
+    id: 'current-week',
+    label: 'This Week',
+    value: 'week',
+    isActive: true
   }
 ];

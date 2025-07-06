@@ -3,6 +3,14 @@ export interface AddEntryModalProps {
   onClose: () => void;
   onSubmit: (data: TransactionFormData) => void;
   isLoading?: boolean;
+  editData?: {
+    id: string;
+    amount: number;
+    date: string;
+    category: string;
+    type: 'income' | 'expense';
+    note?: string;
+  };
 }
 
 export interface TransactionFormData {

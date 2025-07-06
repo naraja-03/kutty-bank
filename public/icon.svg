@@ -1,0 +1,30 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#000000"/>
+  
+  <!-- Bank/Money Symbol -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#ffffff" stroke-width="8"/>
+  
+  <!-- Dollar Sign / Currency Symbol -->
+  <g fill="#ffffff">
+    <!-- Top bar -->
+    <rect x="240" y="180" width="32" height="8" rx="4"/>
+    <!-- Bottom bar -->
+    <rect x="240" y="324" width="32" height="8" rx="4"/>
+    <!-- Vertical line -->
+    <rect x="248" y="160" width="16" height="192" rx="8"/>
+    <!-- S curve -->
+    <path d="M200 220 Q200 200 220 200 L280 200 Q300 200 300 220 Q300 240 280 240 L240 240 Q220 240 220 260 Q220 280 240 280 L292 280 Q312 280 312 300 Q312 320 292 320 L232 320 Q212 320 212 300" 
+          stroke="#ffffff" stroke-width="16" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Family/Group indicator (three small circles) -->
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="160" cy="140" r="12"/>
+    <circle cx="190" cy="120" r="12"/>
+    <circle cx="220" cy="140" r="12"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="256" y="420" text-anchor="middle" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="bold">KuttyBank</text>
+</svg>

@@ -2,8 +2,11 @@
 
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Plus, Calendar, TrendingUp, TrendingDown, Clock, Hash } from 'lucide-react';
+import { X, Plus, Calendar, TrendingUp, TrendingDown, Clock, Hash, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useDispatch } from 'react-redux';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { openCustomThreadModal, openEditCustomThreadModal } from '@/store/slices/uiSlice';
 import { ThreadSidebarProps, SavedThread } from './types';
 
 export default function ThreadSidebar({
@@ -11,9 +14,10 @@ export default function ThreadSidebar({
   onClose,
   threads,
   activeThread,
-  onThreadSelect,
-  onNewThread
+  onThreadSelect
 }: ThreadSidebarProps) {
+  const dispatch = useDispatch();
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -21,6 +25,23 @@ export default function ThreadSidebar({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
+  };
+
+  const handleNewThread = () => {
+    dispatch(openCustomThreadModal('create'));
+    onClose();
+  };
+
+  const handleEditThread = (thread: SavedThread) => {
+    dispatch(openEditCustomThreadModal({
+      id: thread.id,
+      name: thread.label,
+      description: thread.description || '',
+      targetAmount: thread.targetAmount || 0,
+      startDate: thread.startDate || new Date(),
+      endDate: thread.endDate || new Date(),
+    }));
+    onClose();
   };
 
   const getThreadIcon = (thread: { value: string }) => {
@@ -83,7 +104,7 @@ export default function ThreadSidebar({
 
                 {/* New Thread Button */}
                 <button
-                  onClick={onNewThread}
+                  onClick={handleNewThread}
                   className="w-full mb-6 bg-white text-black py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-100 transition-colors"
                 >
                   <Plus size={16} />
@@ -101,59 +122,125 @@ export default function ThreadSidebar({
                     const savedThread = thread as SavedThread;
                     
                     return (
-                      <button
+                      <div
                         key={thread.id}
-                        onClick={() => onThreadSelect(thread)}
                         className={clsx(
-                          'w-full p-4 rounded-xl border text-left transition-all duration-200',
+                          'w-full p-4 rounded-xl border text-left transition-all duration-200 relative',
                           isActive 
                             ? 'bg-gray-800 border-white shadow-lg' 
-                            : 'bg-gray-900 border-gray-800 hover:border-gray-700 hover:bg-gray-800'
+                            : 'bg-gray-900/95 border-gray-800 hover:border-gray-700 hover:bg-gray-800'
                         )}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            {getThreadIcon(thread)}
-                            <span className="font-medium text-white">{thread.label}</span>
+                        <button
+                          onClick={() => onThreadSelect(thread)}
+                          className="w-full text-left"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              {getThreadIcon(thread)}
+                              <span className="font-medium text-white">{thread.label}</span>
+                            </div>
+                            {isActive && (
+                              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                            )}
                           </div>
-                          {isActive && (
-                            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                          )}
-                        </div>
-                        
-                        <div className="text-xs text-gray-400 mb-2">
-                          {thread.value === 'custom' && thread.startDate && thread.endDate ? (
-                            `${thread.startDate.toLocaleDateString()} - ${thread.endDate.toLocaleDateString()}`
-                          ) : (
-                            `${thread.value.charAt(0).toUpperCase() + thread.value.slice(1)} Period`
-                          )}
-                        </div>
+                          
+                          <div className="text-xs text-gray-400 mb-2">
+                            {thread.value === 'custom' && thread.startDate && thread.endDate ? (
+                              `${thread.startDate.toLocaleDateString()} - ${thread.endDate.toLocaleDateString()}`
+                            ) : (
+                              `${thread.value.charAt(0).toUpperCase() + thread.value.slice(1)} Period`
+                            )}
+                          </div>
 
-                        {/* Thread Stats */}
-                        {savedThread.totalTransactions !== undefined && (
-                          <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center space-x-1">
-                              <Hash size={12} className="text-gray-500" />
-                              <span className="text-gray-400">
-                                {savedThread.totalTransactions} transactions
-                              </span>
+                          {/* Thread Stats */}
+                          {savedThread.totalTransactions !== undefined && (
+                            <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center space-x-1">
+                                <Hash size={12} className="text-gray-500" />
+                                <span className="text-gray-400">
+                                  {savedThread.totalTransactions} transactions
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                {savedThread.totalAmount >= 0 ? (
+                                  <TrendingUp size={12} className="text-green-400" />
+                                ) : (
+                                  <TrendingDown size={12} className="text-red-400" />
+                                )}
+                                <span className={clsx(
+                                  'font-medium',
+                                  savedThread.totalAmount >= 0 ? 'text-green-400' : 'text-red-400'
+                                )}>
+                                  {formatCurrency(Math.abs(savedThread.totalAmount))}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-1">
-                              {savedThread.totalAmount >= 0 ? (
-                                <TrendingUp size={12} className="text-green-400" />
-                              ) : (
-                                <TrendingDown size={12} className="text-red-400" />
-                              )}
-                              <span className={clsx(
-                                'font-medium',
-                                savedThread.totalAmount >= 0 ? 'text-green-400' : 'text-red-400'
-                              )}>
-                                {formatCurrency(Math.abs(savedThread.totalAmount))}
-                              </span>
+                          )}
+
+                          {/* Target Amount for Custom Threads */}
+                          {savedThread.isCustom && savedThread.targetAmount && savedThread.targetAmount > 0 && (
+                            <div className="text-xs text-blue-400 mt-1">
+                              Target: {formatCurrency(savedThread.targetAmount)}
                             </div>
+                          )}
+
+                          {/* Description for Custom Threads */}
+                          {savedThread.isCustom && savedThread.description && (
+                            <div className="text-xs text-gray-500 mt-1 truncate">
+                              {savedThread.description}
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Edit/Delete Menu for Custom Threads */}
+                        {savedThread.isCustom && (
+                          <div className="absolute top-3 right-3">
+                            <Menu as="div" className="relative">
+                              <MenuButton className="p-1 text-gray-400 hover:text-white transition-colors">
+                                <MoreVertical size={16} />
+                              </MenuButton>
+                              <MenuItems className="absolute right-0 mt-1 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
+                                <MenuItem>
+                                  {({ active }) => (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditThread(savedThread);
+                                      }}
+                                      className={clsx(
+                                        'w-full px-3 py-2 text-left text-sm flex items-center gap-2',
+                                        active ? 'bg-gray-700 text-white' : 'text-gray-300'
+                                      )}
+                                    >
+                                      <Edit size={14} />
+                                      Edit
+                                    </button>
+                                  )}
+                                </MenuItem>
+                                <MenuItem>
+                                  {({ active }) => (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // TODO: Add delete confirmation
+                                        console.log('Delete thread:', savedThread.id);
+                                      }}
+                                      className={clsx(
+                                        'w-full px-3 py-2 text-left text-sm flex items-center gap-2',
+                                        active ? 'bg-red-600 text-white' : 'text-red-400'
+                                      )}
+                                    >
+                                      <Trash2 size={14} />
+                                      Delete
+                                    </button>
+                                  )}
+                                </MenuItem>
+                              </MenuItems>
+                            </Menu>
                           </div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
