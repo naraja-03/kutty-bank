@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, Fragment, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Dialog, Transition } from '@headlessui/react';
 import { X, IndianRupee, Calendar, Tag, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useGetBudgetsQuery, Budget } from '@/store/api/budgetsApi';
+import { RootState } from '@/store';
 import { 
   AddEntryModalProps, 
   TransactionFormData, 
@@ -23,12 +26,19 @@ export default function AddEntryModal({
     date: new Date().toISOString().split('T')[0],
     category: '',
     type: 'expense',
+    budgetId: '',
     note: '',
     image: undefined
   });
 
   // const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditMode = !!editData;
+  
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { data: budgets = [] } = useGetBudgetsQuery(
+    user ? { userId: user.id, familyId: user.familyId } : { userId: '', familyId: '' },
+    { skip: !user }
+  );
 
   // Populate form data when editing
   useEffect(() => {
@@ -38,6 +48,7 @@ export default function AddEntryModal({
         date: editData.date,
         category: editData.category,
         type: editData.type,
+        budgetId: '',
         note: editData.note || '',
         image: undefined
       });
@@ -47,6 +58,7 @@ export default function AddEntryModal({
         date: new Date().toISOString().split('T')[0],
         category: '',
         type: 'expense',
+        budgetId: '',
         note: '',
         image: undefined
       });
@@ -207,6 +219,28 @@ export default function AddEntryModal({
                         {categories.map((cat) => (
                           <option key={cat.value} value={cat.value}>
                             {cat.emoji} {cat.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Budget */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-300">
+                      Budget (Optional)
+                    </label>
+                    <div className="relative">
+                      <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <select
+                        value={formData.budgetId}
+                        onChange={(e) => setFormData(prev => ({ ...prev, budgetId: e.target.value }))}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent appearance-none"
+                      >
+                        <option value="">No budget</option>
+                        {budgets.map((budget: Budget) => (
+                          <option key={budget._id} value={budget._id}>
+                            📊 {budget.label}
                           </option>
                         ))}
                       </select>

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, IndianRupee } from 'lucide-react';
+import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, IndianRupee, ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useGetFamilyQuery, useInviteMemberMutation, useUpdateBudgetMutation } from '../../../store/api/familyApi';
 import { FamilyPageProps, InviteFormData } from './types';
 import BottomNav from '../BottomNav';
+import FamilySelectorModal from '../FamilySelectorModal';
 
 // Helper function to get user initials
 const getInitials = (name: string) => {
@@ -19,6 +20,7 @@ const getInitials = (name: string) => {
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [showFamilySelector, setShowFamilySelector] = useState(false);
   const [inviteData, setInviteData] = useState<InviteFormData>({
     email: '',
     role: 'member'
@@ -130,6 +132,14 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <Users size={20} />
               <h1 className="text-xl font-bold">Family</h1>
             </div>
+            {/* Family Selector Button */}
+            <button
+              onClick={() => setShowFamilySelector(true)}
+              className="flex items-center space-x-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg transition-colors"
+            >
+              <span className="text-sm text-blue-400">Switch Family</span>
+              <ChevronDown size={16} className="text-blue-400" />
+            </button>
           </div>
         </div>
       </div>
@@ -307,6 +317,17 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         )}
       </div>
+      
+      {/* Family Selector Modal */}
+      <FamilySelectorModal
+        isOpen={showFamilySelector}
+        onClose={() => setShowFamilySelector(false)}
+        onSelectFamily={(familyId) => {
+          console.log('Selected family:', familyId);
+          // For now, just close the modal
+          // Later this can trigger family switching logic
+        }}
+      />
       
       <BottomNav />
     </div>

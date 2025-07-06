@@ -18,6 +18,7 @@ export interface TransactionFormData {
   date: string;
   category: string;
   type: 'income' | 'expense';
+  budgetId?: string;
   note?: string;
   image?: File;
 }

@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { transactionApi } from "./api/transactionApi";
 import { threadsApi } from "./api/threadsApi";
+import { budgetsApi } from "./api/budgetsApi";
 import authSlice from "./slices/authSlice";
 import threadsSlice from "./slices/threadsSlice";
 import uiSlice from "./slices/uiSlice";
@@ -15,6 +16,7 @@ export const store = configureStore({
     threads: threadsSlice,
     [transactionApi.reducerPath]: transactionApi.reducer,
     [threadsApi.reducerPath]: threadsApi.reducer,
+    [budgetsApi.reducerPath]: budgetsApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [familyApi.reducerPath]: familyApi.reducer,
   },
@@ -52,6 +54,7 @@ export const store = configureStore({
     }).concat(
       transactionApi.middleware,
       threadsApi.middleware,
+      budgetsApi.middleware,
       authApi.middleware,
       familyApi.middleware
     ),

@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { X, Sparkles, Calendar, Target, FileText, Trash2 } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { format } from 'date-fns';
+import { X, Sparkles, Target, FileText, Trash2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { CustomThreadModalProps, CustomThreadFormData } from './types';
 import { createCustomThread, updateCustomThread, removeSavedThread } from '@/store/slices/threadsSlice';
+import { useCreateBudgetMutation, useUpdateBudgetMutation, useDeleteBudgetMutation } from '@/store/api/budgetsApi';
+import { RootState } from '@/store';
 
 export default function CustomThreadModal({ 
   isOpen, 
@@ -16,13 +17,15 @@ export default function CustomThreadModal({
   threadData 
 }: CustomThreadModalProps) {
   const dispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const [createBudget, { isLoading: isCreating }] = useCreateBudgetMutation();
+  const [updateBudget, { isLoading: isUpdating }] = useUpdateBudgetMutation();
+  const [deleteBudget, { isLoading: isDeleting }] = useDeleteBudgetMutation();
   
   const [formData, setFormData] = useState<CustomThreadFormData>({
     name: '',
     description: '',
     targetAmount: 0,
-    startDate: new Date(),
-    endDate: new Date(),
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -34,14 +37,10 @@ export default function CustomThreadModal({
         setFormData(threadData);
       } else {
         // Reset form for create mode
-        const today = new Date();
-        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         setFormData({
           name: '',
           description: '',
           targetAmount: 0,
-          startDate: today,
-          endDate: endOfMonth,
         });
       }
       setShowDeleteConfirm(false);
@@ -55,51 +54,82 @@ export default function CustomThreadModal({
     }));
   };
 
-  const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
-    const date = new Date(value);
-    setFormData(prev => ({
-      ...prev,
-      [field]: date
-    }));
-  };
+  // const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
+  //   const date = new Date(value);
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     [field]: date
+  //   }));
+  // };
 
-  const handleSubmit = () => {
-    if (!formData.name.trim()) return;
+  const handleSubmit = async () => {
+    if (!formData.name.trim() || !currentUser) return;
 
-    if (mode === 'create') {
-      dispatch(createCustomThread({
-        label: formData.name,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        description: formData.description,
-        targetAmount: formData.targetAmount,
-      }));
-    } else if (mode === 'edit' && threadData?.id) {
-      dispatch(updateCustomThread({
-        id: threadData.id,
-        label: formData.name,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        description: formData.description,
-        targetAmount: formData.targetAmount,
-      }));
+    try {
+      if (mode === 'create') {
+        // Create new budget in database
+        await createBudget({
+          label: formData.name,
+          description: formData.description,
+          targetAmount: formData.targetAmount,
+          userId: currentUser.id,
+          familyId: currentUser.familyId,
+        }).unwrap();
+
+        // Also update local Redux state
+        dispatch(createCustomThread({
+          label: formData.name,
+          description: formData.description,
+          targetAmount: formData.targetAmount,
+        }));
+      } else if (mode === 'edit' && threadData?.id) {
+        // Update budget in database
+        await updateBudget({
+          id: threadData.id,
+          label: formData.name,
+          description: formData.description,
+          targetAmount: formData.targetAmount,
+          userId: currentUser.id,
+        }).unwrap();
+
+        // Also update local Redux state
+        dispatch(updateCustomThread({
+          id: threadData.id,
+          label: formData.name,
+          description: formData.description,
+          targetAmount: formData.targetAmount,
+        }));
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('Failed to save thread:', error);
+      // You could add a toast notification here
     }
-
-    onClose();
   };
 
-  const handleDelete = () => {
-    if (threadData?.id) {
+  const handleDelete = async () => {
+    if (!threadData?.id || !currentUser) return;
+
+    try {
+      // Delete from database
+      await deleteBudget({
+        id: threadData.id,
+        userId: currentUser.id
+      }).unwrap();
+
+      // Also update local Redux state
       dispatch(removeSavedThread(threadData.id));
       onClose();
+    } catch (error) {
+      console.error('Failed to delete thread:', error);
+      // You could add a toast notification here
     }
   };
 
   const getPreviewText = () => {
-    if (!formData.name) return 'Custom Thread';
-    const start = format(formData.startDate, 'MMM dd');
-    const end = format(formData.endDate, 'MMM dd');
-    return `${formData.name} • ${start} - ${end}`;
+    if (!formData.name) return 'Custom Budget';
+    return formData.name;
   };
 
   return (
@@ -136,7 +166,7 @@ export default function CustomThreadModal({
                       <Sparkles className="w-4 h-4 text-white" />
                     </div>
                     <Dialog.Title className="text-lg font-medium text-white">
-                      {mode === 'create' ? 'Create Custom Thread' : 'Edit Thread'}
+                      {mode === 'create' ? 'Create Budget' : 'Edit Budget'}
                     </Dialog.Title>
                   </div>
                   <button
@@ -154,7 +184,7 @@ export default function CustomThreadModal({
                       <div className="w-12 h-12 mx-auto rounded-full bg-red-500/20 flex items-center justify-center mb-4">
                         <Trash2 className="w-6 h-6 text-red-400" />
                       </div>
-                      <h3 className="text-lg font-medium text-white mb-2">Delete Thread</h3>
+                      <h3 className="text-lg font-medium text-white mb-2">Delete Budget</h3>
                       <p className="text-gray-400 text-sm">
                         Are you sure you want to delete &ldquo;{formData.name}&rdquo;? This action cannot be undone.
                       </p>
@@ -168,9 +198,10 @@ export default function CustomThreadModal({
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                        disabled={isDeleting}
+                        className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                       >
-                        Delete
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </div>
@@ -182,7 +213,7 @@ export default function CustomThreadModal({
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                           <FileText className="w-4 h-4" />
-                          Thread Name
+                          Budget Name
                         </label>
                         <input
                           type="text"
@@ -202,7 +233,7 @@ export default function CustomThreadModal({
                         <textarea
                           value={formData.description}
                           onChange={(e) => handleInputChange('description', e.target.value)}
-                          placeholder="Brief description of this thread's purpose..."
+                          placeholder="Brief description of this budget's purpose..."
                           rows={3}
                           className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                         />
@@ -227,7 +258,7 @@ export default function CustomThreadModal({
                       </div>
 
                       {/* Date Range */}
-                      <div className="grid grid-cols-2 gap-4">
+                      {/* <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                             <Calendar className="w-4 h-4" />
@@ -252,7 +283,7 @@ export default function CustomThreadModal({
                             className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                           />
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Preview */}
                       <div className="p-3 bg-gray-700/30 rounded-lg border border-gray-600/50">
@@ -286,11 +317,11 @@ export default function CustomThreadModal({
                       </button>
                       <button
                         onClick={handleSubmit}
-                        disabled={!formData.name.trim()}
+                        disabled={!formData.name.trim() || isCreating || isUpdating}
                         className="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
-                        {mode === 'create' ? 'Create Thread' : 'Save Changes'}
+                        {isCreating || isUpdating ? 'Saving...' : mode === 'create' ? 'Create Budget' : 'Save Changes'}
                       </button>
                     </div>
                   </>

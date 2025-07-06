@@ -13,7 +13,7 @@ import {
   selectThreadFromList,
   ThreadPeriod
 } from '../../../store/slices/threadsSlice';
-import { openEditEntryModal } from '../../../store/slices/uiSlice';
+import { openEditEntryModal, openPeriodSelector } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
@@ -159,6 +159,10 @@ export default function Dashboard({ className }: DashboardProps) {
     dispatch(openThreadSidebar());
   };
 
+  const handleOpenPeriodSelector = () => {
+    dispatch(openPeriodSelector());
+  };
+
   const handleCloseThreadSidebar = () => {
     dispatch(closeThreadSidebar());
   };
@@ -176,7 +180,7 @@ export default function Dashboard({ className }: DashboardProps) {
         onLeftAction={handleOpenThreadSidebar}
         activeThread={activeThread}
         showThreadSelector={true}
-        onThreadSelectorClick={handleOpenThreadSidebar}
+        onThreadSelectorClick={handleOpenPeriodSelector}
       />
 
       {/* Main Content */}

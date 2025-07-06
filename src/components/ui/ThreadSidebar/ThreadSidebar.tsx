@@ -6,7 +6,7 @@ import { X, Plus, Calendar, TrendingUp, TrendingDown, Clock, Hash, MoreVertical,
 import { clsx } from 'clsx';
 import { useDispatch } from 'react-redux';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { openCustomThreadModal, openEditCustomThreadModal } from '@/store/slices/uiSlice';
+import { openCustomBudgetModal, openEditCustomBudgetModal } from '@/store/slices/uiSlice';
 import { ThreadSidebarProps, SavedThread } from './types';
 
 export default function ThreadSidebar({
@@ -28,12 +28,12 @@ export default function ThreadSidebar({
   };
 
   const handleNewThread = () => {
-    dispatch(openCustomThreadModal('create'));
+    dispatch(openCustomBudgetModal('create'));
     onClose();
   };
 
   const handleEditThread = (thread: SavedThread) => {
-    dispatch(openEditCustomThreadModal({
+    dispatch(openEditCustomBudgetModal({
       id: thread.id,
       name: thread.label,
       description: thread.description || '',

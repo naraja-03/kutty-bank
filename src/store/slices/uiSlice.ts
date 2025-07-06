@@ -9,7 +9,7 @@ interface EditTransactionData {
   note?: string;
 }
 
-interface CustomThreadEditData {
+interface CustomBudgetEditData {
   id: string;
   name: string;
   description: string;
@@ -20,9 +20,11 @@ interface CustomThreadEditData {
 
 interface UIState {
   isAddEntryModalOpen: boolean;
-  isCustomThreadModalOpen: boolean;
-  customThreadMode: 'create' | 'edit';
-  customThreadEditData: CustomThreadEditData | null;
+  isCustomBudgetModalOpen: boolean;
+  isPeriodSelectorOpen: boolean;
+  isFamilySelectorModalOpen: boolean;
+  customBudgetMode: 'create' | 'edit';
+  customBudgetEditData: CustomBudgetEditData | null;
   isLoading: boolean;
   error: string | null;
   currentTab: 'dashboard' | 'messages' | 'activity' | 'family';
@@ -31,9 +33,11 @@ interface UIState {
 
 const initialState: UIState = {
   isAddEntryModalOpen: false,
-  isCustomThreadModalOpen: false,
-  customThreadMode: 'create',
-  customThreadEditData: null,
+  isCustomBudgetModalOpen: false,
+  isPeriodSelectorOpen: false,
+  isFamilySelectorModalOpen: false,
+  customBudgetMode: 'create',
+  customBudgetEditData: null,
   isLoading: false,
   error: null,
   currentTab: 'dashboard',
@@ -56,27 +60,39 @@ const uiSlice = createSlice({
       state.isAddEntryModalOpen = false;
       state.editTransactionData = null;
     },
-    openCustomThreadModal: (state, action: PayloadAction<'create' | 'edit'>) => {
-      state.isCustomThreadModalOpen = true;
-      state.customThreadMode = action.payload;
+    openCustomBudgetModal: (state, action: PayloadAction<'create' | 'edit'>) => {
+      state.isCustomBudgetModalOpen = true;
+      state.customBudgetMode = action.payload;
       if (action.payload === 'create') {
-        state.customThreadEditData = null;
+        state.customBudgetEditData = null;
       }
     },
-    openEditCustomThreadModal: (state, action: PayloadAction<CustomThreadEditData>) => {
-      state.isCustomThreadModalOpen = true;
-      state.customThreadMode = 'edit';
-      state.customThreadEditData = action.payload;
+    openEditCustomBudgetModal: (state, action: PayloadAction<CustomBudgetEditData>) => {
+      state.isCustomBudgetModalOpen = true;
+      state.customBudgetMode = 'edit';
+      state.customBudgetEditData = action.payload;
     },
-    closeCustomThreadModal: (state) => {
-      state.isCustomThreadModalOpen = false;
-      state.customThreadEditData = null;
+    closeCustomBudgetModal: (state) => {
+      state.isCustomBudgetModalOpen = false;
+      state.customBudgetEditData = null;
+    },
+    openPeriodSelector: (state) => {
+      state.isPeriodSelectorOpen = true;
+    },
+    closePeriodSelector: (state) => {
+      state.isPeriodSelectorOpen = false;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+    },
+    openFamilySelectorModal: (state) => {
+      state.isFamilySelectorModalOpen = true;
+    },
+    closeFamilySelectorModal: (state) => {
+      state.isFamilySelectorModalOpen = false;
     },
     setCurrentTab: (state, action: PayloadAction<'dashboard' | 'messages' | 'activity' | 'family'>) => {
       state.currentTab = action.payload;
@@ -91,9 +107,13 @@ export const {
   openAddEntryModal,
   openEditEntryModal,
   closeAddEntryModal,
-  openCustomThreadModal,
-  openEditCustomThreadModal,
-  closeCustomThreadModal,
+  openCustomBudgetModal,
+  openEditCustomBudgetModal,
+  closeCustomBudgetModal,
+  openPeriodSelector,
+  closePeriodSelector,
+  openFamilySelectorModal,
+  closeFamilySelectorModal,
   setLoading,
   setError,
   setCurrentTab,

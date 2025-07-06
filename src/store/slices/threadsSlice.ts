@@ -143,18 +143,14 @@ const threadsSlice = createSlice({
     
     createCustomThread: (state, action: PayloadAction<{ 
       label: string; 
-      startDate: Date; 
-      endDate: Date; 
       description?: string; 
       targetAmount?: number; 
     }>) => {
-      const { label, startDate, endDate, description, targetAmount } = action.payload;
+      const { label, description, targetAmount } = action.payload;
       const customThread: SavedThread = {
         id: `custom-${Date.now()}`,
         label,
         value: 'custom',
-        startDate,
-        endDate,
         createdAt: new Date(),
         totalTransactions: 0,
         totalAmount: 0,
@@ -171,20 +167,16 @@ const threadsSlice = createSlice({
     updateCustomThread: (state, action: PayloadAction<{
       id: string;
       label: string;
-      startDate: Date;
-      endDate: Date;
       description?: string;
       targetAmount?: number;
     }>) => {
-      const { id, label, startDate, endDate, description, targetAmount } = action.payload;
+      const { id, label, description, targetAmount } = action.payload;
       
       const threadIndex = state.savedThreads.findIndex(thread => thread.id === id);
       if (threadIndex !== -1) {
         state.savedThreads[threadIndex] = {
           ...state.savedThreads[threadIndex],
           label,
-          startDate,
-          endDate,
           description,
           targetAmount
         };
@@ -195,8 +187,6 @@ const threadsSlice = createSlice({
         state.allThreads[allThreadIndex] = {
           ...state.allThreads[allThreadIndex],
           label,
-          startDate,
-          endDate,
           description,
           targetAmount
         };
@@ -206,9 +196,7 @@ const threadsSlice = createSlice({
       if (state.activeThread.id === id) {
         state.activeThread = {
           ...state.activeThread,
-          label,
-          startDate,
-          endDate
+          label
         };
       }
     },
@@ -218,6 +206,21 @@ const threadsSlice = createSlice({
       if (thread) {
         state.activeThread = thread;
       }
+    },
+
+    setPeriodFromSelector: (state, action: PayloadAction<{ 
+      label: string; 
+      date: Date; 
+      type: 'week' | 'month' | 'year' 
+    }>) => {
+      const { label, date, type } = action.payload;
+      state.activeThread = {
+        id: `selected-${type}-${Date.now()}`,
+        label,
+        value: type,
+        startDate: date,
+        endDate: date
+      };
     }
   },
 });
@@ -231,7 +234,8 @@ export const {
   closeThreadSidebar,
   createCustomThread,
   updateCustomThread,
-  selectThreadFromList
+  selectThreadFromList,
+  setPeriodFromSelector
 } = threadsSlice.actions;
 
 export default threadsSlice.reducer;

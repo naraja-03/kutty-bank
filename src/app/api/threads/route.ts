@@ -1,49 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Transaction from '@/models/Transaction';
+import Thread from '@/models/Thread';
 
-// POST /api/threads - Create a new thread based on transaction content
-export async function POST(request: NextRequest) {
+// GET /api/threads - Get all threads for the user
+export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
     
-    const { transactionId, label, note } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const familyId = searchParams.get('familyId');
     
-    if (!transactionId || !label) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Transaction ID and label are required' },
+        { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    // Find the transaction
-    const transaction = await Transaction.findById(transactionId);
-    if (!transaction) {
-      return NextResponse.json(
-        { error: 'Transaction not found' },
-        { status: 404 }
-      );
-    }
+    // Get user's custom threads
+    const query = familyId ? { familyId } : { userId };
+    const threads = await Thread.find(query).sort({ createdAt: -1 });
 
-    // Create a thread object (for now, we'll just return the transaction data)
-    // In a real app, you might want to create a separate Thread model
-    const thread = {
-      id: `thread-${Date.now()}`,
-      label,
-      transactionId,
-      note,
-      createdAt: new Date(),
-      amount: transaction.amount,
-      type: transaction.type,
-      category: transaction.category,
-      userName: transaction.userName,
-      profileImage: transaction.profileImage,
-      timestamp: transaction.timestamp
-    };
-
-    return NextResponse.json(thread, { status: 201 });
+    return NextResponse.json(threads);
   } catch (error) {
-    console.error('Error creating thread:', error);
+    console.error('Error fetching threads:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -51,33 +32,46 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/threads - Get all threads
-export async function GET() {
+// POST /api/threads - Create a new custom thread
+export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     
-    // For now, return recent transactions as threads
-    // In a real app, you might have a separate Thread model
-    const recentTransactions = await Transaction.find()
-      .sort({ timestamp: -1 })
-      .limit(10);
+    const { 
+      label, 
+      startDate, 
+      endDate, 
+      description, 
+      targetAmount, 
+      userId, 
+      familyId 
+    } = await request.json();
+    
+    if (!label || !userId) {
+      return NextResponse.json(
+        { error: 'Label and user ID are required' },
+        { status: 400 }
+      );
+    }
 
-    const threads = recentTransactions.map(transaction => ({
-      id: `thread-${transaction._id}`,
-      label: `${transaction.type === 'income' ? 'Income' : 'Expense'}: ${transaction.category}`,
-      transactionId: transaction._id,
-      createdAt: transaction.timestamp,
-      amount: transaction.amount,
-      type: transaction.type,
-      category: transaction.category,
-      userName: transaction.userName,
-      profileImage: transaction.profileImage,
-      timestamp: transaction.timestamp
-    }));
+    // Create a new custom thread
+    const thread = new Thread({
+      label,
+      value: 'custom',
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+      description,
+      targetAmount: targetAmount || 0,
+      userId,
+      familyId,
+      isCustom: true
+    });
 
-    return NextResponse.json(threads);
+    await thread.save();
+
+    return NextResponse.json(thread, { status: 201 });
   } catch (error) {
-    console.error('Error fetching threads:', error);
+    console.error('Error creating thread:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

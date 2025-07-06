@@ -3,8 +3,6 @@ export interface CustomThreadFormData {
   name: string;
   description: string;
   targetAmount: number;
-  startDate: Date;
-  endDate: Date;
 }
 
 export interface CustomThreadModalProps {

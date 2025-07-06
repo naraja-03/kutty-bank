@@ -1,12 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 
-export interface Thread {
+export interface Budget {
   _id: string;
   label: string;
   value: 'week' | 'month' | 'year' | 'custom';
-  startDate?: Date;
-  endDate?: Date;
   description?: string;
   targetAmount?: number;
   userId: string;
@@ -16,30 +14,26 @@ export interface Thread {
   updatedAt: Date;
 }
 
-export interface CreateThreadRequest {
+export interface CreateBudgetRequest {
   label: string;
-  startDate?: Date;
-  endDate?: Date;
   description?: string;
   targetAmount?: number;
   userId: string;
   familyId?: string;
 }
 
-export interface UpdateThreadRequest {
+export interface UpdateBudgetRequest {
   id: string;
   label: string;
-  startDate?: Date;
-  endDate?: Date;
   description?: string;
   targetAmount?: number;
   userId: string;
 }
 
-export const threadsApi = createApi({
-  reducerPath: 'threadsApi',
+export const budgetsApi = createApi({
+  reducerPath: 'budgetsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/threads',
+    baseUrl: '/api/budgets',
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as RootState;
       const token = state.auth.token;
@@ -49,48 +43,48 @@ export const threadsApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Thread'],
+  tagTypes: ['Budget'],
   endpoints: (builder) => ({
-    getThreads: builder.query<Thread[], { userId: string; familyId?: string }>({
+    getBudgets: builder.query<Budget[], { userId: string; familyId?: string }>({
       query: ({ userId, familyId }) => ({
         url: '',
         params: { userId, familyId }
       }),
-      providesTags: ['Thread'],
+      providesTags: ['Budget'],
     }),
     
-    createThread: builder.mutation<Thread, CreateThreadRequest>({
-      query: (threadData) => ({
+    createBudget: builder.mutation<Budget, CreateBudgetRequest>({
+      query: (budgetData) => ({
         url: '',
         method: 'POST',
-        body: threadData,
+        body: budgetData,
       }),
-      invalidatesTags: ['Thread'],
+      invalidatesTags: ['Budget'],
     }),
     
-    updateThread: builder.mutation<Thread, UpdateThreadRequest>({
-      query: (threadData) => ({
+    updateBudget: builder.mutation<Budget, UpdateBudgetRequest>({
+      query: (budgetData) => ({
         url: '',
         method: 'PUT',
-        body: threadData,
+        body: budgetData,
       }),
-      invalidatesTags: ['Thread'],
+      invalidatesTags: ['Budget'],
     }),
     
-    deleteThread: builder.mutation<{ message: string }, { id: string; userId: string }>({
+    deleteBudget: builder.mutation<{ message: string }, { id: string; userId: string }>({
       query: ({ id, userId }) => ({
         url: '',
         method: 'DELETE',
         params: { id, userId }
       }),
-      invalidatesTags: ['Thread'],
+      invalidatesTags: ['Budget'],
     }),
   }),
 });
 
 export const {
-  useGetThreadsQuery,
-  useCreateThreadMutation,
-  useUpdateThreadMutation,
-  useDeleteThreadMutation,
-} = threadsApi;
+  useGetBudgetsQuery,
+  useCreateBudgetMutation,
+  useUpdateBudgetMutation,
+  useDeleteBudgetMutation,
+} = budgetsApi;

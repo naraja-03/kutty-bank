@@ -16,6 +16,7 @@ export interface CreateTransactionRequest {
   type: 'income' | 'expense';
   userId: string;
   familyId?: string;
+  budgetId?: string;
   note?: string;
   date: string;
   imageUrl?: string;

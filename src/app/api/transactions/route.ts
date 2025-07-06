@@ -15,6 +15,7 @@ interface CreateTransactionBody {
   type: 'income' | 'expense';
   userId: string;
   familyId?: string;
+  budgetId?: string;
   note?: string;
   imageUrl?: string;
 }
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
     
     const body: CreateTransactionBody = await request.json();
-    const { amount, category, type, userId, familyId, note, imageUrl } = body;
+    const { amount, category, type, userId, familyId, budgetId, note, imageUrl } = body;
     
     // Validate required fields
     if (!amount || !category || !type || !userId) {
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
       type,
       userId,
       familyId,
+      budgetId,
       note: note || '',
       imageUrl: imageUrl || null,
     });

@@ -7,6 +7,7 @@ export interface ITransaction extends Document {
   type: 'income' | 'expense';
   userId: mongoose.Types.ObjectId;
   familyId?: mongoose.Types.ObjectId;
+  budgetId?: mongoose.Types.ObjectId;
   note?: string;
   imageUrl?: string;
   createdAt: Date;
@@ -52,6 +53,10 @@ const TransactionSchema = new Schema<ITransaction>(
       type: Schema.Types.ObjectId,
       ref: 'Family',
     },
+    budgetId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Budget',
+    },
     note: {
       type: String,
       trim: true,
@@ -70,6 +75,7 @@ const TransactionSchema = new Schema<ITransaction>(
 // Index for efficient queries
 TransactionSchema.index({ userId: 1, createdAt: -1 });
 TransactionSchema.index({ familyId: 1, createdAt: -1 });
+TransactionSchema.index({ budgetId: 1, createdAt: -1 });
 TransactionSchema.index({ type: 1, createdAt: -1 });
 
 export default mongoose.models.Transaction || 

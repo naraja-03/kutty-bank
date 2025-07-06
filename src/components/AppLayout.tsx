@@ -3,13 +3,14 @@
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { usePathname } from 'next/navigation';
 import { RootState } from '../store';
-import { closeAddEntryModal, closeCustomThreadModal } from '../store/slices/uiSlice';
+import { closeAddEntryModal, closeCustomBudgetModal, closePeriodSelector } from '../store/slices/uiSlice';
+import { setPeriodFromSelector } from '../store/slices/threadsSlice';
 import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../store/api/transactionApi';
 import AddEntryModal, { TransactionFormData } from '../components/ui/AddEntryModal';
 import CustomThreadModal from '../components/ui/CustomThreadModal';
+import PeriodSelector from '../components/ui/PeriodSelector';
 import GradientBackground from '../components/ui/GradientBackground';
 import AuthGuard from './AuthGuard';
-import PWARegister from './PWARegister';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
@@ -18,9 +19,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAddEntryModalOpen = useTypedSelector(state => state.ui.isAddEntryModalOpen);
   const editTransactionData = useTypedSelector(state => state.ui.editTransactionData);
-  const isCustomThreadModalOpen = useTypedSelector(state => state.ui.isCustomThreadModalOpen);
-  const customThreadMode = useTypedSelector(state => state.ui.customThreadMode);
-  const customThreadEditData = useTypedSelector(state => state.ui.customThreadEditData);
+  const isCustomBudgetModalOpen = useTypedSelector(state => state.ui.isCustomBudgetModalOpen);
+  const customBudgetMode = useTypedSelector(state => state.ui.customBudgetMode);
+  const customBudgetEditData = useTypedSelector(state => state.ui.customBudgetEditData);
+  const isPeriodSelectorOpen = useTypedSelector(state => state.ui.isPeriodSelectorOpen);
   const currentUser = useTypedSelector(state => state.auth.user);
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
@@ -66,6 +68,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           category: data.category,
           type: data.type,
           userId: currentUser.id,
+          budgetId: data.budgetId,
           note: data.note,
           date: data.date,
         });
@@ -76,9 +79,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handlePeriodSelect = (period: { id: string; label: string; date: Date; value: number; isUnderControl: boolean; isActive: boolean }) => {
+    // Handle period selection - update the active thread with month data
+    console.log('Selected period:', period);
+    
+    dispatch(setPeriodFromSelector({
+      label: period.label,
+      date: period.date,
+      type: 'month' as const
+    }));
+    
+    dispatch(closePeriodSelector());
+  };
+
   return (
     <>
-      <PWARegister />
       {isPublicPage ? (
         <GradientBackground variant="default">
           <div className="relative z-10 min-h-screen">
@@ -102,10 +117,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             />
             
             <CustomThreadModal
-              isOpen={isCustomThreadModalOpen}
-              onClose={() => dispatch(closeCustomThreadModal())}
-              mode={customThreadMode}
-              threadData={customThreadEditData || undefined}
+              isOpen={isCustomBudgetModalOpen}
+              onClose={() => dispatch(closeCustomBudgetModal())}
+              mode={customBudgetMode}
+              threadData={customBudgetEditData || undefined}
+            />
+            
+            <PeriodSelector
+              isOpen={isPeriodSelectorOpen}
+              onClose={() => dispatch(closePeriodSelector())}
+              onPeriodSelect={handlePeriodSelect}
             />
           </GradientBackground>
         </AuthGuard>
