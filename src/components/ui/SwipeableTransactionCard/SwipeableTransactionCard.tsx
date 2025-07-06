@@ -22,7 +22,7 @@ interface Transaction {
   category: string;
   userName: string;
   userId: string;
-  timestamp: string | Date;
+  createdAt: string | Date;
   note?: string;
 }
 
@@ -198,7 +198,7 @@ export default function SwipeableTransactionCard({
           {/* Time at bottom right */}
           <div className="flex items-end">
             <p className={clsx("text-gray-400", compact ? "text-xs" : "text-xs")}>
-              {formatTime(transaction.timestamp)}
+              {formatTime(transaction.createdAt)}
             </p>
           </div>
         </div>

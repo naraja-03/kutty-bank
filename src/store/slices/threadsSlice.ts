@@ -1,18 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 
 export interface ThreadPeriod {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'year' | 'custom';
+  value: 'week' | 'month' | 'year' | 'custom' | 'daily';
   startDate?: Date;
   endDate?: Date;
+  budgetId?: string;
+  isCustomBudget?: boolean;
 }
 
 export interface SavedThread {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'year' | 'custom';
+  value: 'week' | 'month' | 'year' | 'custom' | 'daily';
   startDate?: Date;
   endDate?: Date;
   createdAt: Date;
@@ -21,6 +22,8 @@ export interface SavedThread {
   isCustom?: boolean;
   description?: string;
   targetAmount?: number;
+  budgetId?: string;
+  isCustomBudget?: boolean;
 }
 
 interface ThreadsState {
@@ -30,69 +33,26 @@ interface ThreadsState {
   allThreads: SavedThread[];
 }
 
-const getCurrentPeriod = (value: 'week' | 'month' | 'year'): { startDate: Date; endDate: Date } => {
-  const now = new Date();
-  
-  switch (value) {
-    case 'week':
-      return {
-        startDate: startOfWeek(now, { weekStartsOn: 1 }),
-        endDate: endOfWeek(now, { weekStartsOn: 1 })
-      };
-    case 'month':
-      return {
-        startDate: startOfMonth(now),
-        endDate: endOfMonth(now)
-      };
-    case 'year':
-      return {
-        startDate: startOfYear(now),
-        endDate: endOfYear(now)
-      };
-    default:
-      return {
-        startDate: startOfMonth(now),
-        endDate: endOfMonth(now)
-      };
-  }
-};
-
 const defaultThreads: SavedThread[] = [
   {
-    id: 'current-year',
-    label: 'This Year',
-    value: 'year',
-    ...getCurrentPeriod('year'),
-    createdAt: new Date(),
-    totalTransactions: 456,
-    totalAmount: 892300
-  },
-  {
-    id: 'current-month',
-    label: 'This Month',
-    value: 'month',
-    ...getCurrentPeriod('month'),
-    createdAt: new Date(),
-    totalTransactions: 45,
-    totalAmount: 67800
-  },
-  {
-    id: 'current-week',
-    label: 'This Week',
-    value: 'week',
-    ...getCurrentPeriod('week'),
+    id: 'daily-budget',
+    label: 'Daily Budget',
+    value: 'daily',
     createdAt: new Date(),
     totalTransactions: 12,
-    totalAmount: 15600
+    totalAmount: 15600,
+    budgetId: 'daily',
+    isCustomBudget: false
   }
 ];
 
 const initialState: ThreadsState = {
   activeThread: {
-    id: 'current-month',
-    label: 'This Month',
-    value: 'month',
-    ...getCurrentPeriod('month')
+    id: 'daily-budget',
+    label: 'Daily Budget',
+    value: 'daily',
+    budgetId: 'daily',
+    isCustomBudget: false
   },
   savedThreads: defaultThreads,
   allThreads: defaultThreads,
@@ -202,12 +162,64 @@ const threadsSlice = createSlice({
     },
     
     selectThreadFromList: (state, action: PayloadAction<string>) => {
-      const thread = state.allThreads.find(t => t.id === action.payload);
-      if (thread) {
-        state.activeThread = thread;
+      const selectedThread = state.allThreads.find(thread => thread.id === action.payload);
+      if (selectedThread) {
+        state.activeThread = {
+          id: selectedThread.id,
+          label: selectedThread.label,
+          value: selectedThread.value,
+          startDate: selectedThread.startDate,
+          endDate: selectedThread.endDate,
+          budgetId: selectedThread.budgetId,
+          isCustomBudget: selectedThread.isCustomBudget
+        };
       }
     },
-
+    addCustomBudgetThread: (state, action: PayloadAction<{
+      id: string;
+      label: string;
+      description?: string;
+      targetAmount?: number;
+      startDate?: Date;
+      endDate?: Date;
+    }>) => {
+      const newThread: SavedThread = {
+        id: action.payload.id,
+        label: action.payload.label,
+        value: 'custom',
+        startDate: action.payload.startDate,
+        endDate: action.payload.endDate,
+        createdAt: new Date(),
+        totalTransactions: 0,
+        totalAmount: 0,
+        isCustom: true,
+        isCustomBudget: true,
+        budgetId: action.payload.id,
+        description: action.payload.description,
+        targetAmount: action.payload.targetAmount
+      };
+      
+      state.allThreads.push(newThread);
+      state.savedThreads.push(newThread);
+    },
+    removeCustomBudgetThread: (state, action: PayloadAction<string>) => {
+      state.allThreads = state.allThreads.filter(thread => thread.id !== action.payload);
+      state.savedThreads = state.savedThreads.filter(thread => thread.id !== action.payload);
+      
+      // If active thread is removed, switch to daily budget
+      if (state.activeThread.id === action.payload) {
+        const dailyBudget = state.allThreads.find(thread => thread.budgetId === 'daily');
+        if (dailyBudget) {
+          state.activeThread = {
+            id: dailyBudget.id,
+            label: dailyBudget.label,
+            value: dailyBudget.value,
+            budgetId: dailyBudget.budgetId,
+            isCustomBudget: dailyBudget.isCustomBudget
+          };
+        }
+      }
+    },
     setPeriodFromSelector: (state, action: PayloadAction<{ 
       label: string; 
       date: Date; 
@@ -235,7 +247,9 @@ export const {
   createCustomThread,
   updateCustomThread,
   selectThreadFromList,
-  setPeriodFromSelector
+  setPeriodFromSelector,
+  addCustomBudgetThread,
+  removeCustomBudgetThread
 } = threadsSlice.actions;
 
 export default threadsSlice.reducer;

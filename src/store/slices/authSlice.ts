@@ -45,8 +45,13 @@ const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       }
     },
+    setCurrentFamily: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.familyId = action.payload;
+      }
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, updateUser } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, updateUser, setCurrentFamily } = authSlice.actions;
 export default authSlice.reducer;

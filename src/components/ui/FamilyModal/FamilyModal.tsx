@@ -1,34 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { X, Users, Check, Plus, Target, Mail, User, Crown, Shield, Eye } from 'lucide-react';
-import { FamilySelectorModalProps } from './types';
-import { useGetFamiliesQuery, useCreateFamilyMutation } from '@/store/api/familyApi';
-import { RootState } from '@/store';
+import React, { useState, useEffect } from 'react';
+import { X, Users, Plus, Target, Mail, User, Crown, Shield, Eye } from 'lucide-react';
+import { FamilyModalProps, FamilyFormData, FamilyMember } from './types';
 
-const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
+const FamilyModal: React.FC<FamilyModalProps> = ({
   isOpen,
   onClose,
   onSelectFamily,
   onCreateFamily,
+  families,
+  isLoading,
+  canDismiss = true
 }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { data: families, isLoading } = useGetFamiliesQuery(user?.id);
-  const [createFamily] = useCreateFamilyMutation();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FamilyFormData>({
     name: '',
     targetSavingPerMonth: 0,
-    members: [] as Array<{ email: string; name: string; role: 'admin' | 'member' | 'viewer' }>
+    members: [] // Start with empty members array
   });
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (families.length === 0) {
+      setShowCreateForm(true);
+    }
+  }, [families]);
 
-  const handleSelectFamily = (familyId: string) => {
-    onSelectFamily(familyId);
-    onClose();
-  };
+  if (!isOpen) return null;
 
   const handleAddMember = () => {
     setFormData(prev => ({
@@ -46,31 +44,19 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
     }
   };
 
-  const handleMemberChange = (index: number, field: keyof typeof formData.members[0], value: string) => {
+  const handleMemberChange = (index: number, field: keyof FamilyMember, value: string) => {
     setFormData(prev => ({
       ...prev,
-      members: prev.members.map((member, i) =>
+      members: prev.members.map((member, i) => 
         i === index ? { ...member, [field]: value } : member
       )
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setShowCreateForm(false)
-      if (onCreateFamily) {
-        // Use the provided onCreateFamily callback
-        onCreateFamily(formData);
-      } else {
-        // Direct API call if no callback provided
-        const newFamily = await createFamily({ name: formData.name }).unwrap();
-        handleSelectFamily(newFamily.id);
-      }
-      onClose();
-    } catch (error) {
-      console.error('Error creating family:', error);
-    }
+    onCreateFamily(formData);
+    // Don't close modal here - let parent handle it after successful API call
   };
 
   const getRoleIcon = (role: string) => {
@@ -82,36 +68,35 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
     }
   };
 
-  // For now, we'll show a message about single family support
-  // Later this can be extended to support multiple families
-  const familyData = Array.isArray(families) ? families : [];
-
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl w-full max-w-md border border-gray-800">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+        <div className="sticky top-0 bg-gray-900 flex items-center justify-between p-6 border-b border-gray-800">
           <h2 className="text-xl font-semibold text-white">
             {showCreateForm ? 'Create Family' : 'Select Family'}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-            aria-label="Close modal"
-          >
-            <X size={24} />
-          </button>
+          {canDismiss && (
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors"
+              aria-label="Close modal"
+            >
+              <X size={24} />
+            </button>
+          )}
         </div>
 
         {/* Content */}
         <div className="p-6">
           {!showCreateForm ? (
             <>
+              {/* Family Selection */}
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                 </div>
-              ) : familyData.length === 0 ? (
+              ) : families.length === 0 ? (
                 <div className="text-center py-8">
                   <Users size={48} className="mx-auto mb-4 text-gray-500" />
                   <p className="text-gray-400">No families found</p>
@@ -119,28 +104,30 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 </div>
               ) : (
                 <div className="space-y-3 mb-6">
-                  {familyData.map((familyItem) => (
-                    <button
-                      key={familyItem.id}
-                      onClick={() => handleSelectFamily(familyItem.id)}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-800 hover:border-gray-700 bg-gray-800/50 hover:bg-gray-800 transition-all group"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-2">
-                          <Users size={20} className="text-white" />
+                  {families.map((family) => {
+                    const familyId = family.id || `temp-family-${Date.now()}`;
+                    return (
+                      <button
+                        key={familyId}
+                        onClick={() => onSelectFamily(familyId)}
+                        className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-800 hover:border-gray-700 bg-gray-800/50 hover:bg-gray-800 transition-all group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-2">
+                            <Users size={20} className="text-white" />
+                          </div>
+                          <div className="text-left">
+                            <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors">
+                              {family.name}
+                            </h3>
+                            <p className="text-sm text-gray-400">
+                              {family.members?.length || 0} members
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors">
-                            {familyItem.name}
-                          </h3>
-                          <p className="text-sm text-gray-400">
-                            {familyItem.members?.length || 0} members
-                          </p>
-                        </div>
-                      </div>
-                      <Check size={20} className="text-green-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
@@ -257,7 +244,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                                 {getRoleIcon(member.role)}
                               </div>
                             </div>
-                            {formData.members.length > 1 && (
+                            {index > 0 && (
                               <button
                                 type="button"
                                 onClick={() => handleRemoveMember(index)}
@@ -276,13 +263,15 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
 
               {/* Form Actions */}
               <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
-                >
-                  Back
-                </button>
+                {families.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateForm(false)}
+                    className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors"
+                  >
+                    Back
+                  </button>
+                )}
                 <button
                   type="submit"
                   className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors"
@@ -298,4 +287,4 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
   );
 };
 
-export default FamilySelectorModal;
+export default FamilyModal;

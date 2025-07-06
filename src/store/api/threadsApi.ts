@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 
 export interface Thread {
-  _id: string;
+  id: string;
   label: string;
   value: 'week' | 'month' | 'year' | 'custom';
   startDate?: Date;

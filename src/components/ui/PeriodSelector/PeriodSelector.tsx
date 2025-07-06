@@ -85,7 +85,7 @@ function MonthGridSelector({ selectedDate, onSelect }: { selectedDate: Date; onS
       </div>
 
       {/* Month Grid - 3x4 layout */}
-      <div className="grid grid-cols-3 gap-3 max-h-80 overflow-y-auto scrollbar-hide">
+      <div className="grid grid-cols-3 gap-3">
         {periods.map((period) => (
           <button
             key={period.id}

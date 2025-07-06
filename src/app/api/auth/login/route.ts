@@ -17,6 +17,7 @@ interface LoginResponse {
     role: string;
     profileImage?: string;
     familyId?: string;
+    families: string[];
   };
   token: string;
 }
@@ -76,7 +77,8 @@ export async function POST(request: NextRequest) {
         email: user.email,
         role: user.role,
         profileImage: user.profileImage,
-        familyId: user.familyId?.toString()
+        familyId: user.familyId?.toString(),
+        families: (user.families || []).map(String)
       },
       token
     };

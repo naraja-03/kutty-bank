@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { Dialog, Transition } from '@headlessui/react';
 import { X, IndianRupee, Calendar, Tag, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useGetBudgetsQuery, Budget } from '@/store/api/budgetsApi';
 import { RootState } from '@/store';
 import { 
   AddEntryModalProps, 
@@ -34,21 +33,20 @@ export default function AddEntryModal({
   // const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditMode = !!editData;
   
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { data: budgets = [] } = useGetBudgetsQuery(
-    user ? { userId: user.id, familyId: user.familyId } : { userId: '', familyId: '' },
-    { skip: !user }
-  );
+  const { activeThread } = useSelector((state: RootState) => state.threads);
 
   // Populate form data when editing
   useEffect(() => {
+    // Determine budgetId based on active thread
+    const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
+    
     if (editData) {
       setFormData({
         amount: editData.amount,
         date: editData.date,
         category: editData.category,
         type: editData.type,
-        budgetId: '',
+        budgetId: budgetId || 'daily',
         note: editData.note || '',
         image: undefined
       });
@@ -58,12 +56,12 @@ export default function AddEntryModal({
         date: new Date().toISOString().split('T')[0],
         category: '',
         type: 'expense',
-        budgetId: '',
+        budgetId: budgetId || 'daily',
         note: '',
         image: undefined
       });
     }
-  }, [editData, isOpen]);
+  }, [editData, isOpen, activeThread]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,11 +72,15 @@ export default function AddEntryModal({
 
   const handleClose = () => {
     if (isLoading) return;
+    // Determine budgetId based on active thread
+    const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
+    
     setFormData({
       amount: 0,
       date: new Date().toISOString().split('T')[0],
       category: '',
       type: 'expense',
+      budgetId: budgetId || 'daily',
       note: '',
       image: undefined
     });
@@ -219,28 +221,6 @@ export default function AddEntryModal({
                         {categories.map((cat) => (
                           <option key={cat.value} value={cat.value}>
                             {cat.emoji} {cat.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Budget */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Budget (Optional)
-                    </label>
-                    <div className="relative">
-                      <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <select
-                        value={formData.budgetId}
-                        onChange={(e) => setFormData(prev => ({ ...prev, budgetId: e.target.value }))}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-900/95 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent appearance-none"
-                      >
-                        <option value="">No budget</option>
-                        {budgets.map((budget: Budget) => (
-                          <option key={budget._id} value={budget._id}>
-                            📊 {budget.label}
                           </option>
                         ))}
                       </select>

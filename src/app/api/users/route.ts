@@ -14,6 +14,22 @@ interface UpdateUserBody {
   role?: 'admin' | 'member' | 'view-only';
 }
 
+// Helper function to transform user data to include both _id and id
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformUserData(user: any) {
+  const userObj = user.toObject ? user.toObject() : user;
+  return {
+    ...userObj,
+    id: userObj._id?.toString() || userObj.id,
+    _id: userObj._id?.toString(),
+    familyId: userObj.familyId?._id?.toString() || userObj.familyId,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    families: userObj.families?.map((familyId: any) => 
+      familyId._id?.toString() || familyId.toString()
+    ) || []
+  };
+}
+
 // GET /api/users - Get users with optional filtering
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +54,7 @@ export async function GET(request: NextRequest) {
         );
       }
       
-      return NextResponse.json(user);
+      return NextResponse.json(transformUserData(user));
     }
 
     // Build query
@@ -54,7 +70,7 @@ export async function GET(request: NextRequest) {
       .select('-password')
       .sort({ createdAt: -1 });
 
-    return NextResponse.json(users);
+    return NextResponse.json(users.map(transformUserData));
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json(

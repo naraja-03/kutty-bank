@@ -13,7 +13,7 @@ export interface ThreadsHeaderProps {
 export interface ThreadPeriod {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'quarter' | 'year' | 'custom';
+  value: 'week' | 'month' | 'quarter' | 'year' | 'custom' | 'daily';
   startDate?: Date;
   endDate?: Date;
 }

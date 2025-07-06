@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Budget from '@/models/Budget';
 
+// Helper function to transform budget data to include both _id and id
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformBudgetData(budget: any) {
+  const budgetObj = budget.toObject ? budget.toObject() : budget;
+  return {
+    ...budgetObj,
+    id: budgetObj._id?.toString() || budgetObj.id,
+    _id: budgetObj._id?.toString(),
+    userId: budgetObj.userId?.toString() || budgetObj.userId,
+    familyId: budgetObj.familyId?.toString() || budgetObj.familyId,
+  };
+}
+
 // GET /api/budgets - Get all budgets for the user
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +35,7 @@ export async function GET(request: NextRequest) {
     const query = familyId ? { familyId } : { userId };
     const budgets = await Budget.find(query).sort({ createdAt: -1 });
 
-    return NextResponse.json(budgets);
+    return NextResponse.json(budgets.map(transformBudgetData));
   } catch (error) {
     console.error('Error fetching budgets:', error);
     return NextResponse.json(
@@ -65,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     await budget.save();
 
-    return NextResponse.json(budget, { status: 201 });
+    return NextResponse.json(transformBudgetData(budget), { status: 201 });
   } catch (error) {
     console.error('Error creating budget:', error);
     return NextResponse.json(
@@ -113,7 +126,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(updatedBudget);
+    return NextResponse.json(transformBudgetData(updatedBudget));
   } catch (error) {
     console.error('Error updating budget:', error);
     return NextResponse.json(

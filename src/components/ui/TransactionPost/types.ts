@@ -3,7 +3,7 @@ export interface TransactionPostProps {
   userName: string;
   amount: number;
   category: string;
-  timestamp: string | Date;
+  createdAt: string | Date;
   type: 'income' | 'expense';
   note?: string;
   image?: string;
@@ -21,7 +21,7 @@ export interface TransactionData {
   profileImage?: string;
   amount: number;
   category: string;
-  timestamp: Date;
+  createdAt: Date;
   type: 'income' | 'expense';
   note?: string;
   imageUrl?: string;

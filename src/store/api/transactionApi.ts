@@ -63,8 +63,16 @@ export const transactionApi = createApi({
   }),
   tagTypes: ['Transaction', 'Stats'],
   endpoints: (builder) => ({
-    getTransactions: builder.query<TransactionResponse, { limit?: number; offset?: number }>({
-      query: ({ limit = 20, offset = 0 }) => `?limit=${limit}&offset=${offset}`,
+    getTransactions: builder.query<TransactionResponse, { limit?: number; offset?: number; budgetId?: string }>({
+      query: ({ limit = 20, offset = 0, budgetId }) => {
+        const params = new URLSearchParams();
+        params.append('limit', limit.toString());
+        params.append('offset', offset.toString());
+        if (budgetId) {
+          params.append('budgetId', budgetId);
+        }
+        return `?${params.toString()}`;
+      },
       providesTags: ['Transaction'],
     }),
     getTransactionStats: builder.query<TransactionStats, void>({

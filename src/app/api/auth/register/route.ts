@@ -20,6 +20,7 @@ interface RegisterResponse {
     role: string;
     profileImage?: string;
     familyId?: string;
+    families: string[];
   };
   token: string;
 }
@@ -101,7 +102,8 @@ export async function POST(request: NextRequest) {
         email: savedUser.email,
         role: savedUser.role,
         profileImage: savedUser.profileImage,
-        familyId: savedUser.familyId?.toString()
+        familyId: savedUser.familyId?.toString(),
+        families: (savedUser.families || []).map(String)
       },
       token
     };

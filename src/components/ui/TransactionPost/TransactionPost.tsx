@@ -11,7 +11,7 @@ export default function TransactionPost({
   userName,
   amount,
   category,
-  timestamp,
+  createdAt,
   type,
   note,
   className,
@@ -138,7 +138,7 @@ export default function TransactionPost({
             <div className="flex items-center space-x-2">
               <span className="text-white font-medium text-sm">{userName}</span>
               <span className="text-gray-500 text-xs">
-                {formatTimestamp(timestamp)}
+                {formatTimestamp(createdAt)}
               </span>
             </div>
             

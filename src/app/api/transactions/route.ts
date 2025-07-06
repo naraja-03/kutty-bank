@@ -5,6 +5,7 @@ import Transaction from '@/models/Transaction';
 interface TransactionQuery {
   userId?: string;
   familyId?: string;
+  budgetId?: string;
   type?: 'income' | 'expense';
   category?: string;
 }
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const familyId = searchParams.get('familyId');
+    const budgetId = searchParams.get('budgetId');
     const type = searchParams.get('type');
     const category = searchParams.get('category');
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -53,32 +55,47 @@ export async function GET(request: NextRequest) {
     const query: TransactionQuery = {};
     if (userId) query.userId = userId;
     if (familyId) query.familyId = familyId;
+    if (budgetId) query.budgetId = budgetId;
     if (type && (type === 'income' || type === 'expense')) query.type = type;
     if (category) query.category = category;
     
-    const transactions = await Transaction.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip)
-      .populate('userId', 'name profileImage');
+    console.log('Transaction query:', query);
+    
+    // Get transactions with error handling
+    let transactions: unknown[] = [];
+    let total = 0;
+    
+    try {
+      const rawTransactions = await Transaction.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate('userId', 'name profileImage')
+        .lean(); // Use lean() for better performance
+        
+      // Transform transactions to include both _id and id fields
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transactions = rawTransactions.map((transaction: any) => ({
+        ...transaction,
+        id: transaction._id?.toString() || transaction.id, // Add id field mapped from _id
+        _id: transaction._id?.toString(), // Keep _id as string
+        userId: transaction.userId?._id?.toString() || transaction.userId,
+        userName: transaction.userId?.name || 'Unknown User',
+        profileImage: transaction.userId?.profileImage || null,
+        createdAt: transaction.createdAt,
+        updatedAt: transaction.updatedAt
+      }));
+        
+      total = await Transaction.countDocuments(query);
+    } catch (dbError) {
+      console.error('Database query error:', dbError);
+      // Return empty array if database query fails
+      transactions = [];
+      total = 0;
+    }
 
-    // Transform data to match frontend expectations
-    const transformedTransactions = transactions.map(transaction => ({
-      id: transaction._id.toString(),
-      amount: transaction.amount,
-      category: transaction.category,
-      type: transaction.type,
-      note: transaction.note,
-      imageUrl: transaction.imageUrl,
-      timestamp: transaction.createdAt,
-      userName: transaction.userId?.name || 'Unknown User',
-      profileImage: transaction.userId?.profileImage || null
-    }));
-    
-    const total = await Transaction.countDocuments(query);
-    
     const response: TransactionResponse = {
-      transactions: transformedTransactions,
+      transactions: transactions || [], // Ensure it's always an array
       pagination: {
         current: page,
         total: Math.ceil(total / limit),
@@ -86,14 +103,23 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1
       }
     };
-    
+
     return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    
+    // Always return a valid response structure even on error
+    const errorResponse: TransactionResponse = {
+      transactions: [],
+      pagination: {
+        current: 1,
+        total: 0,
+        hasNext: false,
+        hasPrev: false
+      }
+    };
+    
+    return NextResponse.json(errorResponse, { status: 200 }); // Return 200 with empty data instead of 500
   }
 }
 
@@ -143,7 +169,17 @@ export async function POST(request: NextRequest) {
     const savedTransaction = await transaction.save();
     await savedTransaction.populate('userId', 'name profileImage');
     
-    return NextResponse.json(savedTransaction, { status: 201 });
+    // Transform the response to include both _id and id fields
+    const responseTransaction = {
+      ...savedTransaction.toObject(),
+      id: savedTransaction._id.toString(),
+      _id: savedTransaction._id.toString(),
+      userId: savedTransaction.userId?._id?.toString() || savedTransaction.userId,
+      userName: savedTransaction.userId?.name || 'Unknown User',
+      profileImage: savedTransaction.userId?.profileImage || null,
+    };
+    
+    return NextResponse.json(responseTransaction, { status: 201 });
   } catch (error) {
     console.error('Error creating transaction:', error);
     

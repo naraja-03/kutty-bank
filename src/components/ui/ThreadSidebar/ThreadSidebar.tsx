@@ -1,12 +1,15 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { X, Plus, Calendar, TrendingUp, TrendingDown, Clock, Hash, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { openCustomBudgetModal, openEditCustomBudgetModal } from '@/store/slices/uiSlice';
+import { useGetBudgetsQuery } from '@/store/api/budgetsApi';
+import { addCustomBudgetThread } from '@/store/slices/threadsSlice';
+import { RootState } from '@/store';
 import { ThreadSidebarProps, SavedThread } from './types';
 
 export default function ThreadSidebar({
@@ -17,6 +20,32 @@ export default function ThreadSidebar({
   onThreadSelect
 }: ThreadSidebarProps) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
+  
+  // Fetch custom budgets
+  const { data: budgets = [] } = useGetBudgetsQuery(
+    user ? { userId: user.id, familyId: user.familyId } : { userId: '', familyId: '' },
+    { skip: !user }
+  );
+
+  // Sync custom budgets with threads
+  useEffect(() => {
+    if (budgets.length > 0) {
+      budgets.forEach(budget => {
+        if (budget.isCustom) {
+          const existingThread = threads.find(thread => thread.id === budget.id);
+          if (!existingThread) {
+            dispatch(addCustomBudgetThread({
+              id: budget.id,
+              label: budget.label,
+              description: budget.description,
+              targetAmount: budget.targetAmount
+            }));
+          }
+        }
+      });
+    }
+  }, [budgets, threads, dispatch]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -46,6 +75,8 @@ export default function ThreadSidebar({
 
   const getThreadIcon = (thread: { value: string }) => {
     switch (thread.value) {
+      case 'daily':
+        return <Clock size={16} className="text-green-400" />;
       case 'week':
         return <Calendar size={16} className="text-blue-400" />;
       case 'month':

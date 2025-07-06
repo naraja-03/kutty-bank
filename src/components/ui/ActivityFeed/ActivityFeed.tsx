@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { useGetTransactionsQuery, useDeleteTransactionMutation } from '../../../store/api/transactionApi';
 import { ChevronDown, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
+import { RootState } from '../../../store';
 import BottomNav from '../BottomNav';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 
@@ -23,10 +24,21 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   const router = useRouter();
 
   const dispatch = useDispatch();
+  const { activeThread } = useSelector((state: RootState) => state.threads);
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  // Determine budgetId for filtering based on active thread
+  const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
+
+  // Only fetch transactions if user has a valid family selected
+  const shouldFetchTransactions = Boolean(user?.familyId);
 
   const { data: transactionData, isLoading, refetch } = useGetTransactionsQuery({
     limit: 50,
-    offset: 0
+    offset: 0,
+    budgetId: currentBudgetId
+  }, {
+    skip: !shouldFetchTransactions
   });
 
   const [deleteTransaction] = useDeleteTransactionMutation();
@@ -75,6 +87,16 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       });
     }
   };
+
+  // Auto-scroll to bottom when new transactions are added
+  useEffect(() => {
+    if (transactions.length > 0 && !isLoading) {
+      // Scroll to bottom after a short delay to ensure content is rendered
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [transactions.length, isLoading]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -128,7 +150,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       dispatch(openEditEntryModal({
         id: transaction.id,
         amount: transaction.amount,
-        date: new Date(transaction.timestamp).toISOString().split('T')[0],
+        date: new Date(transaction.createdAt).toISOString().split('T')[0],
         category: transaction.category,
         type: transaction.type,
         note: transaction.note
@@ -188,21 +210,39 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
             </div>
           )}
 
+          {/* Empty State */}
+          {!isLoading && transactions.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+                <Activity className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">No Activity Yet</h3>
+              <p className="text-gray-400 mb-6 max-w-sm">
+                Your transaction activity will appear here. Start by adding your first income or expense!
+              </p>
+            </div>
+          )}
+
           {/* Transaction Cards */}
-          {transactions && transactions.map((transaction) => (
-            <SwipeableTransactionCard
+          {!isLoading && transactions.length > 0 && transactions.map((transaction, index) => (
+            <div
               key={transaction.id}
-              transaction={transaction}
-              onEdit={handleEditTransaction}
-              onDelete={(id: string) => { setShowDeleteModal(id); setDropdownOpen(null); }}
-              onReply={handleReply}
-              formatTime={formatTime}
-              formatAmount={formatAmount}
-              dropdownOpen={dropdownOpen}
-              setDropdownOpen={setDropdownOpen}
-              enableSwipe={true}
-              compact={false}
-            />
+              className="animate-in slide-in-from-bottom-4 duration-300"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <SwipeableTransactionCard
+                transaction={transaction}
+                onEdit={handleEditTransaction}
+                onDelete={(id: string) => { setShowDeleteModal(id); setDropdownOpen(null); }}
+                onReply={handleReply}
+                formatTime={formatTime}
+                formatAmount={formatAmount}
+                dropdownOpen={dropdownOpen}
+                setDropdownOpen={setDropdownOpen}
+                enableSwipe={true}
+                compact={false}
+              />
+            </div>
           ))}
         </div>
       </div>

@@ -44,8 +44,12 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   
   const [createTransaction] = useCreateTransactionMutation();
 
-  // Extract transactions array from the response
-  const transactions = useMemo(() => transactionData?.transactions || [], [transactionData]);
+  // Extract transactions array from the response and reverse for WhatsApp-style (newest at bottom)
+  const transactions = useMemo(() => {
+    const txns = transactionData?.transactions || [];
+    // Reverse the array so newest transactions appear at the bottom like WhatsApp
+    return [...txns].reverse();
+  }, [transactionData]);
 
   useEffect(() => {
     // Scroll to bottom when new transactions are loaded
@@ -173,15 +177,35 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           </div>
         )}
 
+        {/* Empty State */}
+        {!isLoading && transactions.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+              <Send className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Start the Conversation</h3>
+            <p className="text-gray-400 mb-6 max-w-sm">
+              Share your first transaction with the family. Every expense and income will appear here like a chat!
+            </p>
+            <div className="text-sm text-gray-500">
+              Use the form below to add your first transaction
+            </div>
+          </div>
+        )}
+
         {/* Transaction Messages */}
-        {transactions && transactions.map((transaction) => {
+        {!isLoading && transactions.length > 0 && transactions.map((transaction, index) => {
           const isCurrentUser = transaction.userId === user?.id;
           
           return (
-            <div key={transaction.id} className={clsx(
-              'flex space-x-3',
-              isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''
-            )}>
+            <div 
+              key={transaction.id} 
+              className={clsx(
+                'flex space-x-3 animate-in slide-in-from-bottom-4 duration-300',
+                isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''
+              )}
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               {/* Avatar - only show for others */}
               {!isCurrentUser && (
                 <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
@@ -231,7 +255,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
 
                   {/* Time */}
                   <div className="text-xs text-gray-400">
-                    {formatTime(transaction.timestamp)}
+                    {formatTime(transaction.createdAt)}
                   </div>
                 </div>
               </div>

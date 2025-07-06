@@ -9,7 +9,7 @@ export interface ThreadSidebarProps {
 export interface ThreadPeriod {
   id: string;
   label: string;
-  value: 'week' | 'month' | 'year' | 'custom';
+  value: 'week' | 'month' | 'year' | 'custom' | 'daily';
   startDate?: Date;
   endDate?: Date;
   isActive?: boolean;

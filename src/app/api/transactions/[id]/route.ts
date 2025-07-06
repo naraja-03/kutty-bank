@@ -10,6 +10,19 @@ interface UpdateTransactionBody {
   imageUrl?: string;
 }
 
+// Helper function to transform transaction data to include both _id and id
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformTransactionData(transaction: any) {
+  const transactionObj = transaction.toObject ? transaction.toObject() : transaction;
+  return {
+    ...transactionObj,
+    id: transactionObj._id?.toString() || transactionObj.id,
+    _id: transactionObj._id?.toString(),
+    userId: transactionObj.userId?.toString() || transactionObj.userId,
+    familyId: transactionObj.familyId?.toString() || transactionObj.familyId,
+  };
+}
+
 // GET /api/transactions/[id] - Get a specific transaction
 export async function GET(
   request: NextRequest,
@@ -28,7 +41,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(transaction);
+    return NextResponse.json(transformTransactionData(transaction));
   } catch (error) {
     console.error('Error fetching transaction:', error);
     return NextResponse.json(
@@ -95,7 +108,7 @@ export async function PUT(
 
     await updatedTransaction.populate('userId', 'name profileImage');
 
-    return NextResponse.json(updatedTransaction);
+    return NextResponse.json(transformTransactionData(updatedTransaction));
   } catch (error) {
     console.error('Error updating transaction:', error);
     

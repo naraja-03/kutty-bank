@@ -16,6 +16,7 @@ export interface InviteMemberRequest {
 }
 
 export interface UpdateBudgetRequest {
+  familyId: string;
   budgetCap: number;
 }
 
@@ -34,8 +35,12 @@ export const familyApi = createApi({
   }),
   tagTypes: ['Family'],
   endpoints: (builder) => ({
-    getFamily: builder.query<Family, void>({
-      query: () => '',
+    getFamilies: builder.query<Family[], string | void>({
+      query: (userId) => userId ? `?userId=${userId}` : '',
+      providesTags: ['Family'],
+    }),
+    getFamily: builder.query<Family, string>({
+      query: (familyId) => `?familyId=${familyId}`,
       providesTags: ['Family'],
     }),
     createFamily: builder.mutation<Family, { name: string }>({
@@ -56,7 +61,7 @@ export const familyApi = createApi({
     }),
     updateBudget: builder.mutation<Family, UpdateBudgetRequest>({
       query: (data) => ({
-        url: '/budget',
+        url: '',
         method: 'PUT',
         body: data,
       }),
@@ -69,13 +74,32 @@ export const familyApi = createApi({
       }),
       invalidatesTags: ['Family'],
     }),
+    deleteFamily: builder.mutation<void, string>({
+      query: (familyId) => ({
+        url: `?familyId=${familyId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Family'],
+      // Also invalidate all family queries when a family is deleted
+      onQueryStarted: async (familyId, { dispatch, queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          // Invalidate all family-related queries
+          dispatch(familyApi.util.invalidateTags(['Family']));
+        } catch {
+          // Handle error if needed
+        }
+      },
+    }),
   }),
 });
 
 export const {
+  useGetFamiliesQuery,
   useGetFamilyQuery,
   useCreateFamilyMutation,
   useInviteMemberMutation,
   useUpdateBudgetMutation,
   useRemoveMemberMutation,
+  useDeleteFamilyMutation,
 } = familyApi;
