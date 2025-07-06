@@ -194,7 +194,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
               key={transaction.id}
               transaction={transaction}
               onEdit={handleEditTransaction}
-              onDelete={(id: string) => setShowDeleteModal(id)}
+              onDelete={(id: string) => { setShowDeleteModal(id); setDropdownOpen(null); }}
               onReply={handleReply}
               formatTime={formatTime}
               formatAmount={formatAmount}

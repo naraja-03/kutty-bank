@@ -294,7 +294,7 @@ export default function Dashboard({ className }: DashboardProps) {
                   key={transaction.id}
                   transaction={transaction}
                   onEdit={handleEditTransaction}
-                  onDelete={(id: string) => setShowDeleteModal(id)}
+                  onDelete={(id: string) => {setShowDeleteModal(id); setDropdownOpen(null);}}
                   onReply={handleReply}
                   formatTime={formatTime}
                   formatAmount={formatAmount}
@@ -317,7 +317,7 @@ export default function Dashboard({ className }: DashboardProps) {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center scale-z-100 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
             <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
             <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>

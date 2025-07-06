@@ -11,15 +11,48 @@
   "categories": ["finance", "productivity", "lifestyle"],
   "lang": "en",
   "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "32x32",
+      "src": "/icon.svg",
+      "sizes": "72x72",
       "type": "image/svg+xml"
     },
     {
       "src": "/icon.svg",
-      "sizes": "192x192 512x512",
+      "sizes": "96x96",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "152x152",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
@@ -29,12 +62,12 @@
       "name": "Add Expense",
       "short_name": "Add Expense",
       "description": "Quickly add a new expense",
-      "url": "/dashboard",
+      "url": "/dashboard?action=add",
       "icons": [{"src": "/icon.svg", "sizes": "192x192"}]
     },
     {
       "name": "View Activity",
-      "short_name": "Activity",
+      "short_name": "Activity", 
       "description": "View recent transactions",
       "url": "/activity",
       "icons": [{"src": "/icon.svg", "sizes": "192x192"}]

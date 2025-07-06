@@ -9,6 +9,7 @@ import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../s
 import AddEntryModal, { TransactionFormData } from '../components/ui/AddEntryModal';
 import CustomThreadModal from '../components/ui/CustomThreadModal';
 import PeriodSelector from '../components/ui/PeriodSelector';
+import PWAInstallPrompt from '../components/ui/PWAInstallPrompt/PWAInstallPrompt';
 import GradientBackground from '../components/ui/GradientBackground';
 import AuthGuard from './AuthGuard';
 
@@ -128,6 +129,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClose={() => dispatch(closePeriodSelector())}
               onPeriodSelect={handlePeriodSelect}
             />
+            
+            <PWAInstallPrompt />
           </GradientBackground>
         </AuthGuard>
       )}

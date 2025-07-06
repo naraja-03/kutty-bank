@@ -90,7 +90,7 @@ export default function SwipeableTransactionCard({
   );
 
   return (
-    <div className="relative overflow-hidden bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl">
+    <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl">
       {/* Messages navigation background indicator */}
       {enableSwipe && onReply && (
         <animated.div
