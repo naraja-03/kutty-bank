@@ -11,7 +11,6 @@ import {
   openThreadSidebar, 
   closeThreadSidebar,
   selectThreadFromList,
-  createCustomThread,
   ThreadPeriod
 } from '../../../store/slices/threadsSlice';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
