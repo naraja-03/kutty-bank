@@ -94,17 +94,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <>
+    <div className="pwa-container">
       {isPublicPage ? (
         <GradientBackground variant="default">
-          <div className="relative z-10 min-h-screen">
+          <div className="relative z-10 min-h-screen pwa-scrollable">
             {children}
           </div>
         </GradientBackground>
       ) : (
         <AuthGuard>
           <GradientBackground variant={getGradientVariant()}>
-            <div className="relative z-10 min-h-screen">
+            <div className="relative z-10 min-h-screen pwa-scrollable pt-10">
               {children}
             </div>
             
@@ -134,6 +134,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </GradientBackground>
         </AuthGuard>
       )}
-    </>
+    </div>
   );
 }

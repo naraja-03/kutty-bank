@@ -28,6 +28,12 @@ interface PaginationResponse {
   hasPrev: boolean;
 }
 
+interface PopulatedUser {
+  _id: string;
+  name: string;
+  profileImage?: string;
+}
+
 interface TransactionResponse {
   transactions: unknown[];
   pagination: PaginationResponse;
@@ -74,14 +80,13 @@ export async function GET(request: NextRequest) {
         .lean(); // Use lean() for better performance
         
       // Transform transactions to include both _id and id fields
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      transactions = rawTransactions.map((transaction: any) => ({
+      transactions = rawTransactions.map((transaction) => ({
         ...transaction,
-        id: transaction._id?.toString() || transaction.id, // Add id field mapped from _id
+        id: transaction._id?.toString() || transaction._id, // Add id field mapped from _id
         _id: transaction._id?.toString(), // Keep _id as string
-        userId: transaction.userId?._id?.toString() || transaction.userId,
-        userName: transaction.userId?.name || 'Unknown User',
-        profileImage: transaction.userId?.profileImage || null,
+        userId: (transaction.userId as PopulatedUser)?._id?.toString() || transaction.userId,
+        userName: (transaction.userId as PopulatedUser)?.name || 'Unknown User',
+        profileImage: (transaction.userId as PopulatedUser)?.profileImage || null,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt
       }));

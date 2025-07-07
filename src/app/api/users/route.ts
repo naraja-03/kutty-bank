@@ -14,18 +14,34 @@ interface UpdateUserBody {
   role?: 'admin' | 'member' | 'view-only';
 }
 
+interface MongoUser {
+  _id?: { toString(): string } | string;
+  id?: string;
+  name: string;
+  email: string;
+  role: string;
+  profileImage?: string;
+  familyId?: { _id?: { toString(): string } | string } | string;
+  families?: Array<{ _id?: { toString(): string } | string } | string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  toObject?(): MongoUser;
+}
+
 // Helper function to transform user data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformUserData(user: any) {
+function transformUserData(user: MongoUser) {
   const userObj = user.toObject ? user.toObject() : user;
   return {
     ...userObj,
     id: userObj._id?.toString() || userObj.id,
     _id: userObj._id?.toString(),
-    familyId: userObj.familyId?._id?.toString() || userObj.familyId,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    families: userObj.families?.map((familyId: any) => 
-      familyId._id?.toString() || familyId.toString()
+    familyId: userObj.familyId && typeof userObj.familyId === 'object' 
+      ? userObj.familyId._id?.toString() || userObj.familyId.toString()
+      : userObj.familyId?.toString(),
+    families: userObj.families?.map((familyId) => 
+      typeof familyId === 'object' 
+        ? familyId._id?.toString() || familyId.toString()
+        : familyId.toString()
     ) || []
   };
 }

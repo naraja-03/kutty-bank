@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useAuthInitialization } from '@/hooks/useAuthInitialization';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -13,19 +14,33 @@ interface AuthGuardProps {
 export default function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Initialize authentication on component mount
+  const { isInitializing } = useAuthInitialization();
 
   useEffect(() => {
-    if (!isLoading) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only run navigation logic after component is mounted and auth is not loading
+    if (isMounted && !isLoading && !isInitializing) {
       if (requireAuth && !isAuthenticated) {
         router.push('/login');
       } else if (!requireAuth && isAuthenticated) {
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, router]);
+  }, [isAuthenticated, isLoading, isInitializing, requireAuth, router, isMounted]);
+
+  // Don't render anything until component is mounted (prevents hydration mismatch)
+  if (!isMounted) {
+    return null;
+  }
 
   // Show loading spinner while checking auth
-  if (isLoading) {
+  if (isLoading || isInitializing) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">

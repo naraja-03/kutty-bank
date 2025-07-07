@@ -27,6 +27,11 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      
+      // Store token in localStorage (only on client side)
+      if (typeof window !== 'undefined' && action.payload.token) {
+        localStorage.setItem('token', action.payload.token);
+      }
     },
     loginFailure: (state) => {
       state.isLoading = false;
@@ -39,6 +44,11 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.isLoading = false;
+      
+      // Remove token from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+      }
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {

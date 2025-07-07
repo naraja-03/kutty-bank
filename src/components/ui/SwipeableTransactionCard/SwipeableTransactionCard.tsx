@@ -86,6 +86,9 @@ export default function SwipeableTransactionCard({
       axis: 'x',
       bounds: { left: 0, right: 100 },
       rubberband: true,
+      preventDefault: true,
+      filterTaps: true,
+      pointer: { touch: true },
     }
   );
 

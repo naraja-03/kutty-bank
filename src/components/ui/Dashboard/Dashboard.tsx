@@ -124,6 +124,15 @@ export default function Dashboard({ className }: DashboardProps) {
   const transactions = recentTransactionData?.transactions || [];
 
   const formatCurrency = (amount: number) => {
+    // Handle large amounts by abbreviating them
+    if (Math.abs(amount) >= 10000000) { // 1 crore
+      return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    } else if (Math.abs(amount) >= 100000) { // 1 lakh
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    } else if (Math.abs(amount) >= 1000) { // 1 thousand
+      return `₹${(amount / 1000).toFixed(1)}K`;
+    }
+    
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -133,6 +142,15 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const formatAmount = (amount: number, type: 'income' | 'expense') => {
+    // Handle large amounts by abbreviating them for transaction cards
+    if (Math.abs(amount) >= 10000000) { // 1 crore
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 10000000).toFixed(1)}Cr`;
+    } else if (Math.abs(amount) >= 100000) { // 1 lakh
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 100000).toFixed(1)}L`;
+    } else if (Math.abs(amount) >= 1000) { // 1 thousand
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 1000).toFixed(1)}K`;
+    }
+    
     const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -163,6 +181,11 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const getUpdatedQuickActions = () => {
+    // Get family savings target or use 20% of income as fallback
+    const familySavingsTarget = currentFamily ? 
+      (families.find(f => f.id === currentFamily)?.budgetCap || budgetProgress.totalIncome * 0.2) :
+      budgetProgress.totalIncome * 0.2;
+    
     return quickActions.map(action => {
       switch (action.id) {
         case 'income':
@@ -172,7 +195,7 @@ export default function Dashboard({ className }: DashboardProps) {
         case 'balance':
           return { ...action, value: formatCurrency(budgetProgress.netAmount) };
         case 'goal':
-          return { ...action, value: formatCurrency(budgetProgress.totalIncome * 0.2) }; // 20% of income as goal
+          return { ...action, value: formatCurrency(familySavingsTarget) };
         default:
           return action;
       }
@@ -180,14 +203,16 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const getSavingsProgress = () => {
-    // Use a more realistic savings goal calculation
+    // Use family savings target or fallback to 20% of income
     const monthlyIncome = budgetProgress.totalIncome;
     const monthlyExpense = budgetProgress.totalExpenses;
-    const savingsGoal = monthlyIncome * 0.2; // 20% of income as savings goal
+    const familySavingsTarget = currentFamily ? 
+      (families.find(f => f.id === currentFamily)?.budgetCap || monthlyIncome * 0.2) :
+      monthlyIncome * 0.2;
     const actualSavings = monthlyIncome - monthlyExpense;
     
-    if (savingsGoal === 0) return 0;
-    return Math.min(Math.max((actualSavings / savingsGoal) * 100, 0), 100);
+    if (familySavingsTarget === 0) return 0;
+    return Math.min(Math.max((actualSavings / familySavingsTarget) * 100, 0), 100);
   };
 
   // Transaction handlers
@@ -312,7 +337,7 @@ export default function Dashboard({ className }: DashboardProps) {
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full main-container">
         {/* Time Filter */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">

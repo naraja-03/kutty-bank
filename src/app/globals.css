@@ -11,7 +11,13 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   height: 100vh;
   height: -webkit-fill-available;
-  overflow: hidden;
+  /* Remove overflow: hidden to allow proper scrolling */
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Add touch-action for better mobile scrolling */
+  touch-action: pan-y;
+  /* Prevent rubber band effect on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 * {
@@ -32,6 +38,10 @@ html {
   scroll-behavior: smooth;
   height: 100vh;
   height: -webkit-fill-available;
+  /* Improve mobile scrolling */
+  touch-action: manipulation;
+  /* Prevent zoom on double tap */
+  -ms-touch-action: manipulation;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -92,6 +102,42 @@ html {
   button {
     min-height: 44px;
     min-width: 44px;
+  }
+}
+
+/* Mobile PWA specific fixes */
+@media (max-width: 768px) {
+  /* Fix iOS Safari viewport height issues */
+  html {
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    height: -webkit-fill-available;
+    /* Improve touch scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent bounce on iOS */
+    overscroll-behavior: none;
+  }
+  
+  /* Fix pull-to-refresh interference */
+  .main-container {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent scroll issues in PWA */
+  .pwa-container {
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
+  }
+  
+  .pwa-scrollable {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
   }
 }
 

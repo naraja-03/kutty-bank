@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Budget from '@/models/Budget';
+import Budget, { IBudget } from '@/models/Budget';
 
 // Helper function to transform budget data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformBudgetData(budget: any) {
+function transformBudgetData(budget: IBudget) {
   const budgetObj = budget.toObject ? budget.toObject() : budget;
   return {
     ...budgetObj,

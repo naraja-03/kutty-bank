@@ -33,7 +33,13 @@ export const authApi = createApi({
     baseUrl: '/api/auth',
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as RootState;
-      const token = state.auth.token;
+      let token = state.auth.token;
+      
+      // If no token in Redux store, check localStorage (important for initial load)
+      if (!token && typeof window !== 'undefined') {
+        token = localStorage.getItem('token');
+      }
+      
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -75,6 +81,13 @@ export const authApi = createApi({
       query: () => '/me',
       providesTags: ['User'],
     }),
+    // Initial load endpoint to check auth status on app startup
+    initializeAuth: builder.query<User | null, void>({
+      query: () => '/me',
+      providesTags: ['User'],
+      transformResponse: (response: User) => response,
+      transformErrorResponse: () => null, // Return null if not authenticated
+    }),
   }),
 });
 
@@ -84,4 +97,8 @@ export const {
   useLogoutMutation,
   useGetCurrentUserQuery,
   useUpdateUserActiveFamilyMutation,
+  useInitializeAuthQuery,
 } = authApi;
+
+// Prefetch function for initial load
+export const initializeAuthOnLoad = () => authApi.endpoints.initializeAuth.initiate();

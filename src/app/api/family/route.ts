@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Family from '@/models/Family';
+import Family, { IFamily } from '@/models/Family';
 import User from '@/models/User';
 import Budget from '@/models/Budget';
 import Transaction from '@/models/Transaction';
@@ -21,16 +21,20 @@ interface FamilyQuery {
   name?: string;
 }
 
+interface FamilyMember {
+  _id: string;
+  id: string;
+  [key: string]: unknown;
+}
+
 // Helper function to transform family data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformFamilyData(family: any) {
+function transformFamilyData(family: IFamily) {
   const familyObj = family.toObject ? family.toObject() : family;
   return {
     ...familyObj,
     id: familyObj._id?.toString() || familyObj.id,
     _id: familyObj._id?.toString(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    members: familyObj.members?.map((member: any) => ({
+    members: familyObj.members?.map((member: FamilyMember) => ({
       ...member,
       id: member._id?.toString() || member.id,
       _id: member._id?.toString(),

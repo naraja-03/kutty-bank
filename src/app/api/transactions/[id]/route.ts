@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Transaction from '@/models/Transaction';
+import Transaction, { ITransaction } from '@/models/Transaction';
 
 interface UpdateTransactionBody {
   amount?: number;
@@ -11,8 +11,7 @@ interface UpdateTransactionBody {
 }
 
 // Helper function to transform transaction data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformTransactionData(transaction: any) {
+function transformTransactionData(transaction: ITransaction) {
   const transactionObj = transaction.toObject ? transaction.toObject() : transaction;
   return {
     ...transactionObj,

@@ -133,6 +133,15 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   };
 
   const formatAmount = (amount: number, type: 'income' | 'expense') => {
+    // Handle large amounts by abbreviating them for transaction cards
+    if (Math.abs(amount) >= 10000000) { // 1 crore
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 10000000).toFixed(1)}Cr`;
+    } else if (Math.abs(amount) >= 100000) { // 1 lakh
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 100000).toFixed(1)}L`;
+    } else if (Math.abs(amount) >= 1000) { // 1 thousand
+      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 1000).toFixed(1)}K`;
+    }
+    
     const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -192,7 +201,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       {/* Messages Area - Threads style */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4"
+        className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4 main-container"
       >
         <div className="space-y-4">
           {/* Loading skeleton */}
