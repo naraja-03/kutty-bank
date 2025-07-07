@@ -2,7 +2,7 @@
 
 import { Calendar, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { clsx } from 'clsx';
-import { format } from 'date-fns';
+import { formatDateRange } from '../../../lib/formatters';
 import { ThreadBottomBarProps, ThreadPeriod } from './types';
 
 const QUICK_THREADS: ThreadPeriod[] = [
@@ -70,15 +70,6 @@ export default function ThreadBottomBar({
     }
   };
 
-  const formatDateRange = (startDate?: Date, endDate?: Date) => {
-    if (!startDate || !endDate) return 'Current Period';
-    
-    const start = format(startDate, 'MMM dd');
-    const end = format(endDate, 'MMM dd');
-    
-    return `${start} - ${end}`;
-  };
-
   const scrollToThread = (threadId: string) => {
     const element = document.getElementById(`thread-${threadId}`);
     if (element) {
@@ -109,7 +100,7 @@ export default function ThreadBottomBar({
             <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
               {QUICK_THREADS.map((thread) => {
                 const isActive = activeThread.id === thread.id || activeThread.value === thread.value;
-                
+
                 return (
                   <button
                     key={thread.id}
@@ -126,7 +117,7 @@ export default function ThreadBottomBar({
                   </button>
                 );
               })}
-              
+
               {/* Custom Thread Button */}
               <button
                 onClick={onCustomThread}
@@ -167,10 +158,14 @@ export default function ThreadBottomBar({
               {activeThread.label}
             </span>
           </div>
-          
+
           <div className="flex items-center space-x-2 text-xs text-gray-400">
             <Calendar size={12} />
-            <span>{formatDateRange(activeThread.startDate, activeThread.endDate)}</span>
+            {activeThread.startDate && activeThread.endDate ? (
+              <span>{formatDateRange(activeThread.startDate, activeThread.endDate)}</span>
+            ) : (
+              <span>—</span>
+            )}
           </div>
         </div>
       </div>

@@ -6,19 +6,13 @@ import { useGetTransactionsQuery, useCreateTransactionMutation } from '../../../
 import { ArrowDown, Send } from 'lucide-react';
 import { clsx } from 'clsx';
 import { RootState } from '../../../store';
+import { formatAmount, formatTime, getInitials } from '../../../lib/formatters';
 
 interface ActivityFeedProps {
   className?: string;
 }
 
-// Helper function to get user initials
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase())
-    .join('')
-    .slice(0, 2);
-};
+// Helper function to get user initials - moved to shared utils
 
 export default function ActivityFeed({ className }: ActivityFeedProps) {
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -80,35 +74,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const formatTime = (timestamp: string | Date) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-    
-    if (isToday) {
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-      });
-    }
-    
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
 
-  const formatAmount = (amount: number, type: 'income' | 'expense') => {
-    const formatted = new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-    
-    return type === 'expense' ? `-${formatted}` : `+${formatted}`;
-  };
 
   const handleAddTransaction = async () => {
     if (!newTransaction.amount || !user) return;

@@ -73,31 +73,31 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col justify-start p-4 py-8 sm:py-12 md:justify-center">
+        <div className="w-full max-w-md mx-auto">
           {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-white to-gray-300 rounded-2xl mb-4 shadow-lg">
-              <span className="text-2xl font-bold text-gray-900">K</span>
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-white to-gray-300 rounded-2xl mb-3 sm:mb-4 shadow-lg">
+              <span className="text-lg sm:text-2xl font-bold text-gray-900">K</span>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">KuttyBank</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">KuttyBank</h1>
             <p className="text-gray-400 text-sm">Family Budget Tracker</p>
           </div>
 
           {/* Register Form */}
-          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-white mb-2">Create Account</h2>
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+            <div className="mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">Create Account</h2>
               <p className="text-gray-400 text-sm">Join your family budget tracker</p>
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
                 <p className="text-red-400 text-sm font-medium">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Name Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -110,7 +110,7 @@ export default function RegisterPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
                     placeholder="Enter your full name"
                     required
                   />
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
                     placeholder="Enter your email"
                     required
                   />
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
+                    className="w-full pl-10 pr-12 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
                     placeholder="Create a password"
                     required
                   />
@@ -174,7 +174,7 @@ export default function RegisterPage() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
+                    className="w-full pl-10 pr-12 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 backdrop-blur-sm"
                     placeholder="Confirm your password"
                     required
                   />
@@ -192,7 +192,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-white to-gray-200 text-gray-900 py-3 px-4 rounded-xl font-semibold hover:from-gray-100 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-white to-gray-200 text-gray-900 py-2.5 sm:py-3 px-4 rounded-xl font-semibold hover:from-gray-100 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
             </form>
 
             {/* Terms and Privacy */}
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
               <p className="text-xs text-gray-400">
                 By creating an account, you agree to our{' '}
                 <a href="#" className="text-white hover:text-gray-300 transition-colors">
@@ -224,7 +224,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer */}
-          <div className="text-center mt-8">
+          <div className="text-center mt-6 sm:mt-8 mb-4 sm:mb-0">
             <p className="text-gray-400 text-sm">
               Already have an account?{' '}
               <a href="/login" className="text-white hover:text-gray-300 font-medium transition-colors">

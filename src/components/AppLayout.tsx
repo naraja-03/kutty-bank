@@ -11,6 +11,7 @@ import CustomThreadModal from '../components/ui/CustomThreadModal';
 import PeriodSelector from '../components/ui/PeriodSelector';
 import PWAInstallPrompt from '../components/ui/PWAInstallPrompt/PWAInstallPrompt';
 import GradientBackground from '../components/ui/GradientBackground';
+import BottomNav from '../components/ui/BottomNav';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -97,16 +98,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="pwa-container">
       {isPublicPage ? (
         <GradientBackground variant="default">
-          <div className="relative z-10 min-h-screen pwa-scrollable">
+          <div className="relative z-10 min-h-screen">
             {children}
           </div>
         </GradientBackground>
       ) : (
         <AuthGuard>
           <GradientBackground variant={getGradientVariant()}>
-            <div className="relative z-10 min-h-screen pwa-scrollable pt-10">
+            <div className="relative z-10 min-h-screen">
               {children}
             </div>
+            
+            {/* Bottom Navigation */}
+            <BottomNav />
             
             {/* Global Modals */}
             <AddEntryModal

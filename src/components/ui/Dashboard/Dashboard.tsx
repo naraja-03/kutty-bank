@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useGetTransactionsQuery, useDeleteTransactionMutation } from '../../../store/api/transactionApi';
 import { 
@@ -18,24 +17,21 @@ import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
 import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
-import BottomNav from '../BottomNav';
-import SwipeableTransactionCard from '../SwipeableTransactionCard';
 import FamilyModal from '../FamilyModal';
-import { DashboardProps, QuickAction } from './types';
+import QuickActionsGrid from '../QuickActionsGrid';
+import SavingsProgressCard from '../SavingsProgressCard';
+import RecentTransactionsList from '../RecentTransactionsList';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
+import PeriodFilterHeader from '../PeriodFilterHeader';
+import { DashboardProps } from './types';
 import { 
   calculateBudgetProgress, 
   BudgetPeriod
 } from '../../../lib/budgetCalculations';
+import { formatAmount, formatCurrency, formatTime } from '../../../lib/formatters';
 import { useCreateFamilyMutation } from '../../../store/api/familyApi';
 import { useUpdateUserActiveFamilyMutation } from '../../../store/api/authApi';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
-
-const quickActions: QuickAction[] = [
-  { id: 'income', label: 'Income', icon: TrendingUp, value: '₹0', color: 'green' },
-  { id: 'expenses', label: 'Expenses', icon: TrendingDown, value: '₹0', color: 'red' },
-  { id: 'balance', label: 'Balance', icon: Wallet, value: '₹0', color: 'blue' },
-  { id: 'goal', label: 'Savings Goal', icon: Target, value: '₹0', color: 'purple' },
-];
 
 export default function Dashboard({ className }: DashboardProps) {
   const dispatch = useDispatch();
@@ -123,84 +119,10 @@ export default function Dashboard({ className }: DashboardProps) {
   // Extract transactions array from the response
   const transactions = recentTransactionData?.transactions || [];
 
-  const formatCurrency = (amount: number) => {
-    // Handle large amounts by abbreviating them
-    if (Math.abs(amount) >= 10000000) { // 1 crore
-      return `₹${(amount / 10000000).toFixed(1)}Cr`;
-    } else if (Math.abs(amount) >= 100000) { // 1 lakh
-      return `₹${(amount / 100000).toFixed(1)}L`;
-    } else if (Math.abs(amount) >= 1000) { // 1 thousand
-      return `₹${(amount / 1000).toFixed(1)}K`;
-    }
-    
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const formatAmount = (amount: number, type: 'income' | 'expense') => {
-    // Handle large amounts by abbreviating them for transaction cards
-    if (Math.abs(amount) >= 10000000) { // 1 crore
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 10000000).toFixed(1)}Cr`;
-    } else if (Math.abs(amount) >= 100000) { // 1 lakh
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 100000).toFixed(1)}L`;
-    } else if (Math.abs(amount) >= 1000) { // 1 thousand
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 1000).toFixed(1)}K`;
-    }
-    
-    const formatted = new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-
-    return type === 'expense' ? `-${formatted}` : `+${formatted}`;
-  };
-
-  const formatTime = (timestamp: string | Date) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-
-    if (isToday) {
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-    }
-
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getUpdatedQuickActions = () => {
-    // Get family savings target or use 20% of income as fallback
-    const familySavingsTarget = currentFamily ? 
-      (families.find(f => f.id === currentFamily)?.budgetCap || budgetProgress.totalIncome * 0.2) :
-      budgetProgress.totalIncome * 0.2;
-    
-    return quickActions.map(action => {
-      switch (action.id) {
-        case 'income':
-          return { ...action, value: formatCurrency(budgetProgress.totalIncome) };
-        case 'expenses':
-          return { ...action, value: formatCurrency(budgetProgress.totalExpenses) };
-        case 'balance':
-          return { ...action, value: formatCurrency(budgetProgress.netAmount) };
-        case 'goal':
-          return { ...action, value: formatCurrency(familySavingsTarget) };
-        default:
-          return action;
-      }
-    });
-  };
+  // Calculate formatted values for quick actions
+  const familySavingsTarget = currentFamily ? 
+    (families.find(f => f.id === currentFamily)?.budgetCap || budgetProgress.totalIncome * 0.2) :
+    budgetProgress.totalIncome * 0.2;
 
   const getSavingsProgress = () => {
     // Use family savings target or fallback to 20% of income
@@ -339,158 +261,40 @@ export default function Dashboard({ className }: DashboardProps) {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full main-container">
         {/* Time Filter */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Filter size={16} className="text-gray-400" />
-            <span className="text-sm text-gray-400">Filtered by</span>
-            <span className="text-sm font-medium text-white">{activeThread.label}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-xs text-gray-400">
-            <Calendar size={12} />
-            <span>
-              {activeThread.startDate && activeThread.endDate
-                ? `${activeThread.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${activeThread.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                : 'Current Period'
-              }
-            </span>
-          </div>
-        </div>
+        <PeriodFilterHeader activeThread={activeThread} />
 
         {/* Quick Actions - Responsive Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {getUpdatedQuickActions().map((action) => {
-            const Icon = action.icon;
-            return (
-              <div
-                key={action.id}
-                className={clsx(
-                  'bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 shadow-xl',
-                  action.color === 'green' && 'bg-gradient-to-br from-green-950/30 to-green-900/15 border-green-600/20',
-                  action.color === 'red' && 'bg-gradient-to-br from-red-950/30 to-red-900/15 border-red-600/20',
-                  action.color === 'blue' && 'bg-gradient-to-br from-blue-950/30 to-blue-900/15 border-blue-600/20',
-                  action.color === 'purple' && 'bg-gradient-to-br from-purple-950/30 to-purple-900/15 border-purple-600/20'
-                )}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Icon
-                    size={20}
-                    className={clsx(
-                      action.color === 'green' && 'text-green-400',
-                      action.color === 'red' && 'text-red-400',
-                      action.color === 'blue' && 'text-blue-400',
-                      action.color === 'purple' && 'text-purple-400'
-                    )}
-                  />
-                  <span className="text-xs text-gray-400 font-medium">
-                    {action.id === 'income' && '+12.5%'}
-                    {action.id === 'expenses' && '-8.2%'}
-                    {action.id === 'balance' && 'Available'}
-                    {action.id === 'goal' && 'Target'}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-lg md:text-xl font-bold text-white">{action.value}</p>
-                  <p className="text-gray-400 text-xs md:text-sm">{action.label}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <QuickActionsGrid
+          totalIncome={formatCurrency(budgetProgress.totalIncome)}
+          totalExpenses={formatCurrency(budgetProgress.totalExpenses)}
+          netAmount={formatCurrency(budgetProgress.netAmount)}
+          savingsTarget={formatCurrency(familySavingsTarget)}
+        />
 
         {/* Savings Progress */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-xl mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold flex items-center text-white text-sm">
-              <Target size={14} className="mr-2 text-purple-400" />
-              Savings Progress
-            </h3>
-            <span className="text-xs text-gray-400">{getSavingsProgress().toFixed(1)}%</span>
-          </div>
-          <div className="w-full bg-white/10 rounded-full h-1.5">
-            <div
-              className="bg-gradient-to-r from-purple-900 to-purple-800 h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${getSavingsProgress()}%` }}
-            />
-          </div>
-        </div>
+        <SavingsProgressCard progress={getSavingsProgress()} />
 
         {/* Recent Transactions */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-white">Recent Transactions</h3>
-            <button 
-              onClick={() => router.push('/activity')}
-              className="text-sm text-gray-400 hover:text-white transition-colors"
-            >
-              View All
-            </button>
-          </div>
-
-          {transactionsLoading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 animate-pulse">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-white/10 rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-white/10 rounded w-3/4" />
-                      <div className="h-3 bg-white/10 rounded w-1/2" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : transactions && transactions.length > 0 ? (
-            <div className="space-y-3">
-              {transactions.slice(0, 3).map((transaction) => (
-                <SwipeableTransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                  onEdit={handleEditTransaction}
-                  onDelete={(id: string) => {setShowDeleteModal(id); setDropdownOpen(null);}}
-                  onReply={handleReply}
-                  formatTime={formatTime}
-                  formatAmount={formatAmount}
-                  dropdownOpen={dropdownOpen}
-                  setDropdownOpen={setDropdownOpen}
-                  enableSwipe={true}
-                  compact={true}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-400">
-              <Calendar size={48} className="mx-auto mb-4 opacity-50" />
-              <p>No transactions yet</p>
-              <p className="text-sm">Start tracking your expenses!</p>
-            </div>
-          )}
-        </div>
+        <RecentTransactionsList
+          transactions={transactions}
+          isLoading={transactionsLoading}
+          onEdit={handleEditTransaction}
+          onDelete={(id: string) => {setShowDeleteModal(id); setDropdownOpen(null);}}
+          onReply={handleReply}
+          formatTime={formatTime}
+          formatAmount={formatAmount}
+          dropdownOpen={dropdownOpen}
+          setDropdownOpen={setDropdownOpen}
+          className="space-y-4"
+        />
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center scale-z-100 p-4">
-          <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
-            <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowDeleteModal(null)}
-                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteTransaction(showDeleteModal)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        onConfirm={() => showDeleteModal && handleDeleteTransaction(showDeleteModal)}
+      />
 
       {/* Family Setup Modal */}
       {showFamilyModal && (
@@ -513,8 +317,6 @@ export default function Dashboard({ className }: DashboardProps) {
         activeThread={activeThread}
         onThreadSelect={handleSelectThread}
       />
-      
-      <BottomNav />
     </div>
   );
 }

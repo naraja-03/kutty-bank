@@ -6,16 +6,16 @@ import { loginSuccess, logout } from "../store/slices/authSlice";
 export const useAuthInitialization = () => {
   const dispatch = useDispatch();
   const [isHydrated, setIsHydrated] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  
+  // Get token directly to avoid async timing issues
+  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
 
-  // Handle hydration and token loading
+  // Only need isHydrated for SSR safety
   useEffect(() => {
     setIsHydrated(true);
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
   }, []);
 
-  const shouldSkip = !isHydrated || !token;
+  const shouldSkip = !isHydrated;
 
   const {
     data: user,
@@ -28,15 +28,25 @@ export const useAuthInitialization = () => {
   useEffect(() => {
     if (!isHydrated) return;
 
+    // No token case - clear state
     if (!token) {
-      // No token, dispatch logout to ensure clean state
       dispatch(logout());
       return;
     }
 
+    // Only take action when loading is complete
     if (!isLoading) {
-      if (user && token) {
-        // User is authenticated, dispatch loginSuccess
+      if (error) {
+        // Only logout on actual auth errors, not network errors
+        const status = (error as any)?.status;
+        if (status === 401 || status === 403) {
+          dispatch(logout());
+        }
+        return;
+      }
+
+      if (user) {
+        // Valid user data, ensure Redux state is updated
         dispatch(loginSuccess({ user, token }));
       }
     }

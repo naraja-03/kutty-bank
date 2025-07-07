@@ -4,23 +4,14 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, IndianRupee, ChevronDown, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { formatCurrency, getInitials } from '../../../lib/formatters';
 import { useGetFamilyQuery, useInviteMemberMutation, useUpdateBudgetMutation, useDeleteFamilyMutation } from '../../../store/api/familyApi';
 import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
-import BottomNav from '../BottomNav';
 import FamilySelectorModal from '../FamilySelectorModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
-
-// Helper function to get user initials
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase())
-    .join('')
-    .slice(0, 2);
-};
 
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -142,15 +133,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
   if (isLoading) {
     return (
       <div className={clsx('min-h-screen text-white', className)}>
@@ -169,7 +151,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             ))}
           </div>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -180,7 +161,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         <div className="px-4 py-8 text-center">
           <p className="text-red-400">Error loading family data</p>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -216,8 +196,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             </button>
           </div>
         </div>
-        
-        <BottomNav />
       </div>
     );
   }
@@ -498,8 +476,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           setShowFamilySelector(false);
         }}
       />
-      
-      <BottomNav />
     </div>
   );
 }

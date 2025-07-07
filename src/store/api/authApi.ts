@@ -82,11 +82,9 @@ export const authApi = createApi({
       providesTags: ['User'],
     }),
     // Initial load endpoint to check auth status on app startup
-    initializeAuth: builder.query<User | null, void>({
+    initializeAuth: builder.query<User, void>({
       query: () => '/me',
       providesTags: ['User'],
-      transformResponse: (response: User) => response,
-      transformErrorResponse: () => null, // Return null if not authenticated
     }),
   }),
 });

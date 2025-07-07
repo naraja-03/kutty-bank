@@ -3,6 +3,7 @@
 import { Calendar, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
 import { ThreadPeriod, DEFAULT_THREADS } from './types';
+import { formatDateRange } from '../../../lib/formatters';
 
 interface ThreadSelectorProps {
   activeThread: ThreadPeriod;
@@ -45,17 +46,9 @@ export default function ThreadSelector({
     }
   };
 
-  const formatDateRange = (thread: ThreadPeriod) => {
+  const formatThreadDateRange = (thread: ThreadPeriod) => {
     const { start, end } = getDateRange(thread);
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: start.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
-      });
-    };
-    
-    return `${formatDate(start)} - ${formatDate(end)}`;
+    return formatDateRange(start, end);
   };
 
   return (
@@ -66,7 +59,7 @@ export default function ThreadSelector({
           <h3 className="font-semibold text-white">Time Period</h3>
         </div>
         <span className="text-xs text-gray-400">
-          {formatDateRange(activeThread)}
+          {formatThreadDateRange(activeThread)}
         </span>
       </div>
 

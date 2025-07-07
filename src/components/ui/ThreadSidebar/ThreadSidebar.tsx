@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { openCustomBudgetModal, openEditCustomBudgetModal } from '@/store/slices/uiSlice';
 import { useGetBudgetsQuery } from '@/store/api/budgetsApi';
+import { formatCurrency } from '../../../lib/formatters';
 import { addCustomBudgetThread } from '@/store/slices/threadsSlice';
 import { RootState } from '@/store';
 import { ThreadSidebarProps, SavedThread } from './types';
@@ -46,15 +47,6 @@ export default function ThreadSidebar({
       });
     }
   }, [budgets, threads, dispatch]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
 
   const handleNewThread = () => {
     dispatch(openCustomBudgetModal('create'));

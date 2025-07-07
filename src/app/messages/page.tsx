@@ -1,4 +1,3 @@
-import BottomNav from '../../components/ui/BottomNav';
 import { MessageCircle } from 'lucide-react';
 
 export default function MessagesPage() {
@@ -28,8 +27,6 @@ export default function MessagesPage() {
           </p>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

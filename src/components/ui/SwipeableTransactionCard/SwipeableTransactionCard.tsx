@@ -6,25 +6,9 @@ import { clsx } from 'clsx';
 import { animated, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 
-// Helper function to get user initials
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase())
-    .join('')
-    .slice(0, 2);
-};
+import { getInitials } from '../../../lib/strings';
 
-interface Transaction {
-  id: string;
-  amount: number;
-  type: 'income' | 'expense';
-  category: string;
-  userName: string;
-  userId: string;
-  createdAt: string | Date;
-  note?: string;
-}
+import type { Transaction } from '../../../types/transaction';
 
 interface SwipeableTransactionCardProps {
   transaction: Transaction;

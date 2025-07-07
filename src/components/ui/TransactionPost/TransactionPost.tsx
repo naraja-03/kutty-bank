@@ -1,10 +1,10 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
 import { clsx } from 'clsx';
 import { MessageCircle, MoreHorizontal, Edit3, Trash2 } from 'lucide-react';
 import { TransactionPostProps } from './types';
 import { useState, useEffect } from 'react';
+import { formatCurrency, formatTime } from '../../../lib/formatters';
 
 export default function TransactionPost({
   id,
@@ -40,19 +40,7 @@ export default function TransactionPost({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  const formatTimestamp = (ts: string | Date) => {
-    const date = typeof ts === 'string' ? new Date(ts) : ts;
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
 
   const handleSaveNote = () => {
     if (id && onUpdateNote) {
@@ -110,9 +98,9 @@ export default function TransactionPost({
 
   const getStatusText = () => {
     if (type === 'income') {
-      return `received ${formatAmount(amount)} from ${category}`;
+      return `received ${formatCurrency(amount)} from ${category}`;
     } else {
-      return `spent ${formatAmount(amount)} on ${category}`;
+      return `spent ${formatCurrency(amount)} on ${category}`;
     }
   };
 
@@ -138,7 +126,7 @@ export default function TransactionPost({
             <div className="flex items-center space-x-2">
               <span className="text-white font-medium text-sm">{userName}</span>
               <span className="text-gray-500 text-xs">
-                {formatTimestamp(createdAt)}
+                {formatTime(createdAt)}
               </span>
             </div>
             
@@ -187,7 +175,7 @@ export default function TransactionPost({
               'text-2xl font-bold',
               type === 'income' ? 'text-green-400' : 'text-red-400'
             )}>
-              {type === 'income' ? '+' : '-'}{formatAmount(Math.abs(amount))}
+              {type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(amount))}
             </div>
 
             {/* Note - with inline editing */}

@@ -8,7 +8,8 @@ import { ChevronDown, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
-import BottomNav from '../BottomNav';
+import { formatAmount, formatTime } from '../../../lib/formatters';
+
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 
 interface ActivityFeedProps {
@@ -113,44 +114,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  const formatTime = (timestamp: string | Date) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
 
-    if (isToday) {
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-    }
-
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const formatAmount = (amount: number, type: 'income' | 'expense') => {
-    // Handle large amounts by abbreviating them for transaction cards
-    if (Math.abs(amount) >= 10000000) { // 1 crore
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 10000000).toFixed(1)}Cr`;
-    } else if (Math.abs(amount) >= 100000) { // 1 lakh
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 100000).toFixed(1)}L`;
-    } else if (Math.abs(amount) >= 1000) { // 1 thousand
-      return `${type === 'expense' ? '-' : '+'}₹${(Math.abs(amount) / 1000).toFixed(1)}K`;
-    }
-    
-    const formatted = new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-
-    return type === 'expense' ? `-${formatted}` : `+${formatted}`;
-  };
 
   const handleEditTransaction = (transactionId: string) => {
     // Find the transaction in the current data
@@ -290,8 +254,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           <ChevronDown className="w-5 h-5" />
         </button>
       )}
-
-      <BottomNav />
     </div>
   );
 }
