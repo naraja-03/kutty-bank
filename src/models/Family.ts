@@ -31,15 +31,12 @@ const FamilySchema = new Schema<IFamily>(
   }
 );
 
-// Index for efficient queries
 FamilySchema.index({ name: 1 });
 
-// Virtual for id
 FamilySchema.virtual('id').get(function(this: IFamily) {
   return this._id.toString();
 });
 
-// Ensure virtual fields are serialised
 FamilySchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {

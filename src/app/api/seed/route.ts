@@ -9,12 +9,10 @@ export async function POST() {
   try {
     await connectToDatabase();
 
-    // Clear existing data
     await User.deleteMany({});
     await Family.deleteMany({});
     await Transaction.deleteMany({});
 
-    // Create family first
     const family = new Family({
       name: 'Raja & Suriya Family',
       budgetCap: 200000, // 2 lakh monthly budget
@@ -22,7 +20,6 @@ export async function POST() {
     });
     await family.save();
 
-    // Create users with proper roles
     const hashedPassword = await bcrypt.hash('password123', 10);
     
     const raja = new User({
@@ -45,13 +42,10 @@ export async function POST() {
     });
     await suriya.save();
 
-    // Update family with member IDs
     family.members = [raja._id, suriya._id];
     await family.save();
 
-    // Create sample transactions for July 2025
     const transactions = [
-      // Raja's income
       {
         amount: 82000,
         category: 'salary',
@@ -61,7 +55,6 @@ export async function POST() {
         note: 'Monthly salary - July 2025',
         timestamp: new Date('2025-07-01T09:00:00Z'),
       },
-      // Suriya's income
       {
         amount: 40000,
         category: 'salary',
@@ -71,7 +64,6 @@ export async function POST() {
         note: 'Monthly salary - July 2025',
         timestamp: new Date('2025-07-01T09:30:00Z'),
       },
-      // Some expenses
       {
         amount: 5000,
         category: 'food',

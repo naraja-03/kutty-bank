@@ -17,7 +17,6 @@ interface TransactionStats {
   recentTransactions: unknown[];
 }
 
-// GET /api/transactions/stats - Get transaction statistics
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -27,12 +26,10 @@ export async function GET(request: NextRequest) {
     const familyId = searchParams.get('familyId');
     const period = searchParams.get('period') || 'all'; // 'all', 'month', 'year'
 
-    // Build base query
     const baseQuery: Record<string, unknown> = {};
     if (userId) baseQuery.userId = userId;
     if (familyId) baseQuery.familyId = familyId;
 
-    // Add date filter based on period
     if (period === 'month') {
       const now = new Date();
       const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -43,7 +40,6 @@ export async function GET(request: NextRequest) {
       baseQuery.createdAt = { $gte: firstDay };
     }
 
-    // Get total income and expense
     const [incomeStats, expenseStats] = await Promise.all([
       Transaction.aggregate([
         { $match: { ...baseQuery, type: 'income' } },
@@ -59,7 +55,6 @@ export async function GET(request: NextRequest) {
     const totalExpense = expenseStats[0]?.total || 0;
     const balance = totalIncome - totalExpense;
 
-    // Get monthly stats
     const currentMonth = new Date();
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     
@@ -78,7 +73,6 @@ export async function GET(request: NextRequest) {
     const monthlyExpense = monthlyExpenseStats[0]?.total || 0;
     const monthlyBalance = monthlyIncome - monthlyExpense;
 
-    // Get category breakdown
     const categoryBreakdown = await Transaction.aggregate([
       { $match: { ...baseQuery, type: 'expense' } },
       {
@@ -99,7 +93,6 @@ export async function GET(request: NextRequest) {
       }
     ]);
 
-    // Get recent transactions
     const recentTransactions = await Transaction.find(baseQuery)
       .sort({ createdAt: -1 })
       .limit(5)

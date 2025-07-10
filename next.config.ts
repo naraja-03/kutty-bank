@@ -6,18 +6,14 @@ const bundleAnalyzer = withBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // PWA optimizations
   experimental: {
-    // optimizeCss: true, // Disabled due to build issues
     optimizePackageImports: ['lucide-react', '@headlessui/react'],
   },
   
-  // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
@@ -30,10 +26,8 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // Compression
   compress: true,
   
-  // Headers for security and performance
   async headers() {
     return [
       {

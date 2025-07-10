@@ -53,7 +53,6 @@ export default function BottomNav({
   const getActiveTab = () => {
     if (activeTab) return activeTab;
 
-    // Auto-detect active tab from pathname
     const currentPath = pathname.split('/')[1];
     return tabs.find(tab => tab.id === currentPath)?.id || 'dashboard';
   };

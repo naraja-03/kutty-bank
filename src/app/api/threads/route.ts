@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Thread from '@/models/Thread';
 
-// GET /api/threads - Get all threads for the user
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -18,7 +17,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user's custom threads
     const query = familyId ? { familyId } : { userId };
     const threads = await Thread.find(query).sort({ createdAt: -1 });
 
@@ -32,7 +30,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/threads - Create a new custom thread
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -54,7 +51,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a new custom thread
     const thread = new Thread({
       label,
       value: 'custom',

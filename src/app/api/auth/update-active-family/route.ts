@@ -9,12 +9,10 @@ interface UpdateActiveFamilyBody {
   familyId: string;
 }
 
-// PATCH /api/auth/update-active-family - Update user's active family
 export async function PATCH(request: NextRequest) {
   try {
     await connectToDatabase();
     
-    // Get auth token from headers
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
@@ -25,7 +23,6 @@ export async function PATCH(request: NextRequest) {
 
     const token = authHeader.substring(7);
     
-    // Verify JWT token
     if (!process.env.JWT_SECRET) {
       return NextResponse.json(
         { error: 'JWT secret not configured' },
@@ -38,7 +35,6 @@ export async function PATCH(request: NextRequest) {
     const body: UpdateActiveFamilyBody = await request.json();
     const { userId, familyId } = body;
     
-    // Validate required fields
     if (!userId || !familyId) {
       return NextResponse.json(
         { error: 'Missing required fields: userId, familyId' },
@@ -46,7 +42,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
     
-    // Verify the requesting user matches the userId
     if (decoded.userId !== userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -54,7 +49,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
     
-    // Update user's active family
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { familyId },
@@ -68,7 +62,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
     
-    // Transform the response to match the expected format
     const userResponse = {
       id: updatedUser._id.toString(),
       name: updatedUser.name,

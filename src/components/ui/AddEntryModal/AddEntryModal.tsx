@@ -30,14 +30,11 @@ export default function AddEntryModal({
     image: undefined
   });
 
-  // const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditMode = !!editData;
   
   const { activeThread } = useSelector((state: RootState) => state.threads);
 
-  // Populate form data when editing
   useEffect(() => {
-    // Determine budgetId based on active thread
     const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
     
     if (editData) {
@@ -72,7 +69,6 @@ export default function AddEntryModal({
 
   const handleClose = () => {
     if (isLoading) return;
-    // Determine budgetId based on active thread
     const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
     
     setFormData({
@@ -86,13 +82,6 @@ export default function AddEntryModal({
     });
     onClose();
   };
-
-  // const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     setFormData(prev => ({ ...prev, image: file }));
-  //   }
-  // };
 
   const categories = formData.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
@@ -123,7 +112,7 @@ export default function AddEntryModal({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-md sm:max-w-lg lg:max-w-xl transform overflow-hidden rounded-2xl bg-black border border-gray-800 p-4 sm:p-6 text-left align-middle shadow-xl transition-all mx-4">
-                {/* Header */}
+                {}
                 <div className="flex items-center justify-between mb-6">
                   <Dialog.Title className="text-lg sm:text-xl font-semibold text-white">
                     {isEditMode ? 'Edit Transaction' : 'Add Transaction'}
@@ -137,9 +126,9 @@ export default function AddEntryModal({
                   </button>
                 </div>
 
-                {/* Form */}
+                {}
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Type Toggle */}
+                  {}
                   <div className="flex bg-gray-900/95 rounded-lg p-1">
                     <button
                       type="button"
@@ -167,7 +156,7 @@ export default function AddEntryModal({
                     </button>
                   </div>
 
-                  {/* Amount */}
+                  {}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
                       Amount
@@ -187,7 +176,7 @@ export default function AddEntryModal({
                     </div>
                   </div>
 
-                  {/* Date */}
+                  {}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
                       Date
@@ -204,7 +193,7 @@ export default function AddEntryModal({
                     </div>
                   </div>
 
-                  {/* Category */}
+                  {}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
                       Category
@@ -220,14 +209,14 @@ export default function AddEntryModal({
                         <option value="">Select category</option>
                         {categories.map((cat) => (
                           <option key={cat.value} value={cat.value}>
-                            {cat.emoji} {cat.label}
+                            {cat.label}
                           </option>
                         ))}
                       </select>
                     </div>
                   </div>
 
-                  {/* Note */}
+                  {}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
                       Note (Optional)
@@ -244,29 +233,10 @@ export default function AddEntryModal({
                     </div>
                   </div>
 
-                  {/* Image Upload */}
-                  {/* <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Attach Image (Optional)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3 px-4 bg-gray-900/95 border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <Camera size={16} />
-                      <span>{formData.image ? formData.image.name : 'Add photo'}</span>
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </div> */}
+                  {}
+                  {}
 
-                  {/* Submit Button */}
+                  {}
                   <button
                     type="submit"
                     disabled={isLoading || formData.amount <= 0 || !formData.category}

@@ -55,16 +55,13 @@ const ThreadSchema = new Schema<IThread>({
   timestamps: true
 });
 
-// Index for efficient queries
 ThreadSchema.index({ userId: 1, createdAt: -1 });
 ThreadSchema.index({ familyId: 1, createdAt: -1 });
 
-// Virtual for id
 ThreadSchema.virtual('id').get(function(this: IThread) {
   return this._id.toString();
 });
 
-// Ensure virtual fields are serialised
 ThreadSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {

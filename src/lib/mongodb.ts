@@ -13,12 +13,10 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Extend global interface for type safety
 declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-// Global cache to prevent multiple connections in development
 const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {

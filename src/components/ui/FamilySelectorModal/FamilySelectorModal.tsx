@@ -60,10 +60,8 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
     try {
       setShowCreateForm(false)
       if (onCreateFamily) {
-        // Use the provided onCreateFamily callback
         onCreateFamily(formData);
       } else {
-        // Direct API call if no callback provided
         const newFamily = await createFamily({ name: formData.name }).unwrap();
         handleSelectFamily(newFamily.id);
       }
@@ -82,14 +80,12 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
     }
   };
 
-  // For now, we'll show a message about single family support
-  // Later this can be extended to support multiple families
   const familyData = Array.isArray(families) ? families : [];
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-2xl w-full max-w-md border border-gray-800">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <h2 className="text-xl font-semibold text-white">
             {showCreateForm ? 'Create Family' : 'Select Family'}
@@ -103,7 +99,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
+        {}
         <div className="p-6">
           {!showCreateForm ? (
             <>
@@ -144,7 +140,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 </div>
               )}
 
-              {/* Create Family Button */}
+              {}
               <button
                 onClick={() => setShowCreateForm(true)}
                 className="w-full flex items-center justify-center space-x-2 p-4 rounded-xl border border-dashed border-gray-700 hover:border-gray-600 bg-gray-800/30 hover:bg-gray-800/50 transition-all"
@@ -154,9 +150,9 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
               </button>
             </>
           ) : (
-            /* Create Family Form */
+            
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Family Name */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Family Name
@@ -171,7 +167,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 />
               </div>
 
-              {/* Target Saving Per Month */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Target Saving Per Month (₹)
@@ -190,7 +186,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 </div>
               </div>
 
-              {/* Family Members */}
+              {}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-sm font-medium text-gray-300">
@@ -274,7 +270,7 @@ const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 </div>
               </div>
 
-              {/* Form Actions */}
+              {}
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"

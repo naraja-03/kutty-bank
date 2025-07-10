@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useAuthInitialization } from '@/hooks/useAuthInitialization';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -13,19 +14,29 @@ interface AuthGuardProps {
 export default function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  const { isInitializing } = useAuthInitialization();
 
   useEffect(() => {
-    if (!isLoading) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !isLoading && !isInitializing) {
       if (requireAuth && !isAuthenticated) {
-        router.push('/login');
+        router.replace('/login');
       } else if (!requireAuth && isAuthenticated) {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, router]);
+  }, [isAuthenticated, isLoading, isInitializing, requireAuth, router, isMounted]);
 
-  // Show loading spinner while checking auth
-  if (isLoading) {
+  if (!isMounted) {
+    return null;
+  }
+
+  if (isLoading || isInitializing) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
@@ -36,7 +47,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     );
   }
 
-  // Don't render children if auth check fails
   if (requireAuth && !isAuthenticated) {
     return null;
   }

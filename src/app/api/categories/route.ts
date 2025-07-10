@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Transaction categories for KuttyBank
 const categories = [
   {
     id: 'food',
@@ -52,10 +51,24 @@ const categories = [
     type: 'expense'
   },
   {
+    id: 'travel',
+    name: 'Travel',
+    icon: '✈️',
+    color: '#00D2D3',
+    type: 'expense'
+  },
+  {
     id: 'salary',
     name: 'Salary',
     icon: '💰',
     color: '#5F27CD',
+    type: 'income'
+  },
+  {
+    id: 'freelance',
+    name: 'Freelance',
+    icon: '💻',
+    color: '#FF6348',
     type: 'income'
   },
   {
@@ -87,6 +100,13 @@ const categories = [
     type: 'income'
   },
   {
+    id: 'refund',
+    name: 'Refund',
+    icon: '💸',
+    color: '#74B9FF',
+    type: 'income'
+  },
+  {
     id: 'other',
     name: 'Other',
     icon: '📂',
@@ -95,7 +115,6 @@ const categories = [
   }
 ];
 
-// GET /api/categories - Get transaction categories
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -119,13 +138,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/categories - Add custom category (for future use)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, icon, color, type } = body;
 
-    // Validate required fields
     if (!name || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: name, type' },
@@ -133,7 +150,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate type
     if (!['income', 'expense', 'both'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid type. Must be "income", "expense", or "both"' },
@@ -141,7 +157,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, just return the category (in future, save to database)
     const customCategory = {
       id: name.toLowerCase().replace(/\s+/g, '_'),
       name,

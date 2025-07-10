@@ -14,23 +14,37 @@ interface UpdateUserBody {
   role?: 'admin' | 'member' | 'view-only';
 }
 
-// Helper function to transform user data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformUserData(user: any) {
+interface MongoUser {
+  _id?: { toString(): string } | string;
+  id?: string;
+  name: string;
+  email: string;
+  role: string;
+  profileImage?: string;
+  familyId?: { _id?: { toString(): string } | string } | string;
+  families?: Array<{ _id?: { toString(): string } | string } | string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  toObject?(): MongoUser;
+}
+
+function transformUserData(user: MongoUser) {
   const userObj = user.toObject ? user.toObject() : user;
   return {
     ...userObj,
     id: userObj._id?.toString() || userObj.id,
     _id: userObj._id?.toString(),
-    familyId: userObj.familyId?._id?.toString() || userObj.familyId,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    families: userObj.families?.map((familyId: any) => 
-      familyId._id?.toString() || familyId.toString()
+    familyId: userObj.familyId && typeof userObj.familyId === 'object' 
+      ? userObj.familyId._id?.toString() || userObj.familyId.toString()
+      : userObj.familyId?.toString(),
+    families: userObj.families?.map((familyId) => 
+      typeof familyId === 'object' 
+        ? familyId._id?.toString() || familyId.toString()
+        : familyId.toString()
     ) || []
   };
 }
 
-// GET /api/users - Get users with optional filtering
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -42,7 +56,6 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
 
     if (userId) {
-      // Get specific user
       const user = await User.findById(userId)
         .populate('familyId', 'name budgetCap')
         .select('-password');
@@ -57,7 +70,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(transformUserData(user));
     }
 
-    // Build query
     const query: UserQuery = {};
     if (familyId) query.familyId = familyId;
     if (role && ['admin', 'member', 'view-only'].includes(role)) {
@@ -80,7 +92,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/users - Update user profile
 export async function PUT(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -121,7 +132,6 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating user:', error);
     
-    // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation failed', details: error.message },
@@ -136,7 +146,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE /api/users - Delete user
 export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();

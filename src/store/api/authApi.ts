@@ -33,7 +33,12 @@ export const authApi = createApi({
     baseUrl: '/api/auth',
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as RootState;
-      const token = state.auth.token;
+      let token = state.auth.token;
+      
+      if (!token && typeof window !== 'undefined') {
+        token = localStorage.getItem('token');
+      }
+      
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -75,6 +80,10 @@ export const authApi = createApi({
       query: () => '/me',
       providesTags: ['User'],
     }),
+    initializeAuth: builder.query<User, void>({
+      query: () => '/me',
+      providesTags: ['User'],
+    }),
   }),
 });
 
@@ -84,4 +93,7 @@ export const {
   useLogoutMutation,
   useGetCurrentUserQuery,
   useUpdateUserActiveFamilyMutation,
+  useInitializeAuthQuery,
 } = authApi;
+
+export const initializeAuthOnLoad = () => authApi.endpoints.initializeAuth.initiate();

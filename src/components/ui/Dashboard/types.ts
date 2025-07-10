@@ -11,11 +11,3 @@ export interface DashboardStats {
   savingsGoal?: number;
   savingsProgress?: number;
 }
-
-export interface QuickAction {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  value: string;
-  color: 'green' | 'red' | 'blue' | 'purple';
-}

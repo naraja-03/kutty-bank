@@ -1,4 +1,3 @@
-// filepath: c:\Users\BRIGHTSPEED\Documents\GitHub\kutty-bank\src\models\Transaction.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITransaction extends Document {
@@ -27,16 +26,24 @@ const TransactionSchema = new Schema<ITransaction>(
       required: true,
       trim: true,
       enum: [
+        // Expense categories
         'food',
         'transport',
-        'entertainment',
         'shopping',
+        'entertainment',
         'bills',
         'healthcare',
         'education',
+        'travel',
+        // Income categories
         'salary',
+        'freelance',
         'business',
         'investment',
+        'allowance',
+        'gift',
+        'refund',
+        // Common
         'other',
       ],
     },
@@ -73,18 +80,15 @@ const TransactionSchema = new Schema<ITransaction>(
   }
 );
 
-// Index for efficient queries
 TransactionSchema.index({ userId: 1, createdAt: -1 });
 TransactionSchema.index({ familyId: 1, createdAt: -1 });
 TransactionSchema.index({ budgetId: 1, createdAt: -1 });
 TransactionSchema.index({ type: 1, createdAt: -1 });
 
-// Virtual for id
 TransactionSchema.virtual('id').get(function(this: ITransaction) {
   return this._id.toString();
 });
 
-// Ensure virtual fields are serialised
 TransactionSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {

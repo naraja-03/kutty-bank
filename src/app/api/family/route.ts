@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Family from '@/models/Family';
+import Family, { IFamily } from '@/models/Family';
 import User from '@/models/User';
 import Budget from '@/models/Budget';
 import Transaction from '@/models/Transaction';
@@ -21,16 +21,19 @@ interface FamilyQuery {
   name?: string;
 }
 
-// Helper function to transform family data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformFamilyData(family: any) {
+interface FamilyMember {
+  _id: string;
+  id: string;
+  [key: string]: unknown;
+}
+
+function transformFamilyData(family: IFamily) {
   const familyObj = family.toObject ? family.toObject() : family;
   return {
     ...familyObj,
     id: familyObj._id?.toString() || familyObj.id,
     _id: familyObj._id?.toString(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    members: familyObj.members?.map((member: any) => ({
+    members: familyObj.members?.map((member: FamilyMember) => ({
       ...member,
       id: member._id?.toString() || member.id,
       _id: member._id?.toString(),
@@ -38,7 +41,6 @@ function transformFamilyData(family: any) {
   };
 }
 
-// Helper function to get user from token
 async function getUserFromToken(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -58,7 +60,6 @@ async function getUserFromToken(request: NextRequest) {
   }
 }
 
-// GET /api/family - Get families or specific family
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -67,7 +68,6 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
     const familyId = searchParams.get('familyId');
 
-    // If no specific params, get current user's families
     if (!userId && !familyId) {
       const currentUser = await getUserFromToken(request);
       if (!currentUser) {
@@ -77,7 +77,6 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // Get all families the user belongs to
       if (currentUser.families && currentUser.families.length > 0) {
         const families = await Family.find({
           _id: { $in: currentUser.families }
@@ -88,7 +87,6 @@ export async function GET(request: NextRequest) {
     }
 
     if (familyId) {
-      // Get specific family
       const family = await Family.findById(familyId)
         .populate('members', 'name email profileImage role');
       
@@ -102,11 +100,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(transformFamilyData(family));
     }
 
-    // Build query
     const query: FamilyQuery = {};
     
     if (userId) {
-      // Find families where user is a member
       const user = await User.findById(userId);
       if (user && user.families && user.families.length > 0) {
         const families = await Family.find({
@@ -117,7 +113,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([]);
     }
 
-    // Get all families (admin only)
     const families = await Family.find(query)
       .populate('members', 'name email profileImage role')
       .sort({ createdAt: -1 });
@@ -132,7 +127,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/family - Create a new family
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -140,7 +134,6 @@ export async function POST(request: NextRequest) {
     const body: CreateFamilyBody = await request.json();
     const { name, targetSavingPerMonth } = body;
 
-    // Get current user from token
     const currentUser = await getUserFromToken(request);
     if (!currentUser) {
       return NextResponse.json(
@@ -149,7 +142,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate required fields
     if (!name) {
       return NextResponse.json(
         { error: 'Missing required field: name' },
@@ -157,7 +149,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create family
     const family = new Family({
       name,
       budgetCap: targetSavingPerMonth,
@@ -166,14 +157,12 @@ export async function POST(request: NextRequest) {
 
     const savedFamily = await family.save();
 
-    // Update user's familyId, role, and add to families array
     await User.findByIdAndUpdate(currentUser._id, {
       familyId: savedFamily._id,
       role: 'admin',
       $addToSet: { families: savedFamily._id }
     });
 
-    // Create default budgets for the family
     const defaultBudgets = [
       {
         label: 'This Week',
@@ -206,17 +195,12 @@ export async function POST(request: NextRequest) {
 
     await Budget.insertMany(defaultBudgets);
 
-    // TODO: If members are provided, create invitations or add them
-    // For now, just create the family with the current user
-
-    // Populate and return
     await savedFamily.populate('members', 'name email profileImage role');
 
     return NextResponse.json(transformFamilyData(savedFamily), { status: 201 });
   } catch (error) {
     console.error('Error creating family:', error);
     
-    // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation failed', details: error.message },
@@ -231,7 +215,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT /api/family - Update family
 export async function PUT(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -269,7 +252,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE /api/family - Delete family (admin only)
 export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -284,7 +266,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get current user from token
     const currentUser = await getUserFromToken(request);
     if (!currentUser) {
       return NextResponse.json(
@@ -293,7 +274,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Find the family and check if user is an admin
     const family = await Family.findById(familyId);
     if (!family) {
       return NextResponse.json(
@@ -302,7 +282,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Check if current user is admin of this family
     if (currentUser.role !== 'admin' || !currentUser.families?.includes(familyId)) {
       return NextResponse.json(
         { error: 'Unauthorized: Only family admins can delete families' },
@@ -310,7 +289,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Remove family reference from all members
     await User.updateMany(
       { families: familyId },
       { 
@@ -319,13 +297,10 @@ export async function DELETE(request: NextRequest) {
       }
     );
 
-    // Delete all budgets associated with this family
     await Budget.deleteMany({ familyId });
 
-    // Delete all transactions associated with this family
     await Transaction.deleteMany({ familyId });
 
-    // Delete the family
     await Family.findByIdAndDelete(familyId);
 
     return NextResponse.json(

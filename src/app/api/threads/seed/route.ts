@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Thread from '@/models/Thread';
 
-// POST /api/threads/seed - Create sample threads for testing
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -16,7 +15,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create sample threads
     const sampleThreads = [
       {
         label: 'Vacation Fund 2025',
@@ -53,10 +51,8 @@ export async function POST(request: NextRequest) {
       }
     ];
 
-    // Delete existing sample threads for this user
     await Thread.deleteMany({ userId, label: { $in: sampleThreads.map(t => t.label) } });
 
-    // Create new threads
     const threads = await Thread.insertMany(sampleThreads);
 
     return NextResponse.json({

@@ -30,13 +30,11 @@ export default function CustomThreadModal({
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Initialize form data when modal opens or threadData changes
   useEffect(() => {
     if (isOpen) {
       if (mode === 'edit' && threadData) {
         setFormData(threadData);
       } else {
-        // Reset form for create mode
         setFormData({
           name: '',
           description: '',
@@ -54,20 +52,11 @@ export default function CustomThreadModal({
     }));
   };
 
-  // const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
-  //   const date = new Date(value);
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     [field]: date
-  //   }));
-  // };
-
   const handleSubmit = async () => {
     if (!formData.name.trim() || !currentUser) return;
 
     try {
       if (mode === 'create') {
-        // Create new budget in database
         await createBudget({
           label: formData.name,
           description: formData.description,
@@ -76,14 +65,12 @@ export default function CustomThreadModal({
           familyId: currentUser.familyId,
         }).unwrap();
 
-        // Also update local Redux state
         dispatch(createCustomThread({
           label: formData.name,
           description: formData.description,
           targetAmount: formData.targetAmount,
         }));
       } else if (mode === 'edit' && threadData?.id) {
-        // Update budget in database
         await updateBudget({
           id: threadData.id,
           label: formData.name,
@@ -92,7 +79,6 @@ export default function CustomThreadModal({
           userId: currentUser.id,
         }).unwrap();
 
-        // Also update local Redux state
         dispatch(updateCustomThread({
           id: threadData.id,
           label: formData.name,
@@ -104,7 +90,6 @@ export default function CustomThreadModal({
       onClose();
     } catch (error) {
       console.error('Failed to save thread:', error);
-      // You could add a toast notification here
     }
   };
 
@@ -112,18 +97,15 @@ export default function CustomThreadModal({
     if (!threadData?.id || !currentUser) return;
 
     try {
-      // Delete from database
       await deleteBudget({
         id: threadData.id,
         userId: currentUser.id
       }).unwrap();
 
-      // Also update local Redux state
       dispatch(removeSavedThread(threadData.id));
       onClose();
     } catch (error) {
       console.error('Failed to delete thread:', error);
-      // You could add a toast notification here
     }
   };
 
@@ -159,7 +141,7 @@ export default function CustomThreadModal({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 p-6 text-left align-middle shadow-xl transition-all">
-                {/* Header */}
+                {}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -177,7 +159,7 @@ export default function CustomThreadModal({
                   </button>
                 </div>
 
-                {/* Delete Confirmation */}
+                {}
                 {showDeleteConfirm ? (
                   <div className="space-y-4">
                     <div className="text-center">
@@ -207,9 +189,9 @@ export default function CustomThreadModal({
                   </div>
                 ) : (
                   <>
-                    {/* Form */}
+                    {}
                     <div className="space-y-5">
-                      {/* Thread Name */}
+                      {}
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                           <FileText className="w-4 h-4" />
@@ -224,7 +206,7 @@ export default function CustomThreadModal({
                         />
                       </div>
 
-                      {/* Description */}
+                      {}
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                           <FileText className="w-4 h-4" />
@@ -239,7 +221,7 @@ export default function CustomThreadModal({
                         />
                       </div>
 
-                      {/* Target Amount */}
+                      {}
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                           <Target className="w-4 h-4" />
@@ -257,35 +239,10 @@ export default function CustomThreadModal({
                         </div>
                       </div>
 
-                      {/* Date Range */}
-                      {/* <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                            <Calendar className="w-4 h-4" />
-                            Start Date
-                          </label>
-                          <input
-                            type="date"
-                            value={format(formData.startDate, 'yyyy-MM-dd')}
-                            onChange={(e) => handleDateChange('startDate', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                            <Calendar className="w-4 h-4" />
-                            End Date
-                          </label>
-                          <input
-                            type="date"
-                            value={format(formData.endDate, 'yyyy-MM-dd')}
-                            onChange={(e) => handleDateChange('endDate', e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div> */}
+                      {}
+                      {}
 
-                      {/* Preview */}
+                      {}
                       <div className="p-3 bg-gray-700/30 rounded-lg border border-gray-600/50">
                         <div className="text-xs text-gray-400 mb-1">Preview</div>
                         <div className="text-sm text-white font-medium">{getPreviewText()}</div>
@@ -298,7 +255,7 @@ export default function CustomThreadModal({
                       </div>
                     </div>
 
-                    {/* Actions */}
+                    {}
                     <div className="flex gap-3 mt-6">
                       {mode === 'edit' && (
                         <button

@@ -6,12 +6,10 @@ import Budget from '@/models/Budget';
 import User from '@/models/User';
 import Family from '@/models/Family';
 
-// POST /api/clear-db - Clear all data from the database
 export async function POST() {
   try {
     await connectToDatabase();
     
-    // Clear all collections
     await Transaction.deleteMany({});
     await Thread.deleteMany({});
     await Budget.deleteMany({});

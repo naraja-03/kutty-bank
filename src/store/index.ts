@@ -26,7 +26,6 @@ export const store = configureStore({
         ignoredActions: [
           "persist/PERSIST", 
           "persist/REHYDRATE",
-          // RTK Query actions
           "api/executeQuery/pending",
           "api/executeQuery/fulfilled",
           "api/executeQuery/rejected",
@@ -38,7 +37,6 @@ export const store = configureStore({
           "threads.allThreads",
           "api.meta.baseQueryMeta",
           "threads.activeThread.createdAt",
-          // RTK Query paths
           "api.queries",
           "api.mutations",
         ],

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { openCustomBudgetModal, openEditCustomBudgetModal } from '@/store/slices/uiSlice';
 import { useGetBudgetsQuery } from '@/store/api/budgetsApi';
+import { formatCurrency } from '../../../lib/formatters';
 import { addCustomBudgetThread } from '@/store/slices/threadsSlice';
 import { RootState } from '@/store';
 import { ThreadSidebarProps, SavedThread } from './types';
@@ -22,13 +23,11 @@ export default function ThreadSidebar({
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   
-  // Fetch custom budgets
   const { data: budgets = [] } = useGetBudgetsQuery(
     user ? { userId: user.id, familyId: user.familyId } : { userId: '', familyId: '' },
     { skip: !user }
   );
 
-  // Sync custom budgets with threads
   useEffect(() => {
     if (budgets.length > 0) {
       budgets.forEach(budget => {
@@ -46,15 +45,6 @@ export default function ThreadSidebar({
       });
     }
   }, [budgets, threads, dispatch]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
 
   const handleNewThread = () => {
     dispatch(openCustomBudgetModal('create'));
@@ -119,7 +109,7 @@ export default function ThreadSidebar({
               leaveTo="opacity-0 -translate-x-full"
             >
               <Dialog.Panel className="w-80 h-full bg-black border-r border-gray-800 p-6 text-white shadow-xl transform transition-all">
-                {/* Header */}
+                {}
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <Dialog.Title className="text-xl font-bold">Threads</Dialog.Title>
@@ -133,7 +123,7 @@ export default function ThreadSidebar({
                   </button>
                 </div>
 
-                {/* New Thread Button */}
+                {}
                 <button
                   onClick={handleNewThread}
                   className="w-full mb-6 bg-white text-black py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-100 transition-colors"
@@ -142,7 +132,7 @@ export default function ThreadSidebar({
                   <span>New Custom Thread</span>
                 </button>
 
-                {/* Thread List */}
+                {}
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
                     Available Threads
@@ -184,7 +174,7 @@ export default function ThreadSidebar({
                             )}
                           </div>
 
-                          {/* Thread Stats */}
+                          {}
                           {savedThread.totalTransactions !== undefined && (
                             <div className="flex items-center justify-between text-xs">
                               <div className="flex items-center space-x-1">
@@ -209,14 +199,14 @@ export default function ThreadSidebar({
                             </div>
                           )}
 
-                          {/* Target Amount for Custom Threads */}
+                          {}
                           {savedThread.isCustom && savedThread.targetAmount && savedThread.targetAmount > 0 && (
                             <div className="text-xs text-blue-400 mt-1">
                               Target: {formatCurrency(savedThread.targetAmount)}
                             </div>
                           )}
 
-                          {/* Description for Custom Threads */}
+                          {}
                           {savedThread.isCustom && savedThread.description && (
                             <div className="text-xs text-gray-500 mt-1 truncate">
                               {savedThread.description}
@@ -224,7 +214,7 @@ export default function ThreadSidebar({
                           )}
                         </button>
 
-                        {/* Edit/Delete Menu for Custom Threads */}
+                        {}
                         {savedThread.isCustom && (
                           <div className="absolute top-3 right-3">
                             <Menu as="div" className="relative">
@@ -254,7 +244,6 @@ export default function ThreadSidebar({
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        // TODO: Add delete confirmation
                                         console.log('Delete thread:', savedThread.id);
                                       }}
                                       className={clsx(
@@ -276,7 +265,7 @@ export default function ThreadSidebar({
                   })}
                 </div>
 
-                {/* Footer */}
+                {}
                 <div className="mt-8 pt-4 border-t border-gray-800">
                   <p className="text-xs text-gray-500 text-center">
                     Create custom threads to track specific time periods and compare your financial progress.

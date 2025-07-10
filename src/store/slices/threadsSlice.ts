@@ -152,7 +152,6 @@ const threadsSlice = createSlice({
         };
       }
       
-      // Update active thread if it's the one being edited
       if (state.activeThread.id === id) {
         state.activeThread = {
           ...state.activeThread,
@@ -206,7 +205,6 @@ const threadsSlice = createSlice({
       state.allThreads = state.allThreads.filter(thread => thread.id !== action.payload);
       state.savedThreads = state.savedThreads.filter(thread => thread.id !== action.payload);
       
-      // If active thread is removed, switch to daily budget
       if (state.activeThread.id === action.payload) {
         const dailyBudget = state.allThreads.find(thread => thread.budgetId === 'daily');
         if (dailyBudget) {

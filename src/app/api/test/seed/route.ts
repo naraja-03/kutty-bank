@@ -5,12 +5,10 @@ import User from '@/models/User';
 import Family from '@/models/Family';
 import bcrypt from 'bcryptjs';
 
-// POST /api/test/seed - Create test data
 export async function POST() {
   try {
     await connectToDatabase();
 
-    // Create Threedot family users
     const familyUsers = [
       {
         name: 'Raja',
@@ -26,15 +24,12 @@ export async function POST() {
       }
     ];
 
-    // Clear existing data
     await User.deleteMany({ email: { $in: familyUsers.map(u => u.email) } });
     await Transaction.deleteMany({});
     await Family.deleteMany({ name: 'Threedot' });
 
-    // Create users
     const createdUsers = await User.insertMany(familyUsers);
 
-    // Create Threedot family
     const threedotFamily = new Family({
       name: 'Threedot',
       members: createdUsers.map(user => user._id),
@@ -42,18 +37,15 @@ export async function POST() {
     });
     await threedotFamily.save();
 
-    // Update users with familyId
     await User.updateMany(
       { _id: { $in: createdUsers.map(u => u._id) } },
       { $set: { familyId: threedotFamily._id } }
     );
 
-    // Create July 2025 transactions (day 1-5)
     const currentYear = 2025;
     const currentMonth = 6; // July (0-indexed)
     
     const familyTransactions = [
-      // Raja's transactions - 82k total
       {
         amount: 25000,
         category: 'salary',
@@ -87,7 +79,6 @@ export async function POST() {
         createdAt: new Date(currentYear, currentMonth, 4, 16, 45) // July 4, 4:45 PM
       },
       
-      // Suriya's transactions - 40k total
       {
         amount: 20000,
         category: 'salary',
@@ -113,7 +104,6 @@ export async function POST() {
         createdAt: new Date(currentYear, currentMonth, 5, 10, 10) // July 5, 10:10 AM
       },
       
-      // Some small expenses for realism
       {
         amount: 500,
         category: 'food',
@@ -157,7 +147,6 @@ export async function POST() {
   }
 }
 
-// DELETE /api/test/seed - Clear test data
 export async function DELETE() {
   try {
     await connectToDatabase();

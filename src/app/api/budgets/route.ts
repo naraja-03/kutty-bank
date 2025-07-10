@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Budget from '@/models/Budget';
+import Budget, { IBudget } from '@/models/Budget';
 
-// Helper function to transform budget data to include both _id and id
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformBudgetData(budget: any) {
+function transformBudgetData(budget: IBudget) {
   const budgetObj = budget.toObject ? budget.toObject() : budget;
   return {
     ...budgetObj,
@@ -15,7 +13,6 @@ function transformBudgetData(budget: any) {
   };
 }
 
-// GET /api/budgets - Get all budgets for the user
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -31,7 +28,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user's custom budgets
     const query = familyId ? { familyId } : { userId };
     const budgets = await Budget.find(query).sort({ createdAt: -1 });
 
@@ -45,7 +41,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/budgets - Create a new custom budget
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -65,7 +60,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a new custom budget
     const budget = new Budget({
       label,
       value: 'custom',
@@ -88,7 +82,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT /api/budgets - Update a custom budget
 export async function PUT(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -108,7 +101,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update the budget
     const updatedBudget = await Budget.findOneAndUpdate(
       { _id: id, userId }, // Ensure user owns the budget
       {
@@ -136,7 +128,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE /api/budgets - Delete a custom budget
 export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -152,7 +143,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete the budget
     const deletedBudget = await Budget.findOneAndDelete({
       _id: id,
       userId // Ensure user owns the budget

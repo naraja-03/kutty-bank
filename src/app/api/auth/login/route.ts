@@ -22,7 +22,6 @@ interface LoginResponse {
   token: string;
 }
 
-// POST /api/auth/login - User login
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -30,7 +29,6 @@ export async function POST(request: NextRequest) {
     const body: LoginBody = await request.json();
     const { email, password } = body;
 
-    // Validate required fields
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Missing required fields: email, password' },
@@ -38,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
@@ -48,7 +45,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
@@ -58,7 +54,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not configured');

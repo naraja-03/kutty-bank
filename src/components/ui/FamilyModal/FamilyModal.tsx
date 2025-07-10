@@ -56,7 +56,6 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onCreateFamily(formData);
-    // Don't close modal here - let parent handle it after successful API call
   };
 
   const getRoleIcon = (role: string) => {
@@ -71,7 +70,7 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-800">
-        {/* Header */}
+        {}
         <div className="sticky top-0 bg-gray-900 flex items-center justify-between p-6 border-b border-gray-800">
           <h2 className="text-xl font-semibold text-white">
             {showCreateForm ? 'Create Family' : 'Select Family'}
@@ -87,11 +86,11 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
           )}
         </div>
 
-        {/* Content */}
+        {}
         <div className="p-6">
           {!showCreateForm ? (
             <>
-              {/* Family Selection */}
+              {}
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -131,7 +130,7 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
                 </div>
               )}
 
-              {/* Create Family Button */}
+              {}
               <button
                 onClick={() => setShowCreateForm(true)}
                 className="w-full flex items-center justify-center space-x-2 p-4 rounded-xl border border-dashed border-gray-700 hover:border-gray-600 bg-gray-800/30 hover:bg-gray-800/50 transition-all"
@@ -141,9 +140,9 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
               </button>
             </>
           ) : (
-            /* Create Family Form */
+            
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Family Name */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Family Name
@@ -158,7 +157,7 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
                 />
               </div>
 
-              {/* Target Saving Per Month */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Target Saving Per Month (₹)
@@ -177,7 +176,7 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
                 </div>
               </div>
 
-              {/* Family Members */}
+              {}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-sm font-medium text-gray-300">
@@ -261,7 +260,7 @@ const FamilyModal: React.FC<FamilyModalProps> = ({
                 </div>
               </div>
 
-              {/* Form Actions */}
+              {}
               <div className="flex space-x-3 pt-4">
                 {families.length > 0 && (
                   <button
