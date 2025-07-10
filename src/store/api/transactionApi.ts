@@ -52,7 +52,6 @@ export const transactionApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/transactions',
     prepareHeaders: (headers, { getState }) => {
-      // Add auth token if available
       const state = getState() as RootState;
       const token = state.auth.token;
       if (token) {

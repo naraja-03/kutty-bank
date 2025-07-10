@@ -3,12 +3,10 @@ import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import Family from '@/models/Family';
 
-// GET /api/test - Test API connection and check seeded data
 export async function GET() {
   try {
     await connectToDatabase();
     
-    // Check if seeded users exist
     const users = await User.find({}).select('-password');
     const families = await Family.find({});
     

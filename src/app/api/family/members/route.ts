@@ -14,7 +14,6 @@ interface RemoveMemberBody {
   userId: string;
 }
 
-// POST /api/family/members - Add member to family
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -22,7 +21,6 @@ export async function POST(request: NextRequest) {
     const body: AddMemberBody = await request.json();
     const { familyId, email, role = 'member' } = body;
 
-    // Validate required fields
     if (!familyId || !email) {
       return NextResponse.json(
         { error: 'Missing required fields: familyId, email' },
@@ -30,7 +28,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if family exists
     const family = await Family.findById(familyId);
     if (!family) {
       return NextResponse.json(
@@ -39,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return NextResponse.json(
@@ -48,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is already in a family
     if (user.familyId) {
       return NextResponse.json(
         { error: 'User is already part of a family' },
@@ -56,16 +51,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add user to family
     family.members.push(user._id);
     await family.save();
 
-    // Update user's familyId and role
     user.familyId = family._id;
     user.role = role;
     await user.save();
 
-    // Return updated family
     await family.populate('members', 'name email profileImage role');
 
     return NextResponse.json(family);
@@ -78,7 +70,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE /api/family/members - Remove member from family
 export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -86,7 +77,6 @@ export async function DELETE(request: NextRequest) {
     const body: RemoveMemberBody = await request.json();
     const { familyId, userId } = body;
 
-    // Validate required fields
     if (!familyId || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields: familyId, userId' },
@@ -94,7 +84,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Check if family exists
     const family = await Family.findById(familyId);
     if (!family) {
       return NextResponse.json(
@@ -103,19 +92,16 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Remove user from family members
     family.members = family.members.filter(
       (memberId: typeof family.members[0]) => memberId.toString() !== userId
     );
     await family.save();
 
-    // Update user's familyId
     await User.findByIdAndUpdate(userId, {
       familyId: null,
       role: 'member'
     });
 
-    // Return updated family
     await family.populate('members', 'name email profileImage role');
 
     return NextResponse.json(family);

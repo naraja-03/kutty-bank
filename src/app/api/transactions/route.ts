@@ -39,7 +39,6 @@ interface TransactionResponse {
   pagination: PaginationResponse;
 }
 
-// GET /api/transactions - Get all transactions with optional filtering
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -54,10 +53,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const offset = parseInt(searchParams.get('offset') || '0');
     
-    // Use offset if provided, otherwise use page
     const skip = offset > 0 ? offset : (page - 1) * limit;
     
-    // Build query object with proper typing
     const query: TransactionQuery = {};
     if (userId) query.userId = userId;
     if (familyId) query.familyId = familyId;
@@ -67,7 +64,6 @@ export async function GET(request: NextRequest) {
     
     console.log('Transaction query:', query);
     
-    // Get transactions with error handling
     let transactions: unknown[] = [];
     let total = 0;
     
@@ -79,7 +75,6 @@ export async function GET(request: NextRequest) {
         .populate('userId', 'name profileImage')
         .lean(); // Use lean() for better performance
         
-      // Transform transactions to include both _id and id fields
       transactions = rawTransactions.map((transaction) => ({
         ...transaction,
         id: transaction._id?.toString() || transaction._id, // Add id field mapped from _id
@@ -94,7 +89,6 @@ export async function GET(request: NextRequest) {
       total = await Transaction.countDocuments(query);
     } catch (dbError) {
       console.error('Database query error:', dbError);
-      // Return empty array if database query fails
       transactions = [];
       total = 0;
     }
@@ -113,7 +107,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching transactions:', error);
     
-    // Always return a valid response structure even on error
     const errorResponse: TransactionResponse = {
       transactions: [],
       pagination: {
@@ -128,7 +121,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/transactions - Create a new transaction
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -136,7 +128,6 @@ export async function POST(request: NextRequest) {
     const body: CreateTransactionBody = await request.json();
     const { amount, category, type, userId, familyId, budgetId, note, imageUrl } = body;
     
-    // Validate required fields
     if (!amount || !category || !type || !userId) {
       return NextResponse.json(
         { error: 'Missing required fields: amount, category, type, userId' },
@@ -144,7 +135,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Validate transaction type
     if (!['income', 'expense'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid transaction type. Must be "income" or "expense"' },
@@ -152,7 +142,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Validate amount is positive
     if (amount <= 0) {
       return NextResponse.json(
         { error: 'Amount must be greater than 0' },
@@ -174,7 +163,6 @@ export async function POST(request: NextRequest) {
     const savedTransaction = await transaction.save();
     await savedTransaction.populate('userId', 'name profileImage');
     
-    // Transform the response to include both _id and id fields
     const responseTransaction = {
       ...savedTransaction.toObject(),
       id: savedTransaction._id.toString(),
@@ -188,7 +176,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating transaction:', error);
     
-    // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation failed', details: error.message },

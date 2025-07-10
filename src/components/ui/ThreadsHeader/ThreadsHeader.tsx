@@ -13,9 +13,7 @@ import LogoutModal from '../LogoutModal';
 export default function ThreadsHeader({
   title,
   onLeftAction,
-  // onRightAction,
   leftIcon: LeftIcon = Menu,
-  // rightIcon: RightIcon = Plus,
   activeThread,
   showThreadSelector = false,
   onThreadSelectorClick,
@@ -38,7 +36,7 @@ export default function ThreadsHeader({
     )}>
       <div className="px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Left Side */}
+          {}
           <div className="flex items-center space-x-4">
             <button
               onClick={onLeftAction}
@@ -62,9 +60,9 @@ export default function ThreadsHeader({
             </div>
           </div>
 
-          {/* Right Side */}
+          {}
           <div className="flex items-center space-x-3">
-            {/* User Profile */}
+            {}
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-gray-950 to-black rounded-full flex items-center justify-center backdrop-blur-sm border border-gray-800">
                 <User size={16} className="text-white" />
@@ -85,7 +83,7 @@ export default function ThreadsHeader({
           </div>
         </div>
 
-        {/* Thread Info Bar */}
+        {}
         {showThreadSelector && activeThread && (
           <div className="mt-3 p-3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
             <div className="flex items-center justify-between text-sm">

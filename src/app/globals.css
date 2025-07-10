@@ -4,7 +4,7 @@
   --background: #000000;
   --foreground: #ffffff;
   
-  /* Safe area insets */
+  
   --sat: env(safe-area-inset-top);
   --sar: env(safe-area-inset-right);
   --sab: env(safe-area-inset-bottom);
@@ -17,33 +17,30 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   height: 100vh;
   height: -webkit-fill-available;
-  /* Remove overflow: hidden to allow proper scrolling */
+  
   overflow-x: hidden;
   overflow-y: auto;
-  /* Add touch-action for better mobile scrolling */
+  
   touch-action: pan-y;
-  /* Prevent rubber band effect on iOS */
+  
   -webkit-overflow-scrolling: touch;
-  /* Add padding for safe areas */
+  
   padding: var(--sat) var(--sar) var(--sab) var(--sal);
   min-height: 100vh;
   min-height: -webkit-fill-available;
   width: 100%;
 }
 
-/* Handle bottom navigation area */
 .bottom-nav {
   padding-bottom: max(16px, var(--sab));
   background-color: var(--background);
 }
 
-/* Handle top navigation/header area */
 .top-nav {
   padding-top: max(16px, var(--sat));
   background-color: var(--background);
 }
 
-/* For fixed position elements that need to respect safe areas */
 .fixed-safe {
   position: fixed;
   left: var(--sal);
@@ -62,7 +59,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Hide scrollbars */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -76,13 +72,12 @@ html {
   scroll-behavior: smooth;
   height: 100vh;
   height: -webkit-fill-available;
-  /* Improve mobile scrolling */
+  
   touch-action: manipulation;
-  /* Prevent zoom on double tap */
+  
   -ms-touch-action: manipulation;
 }
 
-/* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -100,42 +95,37 @@ html {
   background: #555555;
 }
 
-/* Hide scrollbar for Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: #333333 #111111;
 }
 
-/* Scrollbar hide utility */
 .scrollbar-hide {
-  /* IE and Edge */
+  
   -ms-overflow-style: none;
   
-  /* Firefox */
+  
   scrollbar-width: none;
 }
 
-/* Webkit */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* Responsive improvements */
 @media (min-width: 768px) {
-  /* iPad and larger */
+  
   body {
     font-size: 16px;
   }
 }
 
 @media (min-width: 1024px) {
-  /* Desktop */
+  
   body {
     font-size: 18px;
   }
 }
 
-/* Touch-friendly button sizing */
 @media (hover: none) and (pointer: coarse) {
   button {
     min-height: 44px;
@@ -143,29 +133,27 @@ html {
   }
 }
 
-/* Mobile specific fixes */
 @media (max-width: 768px) {
-  /* Fix iOS Safari viewport height issues */
+  
   html {
     height: -webkit-fill-available;
   }
   
   body {
     height: -webkit-fill-available;
-    /* Improve touch scrolling on mobile */
+    
     -webkit-overflow-scrolling: touch;
-    /* Prevent bounce on iOS */
+    
     overscroll-behavior: none;
   }
   
-  /* Fix pull-to-refresh interference */
+  
   .main-container {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Better focus states for accessibility */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
@@ -173,14 +161,12 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Smooth transitions for better UX */
 * {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
 
-/* Sidebar animation improvements */
 .sidebar-slide {
   transform: translateX(-100%);
   transition: transform 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -211,7 +197,6 @@ select:focus-visible {
   pointer-events: auto;
 }
 
-/* Alternative animation using keyframes for better cross-browser support */
 @keyframes slideIn {
   from {
     transform: translateX(-100%);

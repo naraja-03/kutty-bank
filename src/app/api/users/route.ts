@@ -28,7 +28,6 @@ interface MongoUser {
   toObject?(): MongoUser;
 }
 
-// Helper function to transform user data to include both _id and id
 function transformUserData(user: MongoUser) {
   const userObj = user.toObject ? user.toObject() : user;
   return {
@@ -46,7 +45,6 @@ function transformUserData(user: MongoUser) {
   };
 }
 
-// GET /api/users - Get users with optional filtering
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -58,7 +56,6 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
 
     if (userId) {
-      // Get specific user
       const user = await User.findById(userId)
         .populate('familyId', 'name budgetCap')
         .select('-password');
@@ -73,7 +70,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(transformUserData(user));
     }
 
-    // Build query
     const query: UserQuery = {};
     if (familyId) query.familyId = familyId;
     if (role && ['admin', 'member', 'view-only'].includes(role)) {
@@ -96,7 +92,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/users - Update user profile
 export async function PUT(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -137,7 +132,6 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating user:', error);
     
-    // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation failed', details: error.message },
@@ -152,7 +146,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE /api/users - Delete user
 export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();

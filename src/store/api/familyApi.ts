@@ -80,14 +80,11 @@ export const familyApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Family'],
-      // Also invalidate all family queries when a family is deleted
       onQueryStarted: async (familyId, { dispatch, queryFulfilled }) => {
         try {
           await queryFulfilled;
-          // Invalidate all family-related queries
           dispatch(familyApi.util.invalidateTags(['Family']));
         } catch {
-          // Handle error if needed
         }
       },
     }),

@@ -41,7 +41,7 @@ export default function GradientBackground({
       getBackgroundClasses(),
       className
     )}>
-      {/* Optional Pattern Overlay */}
+      {}
       {withPattern && (
         <div 
           className="absolute inset-0 opacity-[0.01]"
@@ -52,21 +52,21 @@ export default function GradientBackground({
         />
       )}
       
-      {/* Animated Gradient Orbs */}
+      {}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Top Right Orb */}
+        {}
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-full blur-3xl animate-pulse" />
         
-        {/* Bottom Left Orb */}
+        {}
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-500/3 to-purple-500/3 rounded-full blur-3xl animate-pulse" 
              style={{ animationDelay: '2s' }} />
         
-        {/* Center Orb */}
+        {}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-500/2 to-green-500/2 rounded-full blur-3xl animate-pulse"
              style={{ animationDelay: '4s' }} />
       </div>
       
-      {/* Content */}
+      {}
       <div className="relative z-10">
         {children}
       </div>

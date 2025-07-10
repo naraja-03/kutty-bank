@@ -17,20 +17,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'JWT secret not configured' }, { status: 500 });
     }
 
-    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: string };
     
-    // Connect to database
     await connectToDatabase();
     
-    // Find user by ID
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Transform the user data to match the expected format
     const transformedUser = {
       id: user._id.toString(),
       name: user.name,

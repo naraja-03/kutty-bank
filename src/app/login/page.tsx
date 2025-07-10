@@ -29,16 +29,13 @@ export default function LoginPage() {
     try {
       const result = await login({ email, password }).unwrap();
       
-      // Store user data in Redux
       dispatch(loginSuccess({
         user: result.user,
         token: result.token
       }));
 
-      // Store token in localStorage
       localStorage.setItem('token', result.token);
       
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: unknown) {
       const error = err as { data?: { error?: string } };
@@ -70,7 +67,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col justify-start p-4 py-8 sm:py-12 md:justify-center">
         <div className="w-full max-w-md mx-auto">
-          {/* Logo/Header */}
+          {}
           <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-white to-gray-300 rounded-2xl mb-3 sm:mb-4 shadow-lg">
               <span className="text-lg sm:text-2xl font-bold text-gray-900">K</span>
@@ -79,7 +76,7 @@ export default function LoginPage() {
             <p className="text-gray-400 text-sm">Family Budget Tracker</p>
           </div>
 
-          {/* Login Form */}
+          {}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
             <div className="mb-4 sm:mb-6">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">Welcome Back</h2>
@@ -93,7 +90,7 @@ export default function LoginPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-              {/* Email Field */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
@@ -111,7 +108,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password Field */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Password
@@ -136,7 +133,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -156,7 +153,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Quick Login Options */}
+            {}
             {false && <div className="mt-8 pt-6 border-t border-white/10">
               <p className="text-sm text-gray-400 mb-4 text-center">Quick Login (Demo)</p>
               <div className="space-y-3">
@@ -184,7 +181,7 @@ export default function LoginPage() {
             </div>}
           </div>
 
-          {/* Footer */}
+          {}
           <div className="text-center mt-6 sm:mt-8 mb-4 sm:mb-0">
             <p className="text-gray-400 text-sm">
               Don&apos;t have an account?{' '}

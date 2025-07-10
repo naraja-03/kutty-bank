@@ -35,7 +35,6 @@ export const authApi = createApi({
       const state = getState() as RootState;
       let token = state.auth.token;
       
-      // If no token in Redux store, check localStorage (important for initial load)
       if (!token && typeof window !== 'undefined') {
         token = localStorage.getItem('token');
       }
@@ -81,7 +80,6 @@ export const authApi = createApi({
       query: () => '/me',
       providesTags: ['User'],
     }),
-    // Initial load endpoint to check auth status on app startup
     initializeAuth: builder.query<User, void>({
       query: () => '/me',
       providesTags: ['User'],
@@ -98,5 +96,4 @@ export const {
   useInitializeAuthQuery,
 } = authApi;
 
-// Prefetch function for initial load
 export const initializeAuthOnLoad = () => authApi.endpoints.initializeAuth.initiate();

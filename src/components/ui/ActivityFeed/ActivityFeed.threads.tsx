@@ -12,12 +12,9 @@ interface ActivityFeedProps {
   className?: string;
 }
 
-// Helper function to get user initials - moved to shared utils
-
 export default function ActivityFeed({ className }: ActivityFeedProps) {
   const [showScrollButton, setShowScrollButton] = useState(false);
   
-  // New transaction form state
   const [newTransaction, setNewTransaction] = useState({
     amount: '',
     category: 'Food',
@@ -28,7 +25,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   
-  // Get current user from auth state
   const { user } = useSelector((state: RootState) => state.auth);
   
   const { data: transactionData, isLoading, refetch } = useGetTransactionsQuery({ 
@@ -38,15 +34,12 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   
   const [createTransaction] = useCreateTransactionMutation();
 
-  // Extract transactions array from the response and reverse for WhatsApp-style (newest at bottom)
   const transactions = useMemo(() => {
     const txns = transactionData?.transactions || [];
-    // Reverse the array so newest transactions appear at the bottom like WhatsApp
     return [...txns].reverse();
   }, [transactionData]);
 
   useEffect(() => {
-    // Scroll to bottom when new transactions are loaded
     if (transactions && transactions.length > 0) {
       setTimeout(() => {
         scrollToBottom();
@@ -74,8 +67,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-
-
   const handleAddTransaction = async () => {
     if (!newTransaction.amount || !user) return;
 
@@ -90,7 +81,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         date: new Date().toISOString(),
       }).unwrap();
 
-      // Reset form
       setNewTransaction({
         amount: '',
         category: 'Food',
@@ -98,7 +88,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         note: ''
       });
 
-      // Scroll to bottom to show new transaction
       setTimeout(() => {
         scrollToBottom();
       }, 100);
@@ -116,19 +105,19 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
 
   return (
     <div className={clsx('flex flex-col h-screen bg-black', className)}>
-      {/* Threads-style Header */}
+      {}
       <header className="bg-black border-b border-gray-800 px-4 py-4">
         <div className="flex items-center justify-center">
           <h1 className="text-xl font-bold text-white">Family Budget</h1>
         </div>
       </header>
 
-      {/* Messages Area - Threads style */}
+      {}
       <div 
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
       >
-        {/* Loading skeleton */}
+        {}
         {isLoading && (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -143,7 +132,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           </div>
         )}
 
-        {/* Empty State */}
+        {}
         {!isLoading && transactions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
@@ -159,7 +148,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           </div>
         )}
 
-        {/* Transaction Messages */}
+        {}
         {!isLoading && transactions.length > 0 && transactions.map((transaction, index) => {
           const isCurrentUser = transaction.userId === user?.id;
           
@@ -172,7 +161,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              {/* Avatar - only show for others */}
+              {}
               {!isCurrentUser && (
                 <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-medium text-white">
@@ -181,23 +170,23 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
                 </div>
               )}
 
-              {/* Message Bubble */}
+              {}
               <div className={clsx(
                 'max-w-xs px-4 py-3 rounded-2xl',
                 isCurrentUser 
                   ? 'bg-blue-600 text-white ml-12' 
                   : 'bg-gray-800 text-white mr-12'
               )}>
-                {/* Name for others */}
+                {}
                 {!isCurrentUser && (
                   <div className="text-xs text-gray-400 mb-1">
                     {transaction.userName || 'Unknown'}
                   </div>
                 )}
 
-                {/* Transaction Content */}
+                {}
                 <div className="space-y-2">
-                  {/* Amount and Category */}
+                  {}
                   <div className="flex flex-col space-y-1">
                     <span className={clsx(
                       'text-lg font-bold',
@@ -212,14 +201,14 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
                     </span>
                   </div>
 
-                  {/* Note */}
+                  {}
                   {transaction.note && (
                     <p className="text-sm text-gray-100">
                       {transaction.note}
                     </p>
                   )}
 
-                  {/* Time */}
+                  {}
                   <div className="text-xs text-gray-400">
                     {formatTime(transaction.createdAt)}
                   </div>
@@ -229,14 +218,14 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           );
         })}
 
-        {/* Bottom ref for scrolling */}
+        {}
         <div ref={bottomRef} className="h-1" />
       </div>
 
-      {/* Threads-style Input Area */}
+      {}
       <div className="bg-black border-t border-gray-800 p-4">
         <div className="space-y-3">
-          {/* Quick Type and Category Selection */}
+          {}
           <div className="flex space-x-2 mb-3">
             <button
               onClick={() => setNewTransaction(prev => ({ ...prev, type: 'expense' }))}
@@ -275,16 +264,16 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
             </select>
           </div>
 
-          {/* Input Row */}
+          {}
           <div className="flex items-center space-x-3">
-            {/* Current user avatar */}
+            {}
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
               <span className="text-xs font-medium text-white">
                 {user ? getInitials(user.name) : 'U'}
               </span>
             </div>
 
-            {/* Amount Input */}
+            {}
             <input
               type="number"
               placeholder="0"
@@ -296,7 +285,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
               className="w-20 px-3 py-2 bg-gray-900/95 text-white rounded-2xl text-sm border border-gray-700 focus:border-blue-500 focus:outline-none"
             />
             
-            {/* Note Input */}
+            {}
             <input
               type="text"
               placeholder="Add a note..."
@@ -313,7 +302,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
               }}
             />
             
-            {/* Send Button */}
+            {}
             <button
               onClick={handleAddTransaction}
               disabled={!newTransaction.amount}
@@ -330,7 +319,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       </div>
 
-      {/* Floating scroll to bottom button */}
+      {}
       {showScrollButton && (
         <button
           onClick={scrollToBottom}

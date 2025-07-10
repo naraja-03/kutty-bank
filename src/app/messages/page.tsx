@@ -3,7 +3,7 @@ import { MessageCircle } from 'lucide-react';
 export default function MessagesPage() {
   return (
     <div className="min-h-screen text-white">
-      {/* Header */}
+      {}
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">

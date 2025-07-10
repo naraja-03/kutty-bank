@@ -25,7 +25,6 @@ interface RegisterResponse {
   token: string;
 }
 
-// POST /api/auth/register - User registration
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -33,7 +32,6 @@ export async function POST(request: NextRequest) {
     const body: RegisterBody = await request.json();
     const { name, email, password, role = 'member', familyId } = body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Missing required fields: name, email, password' },
@@ -41,7 +39,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -50,7 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate password strength
     if (password.length < 6) {
       return NextResponse.json(
         { error: 'Password must be at least 6 characters long' },
@@ -58,7 +54,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     
     if (existingUser) {
@@ -68,11 +63,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new user
     const user = new User({
       name,
       email: email.toLowerCase(),
@@ -83,7 +76,6 @@ export async function POST(request: NextRequest) {
 
     const savedUser = await user.save();
 
-    // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not configured');
@@ -112,7 +104,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error during registration:', error);
     
-    // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation failed', details: error.message },

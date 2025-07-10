@@ -8,7 +8,6 @@ import { format, addYears, subYears } from 'date-fns';
 import { clsx } from 'clsx';
 import { PeriodSelectorProps, PeriodData } from './types';
 
-// Generate month data for the current year
 const generateMonthData = (baseDate: Date): PeriodData[] => {
   const currentYear = baseDate.getFullYear();
   const currentMonth = baseDate.getMonth();
@@ -23,7 +22,6 @@ const generateMonthData = (baseDate: Date): PeriodData[] => {
     const date = new Date(currentYear, month, 1);
     const label = `${monthNames[month]} ${currentYear}`;
     
-    // Mock data - replace with actual calculations
     const value = Math.floor(Math.random() * 100000) + 10000;
     const isUnderControl = Math.random() > 0.4; // 60% chance of being under control
     const isActive = month === currentMonth; // Current month is active
@@ -65,7 +63,7 @@ function MonthGridSelector({ selectedDate, onSelect }: { selectedDate: Date; onS
 
   return (
     <div className="space-y-4">
-      {/* Navigation Header */}
+      {}
       <div className="flex items-center justify-between">
         <button
           onClick={() => handleNavigation('prev')}
@@ -84,7 +82,7 @@ function MonthGridSelector({ selectedDate, onSelect }: { selectedDate: Date; onS
         </button>
       </div>
 
-      {/* Month Grid - 3x4 layout */}
+      {}
       <div className="grid grid-cols-3 gap-3">
         {periods.map((period) => (
           <button
@@ -151,7 +149,7 @@ export default function PeriodSelector({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 p-6 text-left align-middle shadow-xl transition-all">
-                {/* Header */}
+                {}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center">
@@ -169,7 +167,7 @@ export default function PeriodSelector({
                   </button>
                 </div>
 
-                {/* Month Grid */}
+                {}
                 <MonthGridSelector
                   selectedDate={new Date()}
                   onSelect={handlePeriodSelect}

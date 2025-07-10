@@ -16,7 +16,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
   const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
   const [isMounted, setIsMounted] = useState(false);
   
-  // Initialize authentication on component mount
   const { isInitializing } = useAuthInitialization();
 
   useEffect(() => {
@@ -24,7 +23,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
   }, []);
 
   useEffect(() => {
-    // Only run navigation logic after component is mounted and auth is not loading
     if (isMounted && !isLoading && !isInitializing) {
       if (requireAuth && !isAuthenticated) {
         router.push('/');
@@ -34,12 +32,10 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     }
   }, [isAuthenticated, isLoading, isInitializing, requireAuth, router, isMounted]);
 
-  // Don't render anything until component is mounted (prevents hydration mismatch)
   if (!isMounted) {
     return null;
   }
 
-  // Show loading spinner while checking auth
   if (isLoading || isInitializing) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -51,7 +47,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     );
   }
 
-  // Don't render children if auth check fails
   if (requireAuth && !isAuthenticated) {
     return null;
   }

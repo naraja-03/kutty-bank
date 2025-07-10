@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { clsx } from 'clsx';
 import { useGetTransactionsQuery, useDeleteTransactionMutation } from '../../../store/api/transactionApi';
 import { 
-//   setActiveThread, 
   openThreadSidebar, 
   closeThreadSidebar,
   selectThreadFromList,
@@ -41,7 +40,6 @@ export default function Dashboard({ className }: DashboardProps) {
   
   const [selectedPeriod] = useState<BudgetPeriod>('month');
   
-  // Use the family manager hook for professional family state management
   const {
     currentFamily,
     families,
@@ -52,13 +50,10 @@ export default function Dashboard({ className }: DashboardProps) {
   
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   
-  // Determine budgetId for filtering based on active thread
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
   
-  // Only call transaction APIs when family is selected
   const shouldFetchTransactions = hasValidFamily && !needsFamilySelection;
   
-  // Get all transactions for calculations
   const { data: transactionData, isLoading: transactionsLoading, refetch } = useGetTransactionsQuery({ 
     limit: 100, // Get more transactions for accurate calculations
     offset: 0,
@@ -67,7 +62,6 @@ export default function Dashboard({ className }: DashboardProps) {
     skip: !shouldFetchTransactions
   });
 
-  // Get recent transactions for display
   const { data: recentTransactionData } = useGetTransactionsQuery({ 
     limit: 5, // Show only 5 transactions on dashboard
     offset: 0,
@@ -81,7 +75,6 @@ export default function Dashboard({ className }: DashboardProps) {
   const [createFamily] = useCreateFamilyMutation();
   const [updateUserActiveFamily] = useUpdateUserActiveFamilyMutation();
   
-  // Show family modal when user needs family selection
   React.useEffect(() => {
     if (needsFamilySelection && !familyLoading) {
       setShowFamilyModal(true);
@@ -90,7 +83,6 @@ export default function Dashboard({ className }: DashboardProps) {
     }
   }, [needsFamilySelection, familyLoading]);
 
-  // Calculate budget progress using frontend logic
   const budgetProgress = transactionData?.transactions 
     ? calculateBudgetProgress(
         transactionData.transactions.map(t => ({
@@ -112,20 +104,16 @@ export default function Dashboard({ className }: DashboardProps) {
         isOverBudget: false
       };
 
-  // State for dropdown management
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
 
-  // Extract transactions array from the response
   const transactions = recentTransactionData?.transactions || [];
 
-  // Calculate formatted values for quick actions
   const familySavingsTarget = currentFamily ? 
     (families.find(f => f.id === currentFamily)?.budgetCap || budgetProgress.totalIncome * 0.2) :
     budgetProgress.totalIncome * 0.2;
 
   const getSavingsProgress = () => {
-    // Use family savings target or fallback to 20% of income
     const monthlyIncome = budgetProgress.totalIncome;
     const monthlyExpense = budgetProgress.totalExpenses;
     const familySavingsTarget = currentFamily ? 
@@ -137,9 +125,7 @@ export default function Dashboard({ className }: DashboardProps) {
     return Math.min(Math.max((actualSavings / familySavingsTarget) * 100, 0), 100);
   };
 
-  // Transaction handlers
   const handleEditTransaction = (id: string) => {
-    // Find the transaction in the recent transactions
     const transaction = transactionData?.transactions.find(t => t.id === id);
     if (transaction) {
       dispatch(openEditEntryModal({
@@ -166,13 +152,8 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const handleReply = () => {
-    // Navigate to messages tab
     router.push('/messages');
   };
-
-//   const handleThreadChange = (thread: ThreadPeriod) => {
-//     dispatch(setActiveThread(thread));
-//   };
 
   const handleOpenThreadSidebar = () => {
     dispatch(openThreadSidebar());
@@ -191,14 +172,11 @@ export default function Dashboard({ className }: DashboardProps) {
     dispatch(closeThreadSidebar());
   };
 
-  // Family modal handlers
   const handleSelectFamily = async (familyId: string) => {
     try {
-      // Update Redux state immediately
       dispatch(setCurrentFamily(familyId));
       dispatch(updateUser({ familyId }));
       
-      // Save to backend
       if (user?.id) {
         await updateUserActiveFamily({ userId: user.id, familyId }).unwrap();
       }
@@ -206,7 +184,6 @@ export default function Dashboard({ className }: DashboardProps) {
       setShowFamilyModal(false);
     } catch (error) {
       console.error('Error updating active family:', error);
-      // Still close modal even if backend update fails (Redux state is updated)
       setShowFamilyModal(false);
     }
   };
@@ -222,14 +199,12 @@ export default function Dashboard({ className }: DashboardProps) {
   }) => {
     try {
       const newFamily = await createFamily(familyData).unwrap();
-      // Set the newly created family as current family
       dispatch(setCurrentFamily(newFamily.id));
       dispatch(updateUser({ 
         familyId: newFamily.id,
         families: [...(user?.families || []), newFamily.id]
       }));
       
-      // Save to backend
       if (user?.id) {
         await updateUserActiveFamily({ userId: user.id, familyId: newFamily.id }).unwrap();
       }
@@ -241,7 +216,6 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const handleCloseFamilyModal = () => {
-    // Only allow closing if user has a valid family
     if (currentFamily) {
       setShowFamilyModal(false);
     }
@@ -249,7 +223,7 @@ export default function Dashboard({ className }: DashboardProps) {
 
   return (
     <div className={clsx('h-screen text-white flex flex-col', className)}>
-      {/* Header */}
+      {}
       <ThreadsHeader
         title="Dashboard"
         onLeftAction={handleOpenThreadSidebar}
@@ -258,12 +232,12 @@ export default function Dashboard({ className }: DashboardProps) {
         onThreadSelectorClick={handleOpenPeriodSelector}
       />
 
-      {/* Main Content */}
+      {}
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full main-container">
-        {/* Time Filter */}
+        {}
         <PeriodFilterHeader activeThread={activeThread} />
 
-        {/* Quick Actions - Responsive Grid */}
+        {}
         <QuickActionsGrid
           totalIncome={formatCurrency(budgetProgress.totalIncome)}
           totalExpenses={formatCurrency(budgetProgress.totalExpenses)}
@@ -271,10 +245,10 @@ export default function Dashboard({ className }: DashboardProps) {
           savingsTarget={formatCurrency(familySavingsTarget)}
         />
 
-        {/* Savings Progress */}
+        {}
         <SavingsProgressCard progress={getSavingsProgress()} />
 
-        {/* Recent Transactions */}
+        {}
         <RecentTransactionsList
           transactions={transactions}
           isLoading={transactionsLoading}
@@ -289,14 +263,14 @@ export default function Dashboard({ className }: DashboardProps) {
         />
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {}
       <DeleteConfirmationModal
         isOpen={!!showDeleteModal}
         onClose={() => setShowDeleteModal(null)}
         onConfirm={() => showDeleteModal && handleDeleteTransaction(showDeleteModal)}
       />
 
-      {/* Family Setup Modal */}
+      {}
       {showFamilyModal && (
         <FamilyModal
           isOpen={showFamilyModal}
@@ -309,7 +283,7 @@ export default function Dashboard({ className }: DashboardProps) {
         />
       )}
 
-      {/* Thread Sidebar */}
+      {}
       <ThreadSidebar
         isOpen={isThreadSidebarOpen}
         onClose={handleCloseThreadSidebar}

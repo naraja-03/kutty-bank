@@ -57,15 +57,12 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-// Index for efficient queries (email already has unique index)
 UserSchema.index({ familyId: 1 });
 
-// Virtual for id
 UserSchema.virtual('id').get(function(this: IUser) {
   return this._id.toString();
 });
 
-// Ensure virtual fields are serialised
 UserSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {

@@ -47,16 +47,13 @@ const BudgetSchema = new Schema<IBudget>({
   timestamps: true
 });
 
-// Index for efficient queries
 BudgetSchema.index({ userId: 1, createdAt: -1 });
 BudgetSchema.index({ familyId: 1, createdAt: -1 });
 
-// Virtual for id
 BudgetSchema.virtual('id').get(function(this: IBudget) {
   return this._id.toString();
 });
 
-// Ensure virtual fields are serialised
 BudgetSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {

@@ -25,7 +25,6 @@ export default function TransactionPost({
   const [editedNote, setEditedNote] = useState(note || '');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownOpen) {
@@ -39,8 +38,6 @@ export default function TransactionPost({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
-
-
 
   const handleSaveNote = () => {
     if (id && onUpdateNote) {
@@ -110,7 +107,7 @@ export default function TransactionPost({
       className
     )}>
       <div className="flex items-start space-x-3">
-        {/* Profile Avatar */}
+        {}
         <div className="flex-shrink-0">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border border-gray-700">
             <span className="text-white text-sm font-semibold">
@@ -119,9 +116,9 @@ export default function TransactionPost({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 min-w-0">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <span className="text-white font-medium text-sm">{userName}</span>
@@ -130,7 +127,7 @@ export default function TransactionPost({
               </span>
             </div>
             
-            {/* Three-dot menu */}
+            {}
             <div className="relative dropdown-container">
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -160,9 +157,9 @@ export default function TransactionPost({
             </div>
           </div>
 
-          {/* Thread-style Content */}
+          {}
           <div className="space-y-3">
-            {/* Transaction Status */}
+            {}
             <div className="flex items-center space-x-2 text-gray-300 text-sm">
               <span className="px-2 py-1 bg-gray-800 rounded-md text-xs font-medium">
                 {getCategoryIcon(category)}
@@ -170,7 +167,7 @@ export default function TransactionPost({
               <span>{getStatusText()}</span>
             </div>
 
-            {/* Amount Display */}
+            {}
             <div className={clsx(
               'text-2xl font-bold',
               type === 'income' ? 'text-green-400' : 'text-red-400'
@@ -178,7 +175,7 @@ export default function TransactionPost({
               {type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(amount))}
             </div>
 
-            {/* Note - with inline editing */}
+            {}
             {editingNote ? (
               <div className="space-y-2">
                 <input
@@ -212,7 +209,7 @@ export default function TransactionPost({
               )
             )}
 
-            {/* Interaction Bar - Reply only */}
+            {}
             <div className="flex items-center justify-between pt-3 border-t border-gray-800">
               <div className="flex items-center space-x-6">
                 <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-blue-400 transition-colors">
@@ -221,7 +218,7 @@ export default function TransactionPost({
                 </button>
               </div>
 
-              {/* Category Tag */}
+              {}
               <div className="flex items-center space-x-1 px-2 py-1 bg-gray-800 rounded-full">
                 <span className="text-xs text-gray-400">#{category}</span>
               </div>
@@ -230,7 +227,7 @@ export default function TransactionPost({
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">

@@ -28,7 +28,6 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.isAuthenticated = true;
       
-      // Store token in localStorage (only on client side)
       if (typeof window !== 'undefined' && action.payload.token) {
         localStorage.setItem('token', action.payload.token);
       }
@@ -45,7 +44,6 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       
-      // Remove token from localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
       }
