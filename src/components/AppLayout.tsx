@@ -89,7 +89,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container pt-10">
       {isPublicPage ? (
         <GradientBackground variant="default">
           <div className="relative z-10 min-h-screen">

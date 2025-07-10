@@ -25,9 +25,9 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
   useEffect(() => {
     if (isMounted && !isLoading && !isInitializing) {
       if (requireAuth && !isAuthenticated) {
-        router.push('/');
+        router.replace('/login');
       } else if (!requireAuth && isAuthenticated) {
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }
     }
   }, [isAuthenticated, isLoading, isInitializing, requireAuth, router, isMounted]);
