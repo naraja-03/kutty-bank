@@ -51,10 +51,24 @@ const categories = [
     type: 'expense'
   },
   {
+    id: 'travel',
+    name: 'Travel',
+    icon: '✈️',
+    color: '#00D2D3',
+    type: 'expense'
+  },
+  {
     id: 'salary',
     name: 'Salary',
     icon: '💰',
     color: '#5F27CD',
+    type: 'income'
+  },
+  {
+    id: 'freelance',
+    name: 'Freelance',
+    icon: '💻',
+    color: '#FF6348',
     type: 'income'
   },
   {
@@ -83,6 +97,13 @@ const categories = [
     name: 'Gift',
     icon: '🎁',
     color: '#26DE81',
+    type: 'income'
+  },
+  {
+    id: 'refund',
+    name: 'Refund',
+    icon: '💸',
+    color: '#74B9FF',
     type: 'income'
   },
   {

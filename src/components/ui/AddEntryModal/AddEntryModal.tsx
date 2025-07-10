@@ -209,7 +209,7 @@ export default function AddEntryModal({
                         <option value="">Select category</option>
                         {categories.map((cat) => (
                           <option key={cat.value} value={cat.value}>
-                            {cat.emoji} {cat.label}
+                            {cat.label}
                           </option>
                         ))}
                       </select>

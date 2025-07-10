@@ -9,6 +9,8 @@ export default function QuickActionsGrid({
   totalExpenses, 
   netAmount, 
   savingsTarget,
+  incomeChange = 0,
+  expenseChange = 0,
   className 
 }: QuickActionsGridProps) {
   const quickActions: QuickAction[] = [
@@ -44,8 +46,8 @@ export default function QuickActionsGrid({
                 )}
               />
               <span className="text-xs text-gray-400 font-medium">
-                {action.id === 'income' && '+12.5%'}
-                {action.id === 'expenses' && '-8.2%'}
+                {action.id === 'income' && `${incomeChange >= 0 ? '+' : ''}${incomeChange.toFixed(1)}%`}
+                {action.id === 'expenses' && `${expenseChange >= 0 ? '+' : ''}${expenseChange.toFixed(1)}%`}
                 {action.id === 'balance' && 'Available'}
                 {action.id === 'goal' && 'Target'}
               </span>

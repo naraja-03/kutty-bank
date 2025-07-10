@@ -55,15 +55,7 @@ export default function Dashboard({ className }: DashboardProps) {
   const shouldFetchTransactions = hasValidFamily && !needsFamilySelection;
   
   const { data: transactionData, isLoading: transactionsLoading, refetch } = useGetTransactionsQuery({ 
-    limit: 100, // Get more transactions for accurate calculations
-    offset: 0,
-    budgetId: currentBudgetId
-  }, {
-    skip: !shouldFetchTransactions
-  });
-
-  const { data: recentTransactionData } = useGetTransactionsQuery({ 
-    limit: 5, // Show only 5 transactions on dashboard
+    limit: 100,
     offset: 0,
     budgetId: currentBudgetId
   }, {
@@ -107,7 +99,7 @@ export default function Dashboard({ className }: DashboardProps) {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
 
-  const transactions = recentTransactionData?.transactions || [];
+  const transactions = transactionData?.transactions.slice(0, 5) || [];
 
   const familySavingsTarget = currentFamily ? 
     (families.find(f => f.id === currentFamily)?.budgetCap || budgetProgress.totalIncome * 0.2) :
@@ -221,6 +213,68 @@ export default function Dashboard({ className }: DashboardProps) {
     }
   };
 
+  // Calculate percentage changes compared to previous period
+  const calculatePercentageChanges = () => {
+    if (!transactionData?.transactions) {
+      return { incomeChange: 0, expenseChange: 0 };
+    }
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Get current month transactions
+    const currentMonthTransactions = transactionData.transactions.filter(t => {
+      const transactionDate = new Date(t.createdAt);
+      return transactionDate.getMonth() === currentMonth && 
+             transactionDate.getFullYear() === currentYear;
+    });
+
+    // Get previous month transactions
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    
+    const previousMonthTransactions = transactionData.transactions.filter(t => {
+      const transactionDate = new Date(t.createdAt);
+      return transactionDate.getMonth() === prevMonth && 
+             transactionDate.getFullYear() === prevYear;
+    });
+
+    // Calculate totals for current month
+    const currentIncome = currentMonthTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const currentExpenses = currentMonthTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Calculate totals for previous month
+    const previousIncome = previousMonthTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const previousExpenses = previousMonthTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Calculate percentage changes
+    const incomeChange = previousIncome === 0 ? 
+      (currentIncome > 0 ? 100 : 0) : 
+      ((currentIncome - previousIncome) / previousIncome) * 100;
+    
+    const expenseChange = previousExpenses === 0 ? 
+      (currentExpenses > 0 ? 100 : 0) : 
+      ((currentExpenses - previousExpenses) / previousExpenses) * 100;
+
+    return {
+      incomeChange: Math.round(incomeChange * 10) / 10, // Round to 1 decimal place
+      expenseChange: Math.round(expenseChange * 10) / 10
+    };
+  };
+
+  const { incomeChange, expenseChange } = calculatePercentageChanges();
+
   return (
     <div className={clsx('h-screen text-white flex flex-col', className)}>
       {}
@@ -243,6 +297,8 @@ export default function Dashboard({ className }: DashboardProps) {
           totalExpenses={formatCurrency(budgetProgress.totalExpenses)}
           netAmount={formatCurrency(budgetProgress.netAmount)}
           savingsTarget={formatCurrency(familySavingsTarget)}
+          incomeChange={incomeChange}
+          expenseChange={expenseChange}
         />
 
         {}

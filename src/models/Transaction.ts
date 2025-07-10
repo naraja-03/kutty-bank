@@ -26,16 +26,24 @@ const TransactionSchema = new Schema<ITransaction>(
       required: true,
       trim: true,
       enum: [
+        // Expense categories
         'food',
         'transport',
-        'entertainment',
         'shopping',
+        'entertainment',
         'bills',
         'healthcare',
         'education',
+        'travel',
+        // Income categories
         'salary',
+        'freelance',
         'business',
         'investment',
+        'allowance',
+        'gift',
+        'refund',
+        // Common
         'other',
       ],
     },

@@ -13,5 +13,7 @@ export interface QuickActionsGridProps {
   totalExpenses: string;
   netAmount: string;
   savingsTarget: string;
+  incomeChange?: number;
+  expenseChange?: number;
   className?: string;
 }
