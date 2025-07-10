@@ -8,7 +8,15 @@ import { ChevronDown, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
+<<<<<<< Updated upstream
 import BottomNav from '../BottomNav';
+=======
+import { formatAmount, formatTime } from '../../../lib/formatters';
+import { useSafeArea } from '../../../hooks/useSafeArea';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator/PullToRefreshIndicator';
+
+>>>>>>> Stashed changes
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 
 interface ActivityFeedProps {

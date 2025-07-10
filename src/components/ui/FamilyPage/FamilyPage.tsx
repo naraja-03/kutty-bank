@@ -12,6 +12,7 @@ import BottomNav from '../BottomNav';
 import FamilySelectorModal from '../FamilySelectorModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
+<<<<<<< Updated upstream
 
 // Helper function to get user initials
 const getInitials = (name: string) => {
@@ -21,6 +22,11 @@ const getInitials = (name: string) => {
     .join('')
     .slice(0, 2);
 };
+=======
+import { useSafeArea } from '../../../hooks/useSafeArea';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator/PullToRefreshIndicator';
+>>>>>>> Stashed changes
 
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);

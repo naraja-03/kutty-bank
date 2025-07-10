@@ -6,6 +6,11 @@ import { useDispatch } from 'react-redux';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
 import { useRegisterMutation } from '@/store/api/authApi';
 import { loginSuccess } from '@/store/slices/authSlice';
+<<<<<<< Updated upstream
+=======
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../../components/ui/PullToRefreshIndicator/PullToRefreshIndicator';
+>>>>>>> Stashed changes
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
