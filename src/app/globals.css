@@ -3,6 +3,12 @@
 :root {
   --background: #000000;
   --foreground: #ffffff;
+  
+  /* Safe area insets */
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
 }
 
 body {
@@ -18,6 +24,38 @@ body {
   touch-action: pan-y;
   /* Prevent rubber band effect on iOS */
   -webkit-overflow-scrolling: touch;
+  /* Add padding for safe areas */
+  padding: var(--sat) var(--sar) var(--sab) var(--sal);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  width: 100%;
+}
+
+/* Handle bottom navigation area */
+.bottom-nav {
+  padding-bottom: max(16px, var(--sab));
+  background-color: var(--background);
+}
+
+/* Handle top navigation/header area */
+.top-nav {
+  padding-top: max(16px, var(--sat));
+  background-color: var(--background);
+}
+
+/* For fixed position elements that need to respect safe areas */
+.fixed-safe {
+  position: fixed;
+  left: var(--sal);
+  right: var(--sar);
+}
+
+.fixed-safe-bottom {
+  bottom: var(--sab);
+}
+
+.fixed-safe-top {
+  top: var(--sat);
 }
 
 * {
@@ -105,7 +143,7 @@ html {
   }
 }
 
-/* Mobile PWA specific fixes */
+/* Mobile specific fixes */
 @media (max-width: 768px) {
   /* Fix iOS Safari viewport height issues */
   html {
@@ -124,20 +162,6 @@ html {
   .main-container {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Prevent scroll issues in PWA */
-  .pwa-container {
-    height: 100vh;
-    height: -webkit-fill-available;
-    overflow: hidden;
-  }
-  
-  .pwa-scrollable {
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: none;
   }
 }
 

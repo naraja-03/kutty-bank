@@ -27,7 +27,7 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     // Only run navigation logic after component is mounted and auth is not loading
     if (isMounted && !isLoading && !isInitializing) {
       if (requireAuth && !isAuthenticated) {
-        router.push('/login');
+        router.push('/');
       } else if (!requireAuth && isAuthenticated) {
         router.push('/dashboard');
       }

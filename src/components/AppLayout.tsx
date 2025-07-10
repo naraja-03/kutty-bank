@@ -9,7 +9,6 @@ import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../s
 import AddEntryModal, { TransactionFormData } from '../components/ui/AddEntryModal';
 import CustomThreadModal from '../components/ui/CustomThreadModal';
 import PeriodSelector from '../components/ui/PeriodSelector';
-import PWAInstallPrompt from '../components/ui/PWAInstallPrompt/PWAInstallPrompt';
 import GradientBackground from '../components/ui/GradientBackground';
 import BottomNav from '../components/ui/BottomNav';
 import AuthGuard from './AuthGuard';
@@ -95,7 +94,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="pwa-container">
+    <div className="app-container">
       {isPublicPage ? (
         <GradientBackground variant="default">
           <div className="relative z-10 min-h-screen">
@@ -133,8 +132,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClose={() => dispatch(closePeriodSelector())}
               onPeriodSelect={handlePeriodSelect}
             />
-            
-            <PWAInstallPrompt />
           </GradientBackground>
         </AuthGuard>
       )}

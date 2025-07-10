@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // PWA optimizations
+  // Performance optimizations
   experimental: {
     // optimizeCss: true, // Disabled due to build issues
     optimizePackageImports: ['lucide-react', '@headlessui/react'],

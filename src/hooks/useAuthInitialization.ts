@@ -1,3 +1,4 @@
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useInitializeAuthQuery } from "../store/api/authApi";
@@ -38,7 +39,7 @@ export const useAuthInitialization = () => {
     if (!isLoading) {
       if (error) {
         // Only logout on actual auth errors, not network errors
-        const status = (error as any)?.status;
+        const status = (error as FetchBaseQueryError)?.status;
         if (status === 401 || status === 403) {
           dispatch(logout());
         }
