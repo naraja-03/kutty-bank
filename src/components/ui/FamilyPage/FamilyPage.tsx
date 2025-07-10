@@ -13,6 +13,8 @@ import FamilySelectorModal from '../FamilySelectorModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
 import { useSafeArea } from '../../../hooks/useSafeArea';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator';
 
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -36,8 +38,18 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     isLoading: familyManagerLoading
   } = useFamilyManager();
   
-  const { data: family, isLoading, error } = useGetFamilyQuery(currentFamily || '', {
+  const { data: family, isLoading, error, refetch } = useGetFamilyQuery(currentFamily || '', {
     skip: !currentFamily
+  });
+
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
+  const { isRefreshing, pullDistance, isPulling, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
   });
   
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation();
@@ -164,7 +176,14 @@ export default function FamilyPage({ className }: FamilyPageProps) {
 
   if (!currentFamily && !familyManagerLoading) {
     return (
-      <div className={clsx('min-h-screen text-white', className)}>
+      <>
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          isRefreshing={isRefreshing}
+          isPulling={isPulling}
+          progress={progress}
+        />
+        <div className={clsx('min-h-screen text-white', className)}>
         <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10" style={{ paddingTop: safeAreaInsets.top }}>
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
@@ -192,11 +211,19 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className={clsx('min-h-screen text-white', className)}>
+    <>
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        isPulling={isPulling}
+        progress={progress}
+      />
+      <div className={clsx('min-h-screen text-white', className)}>
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10" style={{ paddingTop: safeAreaInsets.top }}>
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -466,5 +493,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         }}
       />
     </div>
+    </>
   );
 }

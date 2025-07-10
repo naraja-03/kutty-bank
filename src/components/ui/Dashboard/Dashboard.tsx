@@ -28,6 +28,8 @@ import {
   BudgetPeriod
 } from '../../../lib/budgetCalculations';
 import { formatAmount, formatCurrency, formatTime } from '../../../lib/formatters';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator';
 import { useCreateFamilyMutation } from '../../../store/api/familyApi';
 import { useUpdateUserActiveFamilyMutation } from '../../../store/api/authApi';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
@@ -60,6 +62,16 @@ export default function Dashboard({ className }: DashboardProps) {
     budgetId: currentBudgetId
   }, {
     skip: !shouldFetchTransactions
+  });
+
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
+  const { isRefreshing, pullDistance, isPulling, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
   });
 
   const [deleteTransaction] = useDeleteTransactionMutation();
@@ -276,8 +288,14 @@ export default function Dashboard({ className }: DashboardProps) {
   const { incomeChange, expenseChange } = calculatePercentageChanges();
 
   return (
-    <div className={clsx('h-screen text-white flex flex-col', className)}>
-      {}
+    <>
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        isPulling={isPulling}
+        progress={progress}
+      />
+      <div className={clsx('h-screen text-white flex flex-col', className)}>
       <ThreadsHeader
         title="Dashboard"
         onLeftAction={handleOpenThreadSidebar}
@@ -348,5 +366,6 @@ export default function Dashboard({ className }: DashboardProps) {
         onThreadSelect={handleSelectThread}
       />
     </div>
+    </>
   );
 }

@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import { useLoginMutation } from '@/store/api/authApi';
 import { loginSuccess } from '@/store/slices/authSlice';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../../components/ui/PullToRefreshIndicator';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('raja@example.com'); 
@@ -16,6 +18,17 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
+
+  const handleRefresh = async () => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    window.location.reload();
+  };
+
+  const { isRefreshing, pullDistance, isPulling, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +78,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-start p-4 py-10 sm:py-12 md:justify-center">
+    <>
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        isPulling={isPulling}
+        progress={progress}
+      />
+      <div className="min-h-screen flex flex-col justify-start p-4 py-10 sm:py-12 md:justify-center">
         <div className="w-full max-w-md mx-auto">
           {}
           <div className="text-center mb-6 sm:mb-8">
@@ -192,5 +212,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+    </>
   );
 }

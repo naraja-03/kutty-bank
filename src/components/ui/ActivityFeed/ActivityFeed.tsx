@@ -10,6 +10,8 @@ import { openEditEntryModal } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
 import { formatAmount, formatTime } from '../../../lib/formatters';
 import { useSafeArea } from '../../../hooks/useSafeArea';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator';
 
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 
@@ -40,6 +42,16 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     budgetId: currentBudgetId
   }, {
     skip: !shouldFetchTransactions
+  });
+
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
+  const { isRefreshing, pullDistance, isPulling, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
   });
 
   const [deleteTransaction] = useDeleteTransactionMutation();
@@ -137,7 +149,14 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   };
 
   return (
-    <div className={clsx('flex flex-col h-screen text-white', className)}>
+    <>
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        isPulling={isPulling}
+        progress={progress}
+      />
+      <div className={clsx('flex flex-col h-screen text-white', className)}>
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10 flex-shrink-0" style={{ paddingTop: safeAreaInsets.top }}>
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -242,5 +261,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </button>
       )}
     </div>
+    </>
   );
 }
