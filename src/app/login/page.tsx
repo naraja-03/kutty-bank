@@ -65,7 +65,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-start p-4 py-8 sm:py-12 md:justify-center">
+    <div className="min-h-screen flex flex-col justify-start p-4 py-10 sm:py-12 md:justify-center">
         <div className="w-full max-w-md mx-auto">
           {}
           <div className="text-center mb-6 sm:mb-8">
