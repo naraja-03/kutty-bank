@@ -12,6 +12,9 @@ import { updateUser } from '../../../store/slices/authSlice';
 import FamilySelectorModal from '../FamilySelectorModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
+import { useSafeArea } from '../../../hooks/useSafeArea';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../PullToRefreshIndicator';
 
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -28,14 +31,25 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
+  const safeAreaInsets = useSafeArea();
   
   const {
     currentFamily,
     isLoading: familyManagerLoading
   } = useFamilyManager();
   
-  const { data: family, isLoading, error } = useGetFamilyQuery(currentFamily || '', {
+  const { data: family, isLoading, error, refetch } = useGetFamilyQuery(currentFamily || '', {
     skip: !currentFamily
+  });
+
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
+  const { isRefreshing, pullDistance, isPulling, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
   });
   
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation();
@@ -162,9 +176,15 @@ export default function FamilyPage({ className }: FamilyPageProps) {
 
   if (!currentFamily && !familyManagerLoading) {
     return (
-      <div className={clsx('min-h-screen text-white', className)}>
-        {}
-        <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
+      <>
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          isRefreshing={isRefreshing}
+          isPulling={isPulling}
+          progress={progress}
+        />
+        <div className={clsx('min-h-screen text-white', className)}>
+        <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10" style={{ paddingTop: safeAreaInsets.top }}>
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -175,7 +195,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         </div>
 
-        <div className="px-4 py-6 pb-20">
+        <div className="px-4 py-6 pb-24">
           <div className="text-center py-16">
             <Users size={48} className="mx-auto text-gray-400 mb-4" />
             <h2 className="text-xl font-semibold mb-2">No Family Found</h2>
@@ -191,20 +211,26 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className={clsx('min-h-screen text-white', className)}>
-      {}
-      <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
+    <>
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        isPulling={isPulling}
+        progress={progress}
+      />
+      <div className={clsx('min-h-screen text-white', className)}>
+      <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10" style={{ paddingTop: safeAreaInsets.top }}>
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users size={20} />
               <h1 className="text-xl font-bold">Family</h1>
             </div>
-            {}
             <button
               onClick={() => setShowFamilySelector(true)}
               className="flex items-center space-x-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg transition-colors"
@@ -216,8 +242,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         </div>
       </div>
 
-      <div className="px-4 py-6 pb-20">
-        {}
+      <div className="px-4 py-6 pb-24">
         {family && (
           <div className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 mb-6 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
@@ -225,7 +250,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <span className="text-sm text-gray-400">{family.members?.length || 0} members</span>
             </div>
             
-            {}
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Monthly Budget</span>
               <div className="flex items-center space-x-2">
@@ -242,7 +266,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         )}
 
-        {}
         <div className="flex space-x-3 mb-6">
           <button
             onClick={() => setShowInviteForm(true)}
@@ -470,5 +493,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         }}
       />
     </div>
+    </>
   );
 }

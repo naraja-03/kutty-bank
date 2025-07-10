@@ -9,6 +9,7 @@ import { logout } from '@/store/slices/authSlice';
 import { RootState } from '@/store';
 import { ThreadsHeaderProps } from './types';
 import LogoutModal from '../LogoutModal';
+import { useSafeArea } from '../../../hooks/useSafeArea';
 
 export default function ThreadsHeader({
   title,
@@ -23,6 +24,7 @@ export default function ThreadsHeader({
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const safeAreaInsets = useSafeArea();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -33,10 +35,9 @@ export default function ThreadsHeader({
     <header className={clsx(
       'sticky top-0 bg-black/20 backdrop-blur-2xl border-b border-white/10 z-40 shadow-lg',
       className
-    )}>
+    )} style={{ paddingTop: safeAreaInsets.top }}>
       <div className="px-4 py-4">
         <div className="flex items-center justify-between">
-          {}
           <div className="flex items-center space-x-4">
             <button
               onClick={onLeftAction}

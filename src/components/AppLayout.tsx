@@ -11,6 +11,7 @@ import CustomThreadModal from '../components/ui/CustomThreadModal';
 import PeriodSelector from '../components/ui/PeriodSelector';
 import GradientBackground from '../components/ui/GradientBackground';
 import BottomNav from '../components/ui/BottomNav';
+import PWAInstallPrompt from '../components/ui/PWAInstallPrompt';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -89,7 +90,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="app-container pt-10">
+    <div className="app-container">
       {isPublicPage ? (
         <GradientBackground variant="default">
           <div className="relative z-10 min-h-screen">
@@ -127,6 +128,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClose={() => dispatch(closePeriodSelector())}
               onPeriodSelect={handlePeriodSelect}
             />
+
+            <PWAInstallPrompt />
           </GradientBackground>
         </AuthGuard>
       )}

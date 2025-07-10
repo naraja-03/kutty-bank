@@ -1,10 +1,14 @@
+'use client';
+
 import { MessageCircle } from 'lucide-react';
+import { useSafeArea } from '../../hooks/useSafeArea';
 
 export default function MessagesPage() {
+  const safeAreaInsets = useSafeArea();
+  
   return (
     <div className="min-h-screen text-white">
-      {}
-      <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
+      <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10" style={{ paddingTop: safeAreaInsets.top }}>
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -15,7 +19,7 @@ export default function MessagesPage() {
         </div>
       </div>
       <div
-        className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4"
+        className="flex-1 overflow-y-auto p-4 pb-24 lg:pb-4"
       >
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">

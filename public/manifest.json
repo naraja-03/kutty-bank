@@ -1,0 +1,18 @@
+{
+  "name": "KuttyBank - Family Budget Tracker",
+  "short_name": "KuttyBank",
+  "description": "A Threads-style family budget tracker for real-time family expense tracking",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
