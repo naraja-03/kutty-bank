@@ -104,8 +104,6 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ### ActivityFeed
 - Real-time transaction timeline
 - Infinite scroll with load more
-- Pull-to-refresh functionality
-- Auto-refresh every 30 seconds
 
 ### FamilyPage
 - Family member management
