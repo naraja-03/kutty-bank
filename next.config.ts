@@ -1,56 +1,35 @@
 import type { NextConfig } from "next";
-import withBundleAnalyzer from '@next/bundle-analyzer';
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const bundleAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+  enabled: process.env.ANALYZE === "true",
 });
 
+const allowedDevOrigins = ['local-origin.dev', '*.local-origin.dev'];
+
 const nextConfig: NextConfig = {
-  // Performance optimizations
+  reactStrictMode: true,
+  allowedDevOrigins,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === "production",
   },
-  
-  // PWA optimizations
+
   experimental: {
-    // optimizeCss: true, // Disabled due to build issues
-    optimizePackageImports: ['lucide-react', '@headlessui/react'],
+    optimizePackageImports: ["lucide-react", "@headlessui/react"],
   },
-  
-  // Image optimization
-  images: {
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-    domains: [
-      'api.dicebear.com',
-      'images.unsplash.com',
-      'res.cloudinary.com',
-      'i.imgur.com',
-      'picsum.photos'
-    ],
-  },
-  
-  // Compression
+
+  // Enable gzip compression
   compress: true,
-  
-  // Headers for security and performance
+
+  // Security headers
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
     ];

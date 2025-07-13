@@ -1,7 +1,9 @@
-import Dashboard from '../../components/ui/Dashboard';
+'use client';
 
-export default function DashboardPage() {
-  return (
-    <Dashboard />
-  );
+export default function Dashboard() {
+    return (
+        <div>
+            <h1>Dashboard</h1>
+        </div>
+    );
 }

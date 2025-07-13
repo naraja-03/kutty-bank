@@ -1,49 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "../store/ReduxProvider";
 import ErrorBoundary from "../components/ErrorBoundary";
 import AppLayout from "../components/AppLayout";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "KuttyBank - Family Budget Tracker",
-  description: "A Threads-style family budget tracker PWA for real-time family expense tracking",
-  manifest: "/manifest.json",
-  keywords: "family budget, expense tracker, financial management, PWA",
-  authors: [{ name: "Threedot Family" }],
-  appleWebApp: {
-    capable: true,
-    title: "KuttyBank",
-    statusBarStyle: "black-translucent",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  openGraph: {
-    title: "KuttyBank - Family Budget Tracker",
-    description: "A Threads-style family budget tracker PWA for real-time family expense tracking",
-    type: "website",
-    siteName: "KuttyBank",
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "black-translucent",
-    "apple-mobile-web-app-title": "KuttyBank",
-    "application-name": "KuttyBank",
-    "msapplication-TileColor": "#000000",
-    "msapplication-config": "none",
-  },
+  title: "Next.js App",
+  description: "A Next.js application",
 };
 
 export const viewport = {
@@ -68,28 +32,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="KuttyBank" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                });
-              }
-            `,
-          }}
-        />
+        <meta name="apple-mobile-web-app-title" content="Next.js App" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
-      >
+      <body className="antialiased bg-black text-white">
         <ErrorBoundary>
           <ReduxProvider>
             <AppLayout>

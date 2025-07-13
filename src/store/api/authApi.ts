@@ -8,7 +8,7 @@ export interface User {
   profileImage?: string;
   role: 'admin' | 'member' | 'view-only';
   familyId?: string;
-  families: string[]; // Array of family IDs
+  families: string[]; 
 }
 
 export interface LoginRequest {

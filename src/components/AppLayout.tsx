@@ -1,137 +1,34 @@
 'use client';
 
-import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
+import { useSelector, TypedUseSelectorHook } from 'react-redux';
 import { usePathname } from 'next/navigation';
 import { RootState } from '../store';
-import { closeAddEntryModal, closeCustomBudgetModal, closePeriodSelector } from '../store/slices/uiSlice';
-import { setPeriodFromSelector } from '../store/slices/threadsSlice';
-import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../store/api/transactionApi';
-import AddEntryModal, { TransactionFormData } from '../components/ui/AddEntryModal';
-import CustomThreadModal from '../components/ui/CustomThreadModal';
-import PeriodSelector from '../components/ui/PeriodSelector';
-import PWAInstallPrompt from '../components/ui/PWAInstallPrompt/PWAInstallPrompt';
-import GradientBackground from '../components/ui/GradientBackground';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
   const pathname = usePathname();
-  const isAddEntryModalOpen = useTypedSelector(state => state.ui.isAddEntryModalOpen);
-  const editTransactionData = useTypedSelector(state => state.ui.editTransactionData);
-  const isCustomBudgetModalOpen = useTypedSelector(state => state.ui.isCustomBudgetModalOpen);
-  const customBudgetMode = useTypedSelector(state => state.ui.customBudgetMode);
-  const customBudgetEditData = useTypedSelector(state => state.ui.customBudgetEditData);
-  const isPeriodSelectorOpen = useTypedSelector(state => state.ui.isPeriodSelectorOpen);
   const currentUser = useTypedSelector(state => state.auth.user);
-  const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
-  const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
 
-  // Public pages that don't require authentication
+  console.log("currentUsercurrentUser", currentUser);
+
+
   const publicPaths = ['/login', '/register'];
   const isPublicPage = publicPaths.includes(pathname);
 
-  // Get gradient variant based on current path
-  const getGradientVariant = () => {
-    if (pathname === '/dashboard' || pathname === '/') return 'dashboard';
-    if (pathname === '/activity') return 'activity';
-    if (pathname === '/family') return 'family';
-    if (pathname === '/messages') return 'messages';
-    return 'default';
-  };
-
-  const isEditMode = !!editTransactionData;
-  const isLoading = isCreating || isUpdating;
-
-  const handleSubmitTransaction = async (data: TransactionFormData) => {
-    if (!currentUser) {
-      console.error('No user logged in');
-      return;
-    }
-
-    try {
-      if (isEditMode && editTransactionData) {
-        // Update existing transaction
-        await updateTransaction({
-          id: editTransactionData.id,
-          data: {
-            amount: data.amount,
-            category: data.category,
-            type: data.type,
-            note: data.note,
-          }
-        });
-      } else {
-        // Create new transaction
-        await createTransaction({
-          amount: data.amount,
-          category: data.category,
-          type: data.type,
-          userId: currentUser.id,
-          budgetId: data.budgetId,
-          note: data.note,
-          date: data.date,
-        });
-      }
-      dispatch(closeAddEntryModal());
-    } catch (error) {
-      console.error('Failed to save transaction:', error);
-    }
-  };
-
-  const handlePeriodSelect = (period: { id: string; label: string; date: Date; value: number; isUnderControl: boolean; isActive: boolean }) => {
-    // Handle period selection - update the active thread with month data
-    console.log('Selected period:', period);
-    
-    dispatch(setPeriodFromSelector({
-      label: period.label,
-      date: period.date,
-      type: 'month' as const
-    }));
-    
-    dispatch(closePeriodSelector());
-  };
 
   return (
     <>
       {isPublicPage ? (
-        <GradientBackground variant="default">
+        <div className="relative z-10 min-h-screen">
+          {children}
+        </div>
+      ) : (
+        <AuthGuard>
           <div className="relative z-10 min-h-screen">
             {children}
           </div>
-        </GradientBackground>
-      ) : (
-        <AuthGuard>
-          <GradientBackground variant={getGradientVariant()}>
-            <div className="relative z-10 min-h-screen">
-              {children}
-            </div>
-            
-            {/* Global Modals */}
-            <AddEntryModal
-              isOpen={isAddEntryModalOpen}
-              onClose={() => dispatch(closeAddEntryModal())}
-              onSubmit={handleSubmitTransaction}
-              isLoading={isLoading}
-              editData={editTransactionData || undefined}
-            />
-            
-            <CustomThreadModal
-              isOpen={isCustomBudgetModalOpen}
-              onClose={() => dispatch(closeCustomBudgetModal())}
-              mode={customBudgetMode}
-              threadData={customBudgetEditData || undefined}
-            />
-            
-            <PeriodSelector
-              isOpen={isPeriodSelectorOpen}
-              onClose={() => dispatch(closePeriodSelector())}
-              onPeriodSelect={handlePeriodSelect}
-            />
-            
-            <PWAInstallPrompt />
-          </GradientBackground>
         </AuthGuard>
       )}
     </>
