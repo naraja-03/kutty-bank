@@ -64,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-hidden h-full w-full">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#000000" />
@@ -81,7 +81,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white overflow-hidden h-full w-full`}
       >
         <ErrorBoundary>
           <ReduxProvider>
