@@ -15,7 +15,7 @@ import FormModal from '../FormModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
 
-// Helper function to get user initials
+
 const getInitials = (name: string) => {
   return name
     .split(' ')
@@ -40,7 +40,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   
-  // Use family manager for proper family state management
+
   const {
     currentFamily,
     isLoading: familyManagerLoading,
@@ -101,20 +101,20 @@ export default function FamilyPage({ className }: FamilyPageProps) {
       await deleteFamily(family.id);
       setShowDeleteConfirm(false);
       
-      // Clear the user's familyId from the auth state
+
       dispatch(updateUser({ familyId: undefined, role: undefined }));
       
-      // Redirect to dashboard immediately to avoid fetching deleted family
+
       router.push('/dashboard');
     } catch (error) {
       console.error('Failed to delete family:', error);
     }
   };
 
-  // Check if current user is admin
+
   const isCurrentUserAdmin = user?.role === 'admin';
 
-  // Close settings menu when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (showSettingsMenu) {
@@ -200,11 +200,11 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     );
   }
 
-  // If user has no family, show a message and option to create one
+
   if (!currentFamily && !familyManagerLoading) {
     return (
       <div className={clsx('min-h-screen text-white', className)}>
-        {/* Header */}
+        
         <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
@@ -239,7 +239,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
 
   return (
     <div className={clsx('min-h-screen text-white', className)}>
-      {/* Header */}
+      
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <Users size={20} />
               <h1 className="text-xl font-bold">Family</h1>
             </div>
-            {/* Family Selector Button */}
+            
             <button
               onClick={() => setShowFamilySelector(true)}
               className="flex items-center space-x-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg transition-colors"
@@ -260,7 +260,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
       </div>
 
       <div className="px-4 py-6 pb-20">
-        {/* Family Info */}
+        
         {family && (
           <div className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 mb-6 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
@@ -268,7 +268,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <span className="text-sm text-gray-400">{family.members?.length || 0} members</span>
             </div>
             
-            {/* Budget Cap */}
+            
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Monthly Budget</span>
               <div className="flex items-center space-x-2">
@@ -285,7 +285,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         )}
 
-        {/* Action Buttons */}
+        
         <div className="flex space-x-3 mb-6">
           <button
             onClick={() => setShowInviteForm(true)}
@@ -295,7 +295,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             <span>Invite Member</span>
           </button>
           
-          {/* Settings Dropdown */}
+          
           <div className="relative settings-dropdown">
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
@@ -333,14 +333,14 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         </div>
 
-        {/* Members List */}
+        
         <div className="space-y-4">
           <h3 className="font-semibold">Members</h3>
           {family?.members?.map((member, index) => (
             <div key={member.id || `member-${index}`} className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  {/* Avatar with initials */}
+                  
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-950 to-black flex items-center justify-center border border-gray-800">
                     <span className="text-white text-sm font-semibold">
                       {getInitials(member.name || 'U')}
@@ -365,7 +365,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           ))}
         </div>
 
-        {/* Invite Form Modal */}
+        
         <FormModal
           isOpen={showInviteForm}
           onClose={() => setShowInviteForm(false)}
@@ -399,7 +399,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           isLoading={isInviting}
         />
 
-        {/* Budget Form Modal */}
+        
         <FormModal
           isOpen={showBudgetForm}
           onClose={() => setShowBudgetForm(false)}
@@ -421,7 +421,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           isLoading={isUpdatingBudget}
         />
 
-        {/* Delete Confirmation Modal */}
+        
         <ConfirmationModal
           isOpen={showDeleteConfirm}
           onClose={() => setShowDeleteConfirm(false)}
@@ -446,12 +446,12 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         />
       </div>
       
-      {/* Family Selector Modal */}
+      
       <FamilySelectorModal
         isOpen={showFamilySelector}
         onClose={() => setShowFamilySelector(false)}
         onSelectFamily={(familyId: string) => {
-          // Implement proper family switching
+
           dispatch(updateUser({ familyId }));
           setShowFamilySelector(false);
         }}

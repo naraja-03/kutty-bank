@@ -9,7 +9,7 @@ import { useLoginMutation } from '@/store/api/authApi';
 import { loginSuccess } from '@/store/slices/authSlice';
 
 export default function LoginPage() {
-  const [loginInput, setLoginInput] = useState('raja@example.com'); // Can be email or username
+  const [loginInput, setLoginInput] = useState('raja@example.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +19,6 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  // Ensure component is mounted
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -61,7 +60,6 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="px-4 py-8">
         <div className="max-w-md mx-auto space-y-8 mt-10">
-          {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 shadow-lg overflow-hidden relative">
                 <Image
@@ -74,7 +72,6 @@ export default function LoginPage() {
               <p className="text-gray-400">Family Budget Tracker</p>
             </div>
 
-            {/* Login Form */}
             <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white text-center mb-2">Welcome Back</h2>
@@ -88,7 +85,7 @@ export default function LoginPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Email Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Email Address or Username
@@ -106,7 +103,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Password Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Password
@@ -131,7 +128,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Submit Button */}
+
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -153,7 +150,7 @@ export default function LoginPage() {
 
             </div>
 
-            {/* Footer */}
+
             <div className="text-center py-6">
               <p className="text-gray-400">
                 Don&apos;t have an account?{' '}

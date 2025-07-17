@@ -59,12 +59,12 @@ export default function BottomSheet({
                   className
                 )}
               >
-                {/* Handle Bar */}
+
                 <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
                   <div className="w-12 h-1 bg-white/40 rounded-full" />
                 </div>
 
-                {/* Header */}
+
                 <div className="flex items-start justify-between px-6 py-4 border-b border-white/20 flex-shrink-0">
                   <div className="flex-1">
                     <Dialog.Title className="text-xl font-semibold text-white">
@@ -84,7 +84,7 @@ export default function BottomSheet({
                   )}
                 </div>
 
-                {/* Content */}
+
                 <div className="flex-1 overflow-y-auto px-6 py-4">
                   {children}
                 </div>

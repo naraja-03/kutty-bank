@@ -13,7 +13,7 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Error fallback component
+
 function ErrorFallback({ reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 

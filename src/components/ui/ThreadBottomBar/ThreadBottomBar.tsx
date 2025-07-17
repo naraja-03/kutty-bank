@@ -91,10 +91,10 @@ export default function ThreadBottomBar({
       'fixed bottom-20 left-0 right-0 bg-black/95 backdrop-blur-md z-30',
       className
     )}>
-      {/* Main Thread Bar */}
+      
       <div className="px-4 py-2">
         <div className="flex items-center justify-between">
-          {/* Navigation */}
+          
           {onPrevious && (
             <button
               onClick={onPrevious}
@@ -104,7 +104,7 @@ export default function ThreadBottomBar({
             </button>
           )}
 
-          {/* Thread Selector */}
+          
           <div className="flex-1 mx-4">
             <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
               {QUICK_THREADS.map((thread) => {
@@ -127,7 +127,7 @@ export default function ThreadBottomBar({
                 );
               })}
               
-              {/* Custom Thread Button */}
+              
               <button
                 onClick={onCustomThread}
                 className={clsx(
@@ -143,7 +143,7 @@ export default function ThreadBottomBar({
             </div>
           </div>
 
-          {/* Navigation */}
+          
           {onNext && (
             <button
               onClick={onNext}
@@ -155,7 +155,7 @@ export default function ThreadBottomBar({
         </div>
       </div>
 
-      {/* Thread Info Bar */}
+      
       <div className="px-4 py-2 bg-gray-900/95/50 border-t border-gray-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -175,7 +175,7 @@ export default function ThreadBottomBar({
         </div>
       </div>
 
-      {/* Thread Indicators */}
+      
       <div className="flex justify-center py-2">
         <div className="flex space-x-1">
           {QUICK_THREADS.map((thread) => {

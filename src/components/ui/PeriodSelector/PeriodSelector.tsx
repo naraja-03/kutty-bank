@@ -6,7 +6,7 @@ import { format, addYears, subYears } from 'date-fns';
 import BottomSheet from '../BottomSheet';
 import { PeriodSelectorProps, PeriodData } from './types';
 
-// Generate month data for the current year
+
 const generateMonthData = (baseDate: Date): PeriodData[] => {
   const currentYear = baseDate.getFullYear();
   const currentMonth = baseDate.getMonth();
@@ -21,10 +21,10 @@ const generateMonthData = (baseDate: Date): PeriodData[] => {
     const date = new Date(currentYear, month, 1);
     const label = `${monthNames[month]} ${currentYear}`;
     
-    // Mock data - replace with actual calculations
+
     const value = Math.floor(Math.random() * 100000) + 10000;
-    const isUnderControl = Math.random() > 0.4; // 60% chance of being under control
-    const isActive = month === currentMonth; // Current month is active
+    const isUnderControl = Math.random() > 0.4;
+    const isActive = month === currentMonth;
     
     data.push({
       id: `month-${month}`,
@@ -63,7 +63,7 @@ function MonthGridSelector({ selectedDate, onSelect }: { selectedDate: Date; onS
 
   return (
     <div className="space-y-4">
-      {/* Navigation Header */}
+      
       <div className="flex items-center justify-between">
         <button
           onClick={() => handleNavigation('prev')}
@@ -82,7 +82,7 @@ function MonthGridSelector({ selectedDate, onSelect }: { selectedDate: Date; onS
         </button>
       </div>
 
-      {/* Month Grid - 3x4 layout */}
+      
       <div className="grid grid-cols-3 gap-3">
         {periods.map((period) => (
           <button

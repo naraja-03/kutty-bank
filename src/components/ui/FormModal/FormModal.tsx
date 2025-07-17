@@ -114,7 +114,7 @@ export default function FormModal({
       subtitle={subtitle}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Form Fields */}
+        
         {fields.map((field) => (
           <div key={field.id} className="space-y-2">
             <label htmlFor={field.id} className="block text-sm font-medium text-white/80">
@@ -125,12 +125,12 @@ export default function FormModal({
           </div>
         ))}
 
-        {/* Custom Children */}
+        
         {children}
 
-        {/* Actions */}
+        
         <div className="space-y-3 pt-4">
-          {/* Delete Button (if shown) */}
+          
           {showDeleteButton && onDelete && (
             <button
               type="button"
@@ -142,7 +142,7 @@ export default function FormModal({
             </button>
           )}
           
-          {/* Submit and Cancel */}
+          
           <div className="flex gap-3">
             <button
               type="button"

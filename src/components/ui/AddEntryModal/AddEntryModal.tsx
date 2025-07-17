@@ -31,7 +31,7 @@ export default function AddEntryModal({
   const isEditMode = !!editData;
   const { activeThread } = useSelector((state: RootState) => state.threads);
 
-  // Populate form data when editing
+
   useEffect(() => {
     const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
     
@@ -90,7 +90,7 @@ export default function AddEntryModal({
       maxHeight="max-h-[90vh]"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Type Toggle */}
+        
         <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
           <button
             type="button"
@@ -116,7 +116,7 @@ export default function AddEntryModal({
           </button>
         </div>
 
-        {/* Amount */}
+        
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white/90">
             Amount
@@ -136,7 +136,7 @@ export default function AddEntryModal({
           </div>
         </div>
 
-        {/* Date */}
+        
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white/90">
             Date
@@ -150,7 +150,7 @@ export default function AddEntryModal({
           />
         </div>
 
-        {/* Category */}
+        
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white/90">
             Category
@@ -170,7 +170,7 @@ export default function AddEntryModal({
           </select>
         </div>
 
-        {/* Note */}
+        
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white/90">
             Note (Optional)
@@ -184,7 +184,7 @@ export default function AddEntryModal({
           />
         </div>
 
-        {/* Submit Button */}
+        
         <button
           type="submit"
           disabled={isLoading || formData.amount <= 0 || !formData.category}

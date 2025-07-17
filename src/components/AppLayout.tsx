@@ -27,11 +27,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
 
-  // Public pages that don't require authentication
+
   const publicPaths = ['/login', '/register'];
   const isPublicPage = publicPaths.includes(pathname);
 
-  // Get gradient variant based on current path
+
   const getGradientVariant = () => {
     if (pathname === '/dashboard' || pathname === '/') return 'dashboard';
     if (pathname === '/activity') return 'activity';
@@ -51,7 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     try {
       if (isEditMode && editTransactionData) {
-        // Update existing transaction
+
         await updateTransaction({
           id: editTransactionData.id,
           data: {
@@ -62,7 +62,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           }
         });
       } else {
-        // Create new transaction
+
         await createTransaction({
           amount: data.amount,
           category: data.category,
@@ -80,7 +80,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   const handlePeriodSelect = (period: { id: string; label: string; date: Date; value: number; isUnderControl: boolean; isActive: boolean }) => {
-    // Handle period selection - update the active thread with month data
+
     console.log('Selected period:', period);
     
     dispatch(setPeriodFromSelector({
@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {children}
             </div>
             
-            {/* Global Modals */}
+            
             <AddEntryModal
               isOpen={isAddEntryModalOpen}
               onClose={() => dispatch(closeAddEntryModal())}

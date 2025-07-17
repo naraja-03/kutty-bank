@@ -53,7 +53,7 @@ export default function BottomNav({
   const getActiveTab = () => {
     if (activeTab) return activeTab;
 
-    // Auto-detect active tab from pathname
+
     const currentPath = pathname.split('/')[1];
     return tabs.find(tab => tab.id === currentPath)?.id || 'dashboard';
   };
@@ -112,7 +112,7 @@ export default function BottomNav({
               }}
               className={clsx(
                 'flex flex-col items-center justify-center py-2 px-2 sm:px-3 lg:px-4 rounded-xl transition-all duration-200',
-                'flex-1 max-w-[90px] min-w-[60px]', // Equal width for all tabs with more space on desktop
+                'flex-1 max-w-[90px] min-w-[60px]',
                 'hover:bg-white/10 active:scale-95 touch-manipulation',
                 tab.id === 'add' ? 'bg-white/10' : '',
                 isActive && tab.id !== 'add' ? 'text-white' : 'text-gray-400'
@@ -120,7 +120,7 @@ export default function BottomNav({
               aria-label={tab.id === 'family' ? `${tab.label} (double-tap to logout)` : tab.label}
             >
               <Icon
-                size={22} // Same size for all icons
+                size={22}
                 className={clsx(
                   'mb-1 transition-colors duration-200',
                   tab.id === 'add' ? 'text-white' : (isActive ? 'text-white' : 'text-gray-400')

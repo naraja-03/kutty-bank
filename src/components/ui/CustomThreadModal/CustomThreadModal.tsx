@@ -29,13 +29,13 @@ export default function CustomThreadModal({
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Initialize form data when modal opens or threadData changes
+
   useEffect(() => {
     if (isOpen) {
       if (mode === 'edit' && threadData) {
         setFormData(threadData);
       } else {
-        // Reset form for create mode
+
         setFormData({
           name: '',
           description: '',
@@ -69,7 +69,7 @@ export default function CustomThreadModal({
       };
 
       if (mode === 'edit' && threadData?.id) {
-        // Update existing budget
+
         await updateBudget({
           id: threadData.id,
           label: budgetData.label,
@@ -78,7 +78,7 @@ export default function CustomThreadModal({
           userId: currentUser.id
         }).unwrap();
 
-        // Update local Redux state
+
         dispatch(updateCustomThread({
           id: threadData.id,
           label: budgetData.label,
@@ -86,7 +86,7 @@ export default function CustomThreadModal({
           targetAmount: budgetData.targetAmount,
         }));
       } else {
-        // Create new budget
+
         await createBudget({
           label: budgetData.label,
           description: budgetData.description,
@@ -95,7 +95,7 @@ export default function CustomThreadModal({
           familyId: budgetData.familyId
         }).unwrap();
 
-        // Add to local Redux state
+
         dispatch(createCustomThread({
           label: budgetData.label,
           description: budgetData.description,
@@ -113,13 +113,13 @@ export default function CustomThreadModal({
     if (!threadData?.id || !currentUser) return;
 
     try {
-      // Delete from database
+
       await deleteBudget({
         id: threadData.id,
         userId: currentUser.id
       }).unwrap();
 
-      // Also update local Redux state
+
       dispatch(removeSavedThread(threadData.id));
       setShowDeleteConfirm(false);
       onClose();
@@ -132,7 +132,7 @@ export default function CustomThreadModal({
 
   return (
     <>
-      {/* Main Form Modal */}
+      
       <FormModal
         isOpen={isOpen && !showDeleteConfirm}
         onClose={onClose}
@@ -172,7 +172,7 @@ export default function CustomThreadModal({
         onDelete={() => setShowDeleteConfirm(true)}
       />
 
-      {/* Delete Confirmation Modal */}
+      
       <ConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}

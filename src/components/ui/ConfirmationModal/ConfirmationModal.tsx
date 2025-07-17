@@ -72,20 +72,20 @@ export default function ConfirmationModal({
       maxHeight="max-h-[50vh]"
     >
       <div className="text-center">
-        {/* Icon */}
+        
         <div className={`w-16 h-16 ${config.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
           <Icon className={`w-8 h-8 ${config.iconColor}`} />
         </div>
 
-        {/* Title */}
+        
         <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
 
-        {/* Message */}
+        
         <div className="text-gray-300 mb-8 text-sm leading-relaxed">
           {message}
         </div>
 
-        {/* Actions */}
+        
         <div className="flex gap-3">
           <button
             onClick={onClose}

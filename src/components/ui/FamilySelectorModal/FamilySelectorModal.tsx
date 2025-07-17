@@ -17,7 +17,7 @@ export default function FamilySelectorModal({
   const { user } = useSelector((state: RootState) => state.auth);
   const [families, setFamilies] = useState<FamilyOption[]>([]);
   
-  // Fetch user's families
+
   const { data: userFamilies = [], isLoading } = useGetFamiliesQuery(
     user?.id || '',
     { skip: !user?.id }
@@ -41,11 +41,11 @@ export default function FamilySelectorModal({
   };
 
   const handleCreateNew = () => {
-    // For now, just close the modal
-    // In the future, you can implement family creation flow
+
+
     onClose();
     if (onCreateFamily) {
-      // Placeholder for create family functionality
+
       console.log('Create new family functionality not implemented yet');
     }
   };

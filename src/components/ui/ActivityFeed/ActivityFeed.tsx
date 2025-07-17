@@ -27,10 +27,10 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   const { activeThread } = useSelector((state: RootState) => state.threads);
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // Determine budgetId for filtering based on active thread
+
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
 
-  // Only fetch transactions if user has a valid family selected
+
   const shouldFetchTransactions = Boolean(user?.familyId);
 
   const { data: transactionData, isLoading, refetch } = useGetTransactionsQuery({
@@ -43,15 +43,15 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
 
   const [deleteTransaction] = useDeleteTransactionMutation();
 
-  // Extract transactions array from the response (reverse order - newest first)
+
   const transactions = useMemo(() => {
     const txns = transactionData?.transactions || [];
-    // Reverse the array so newest transactions appear at the bottom
+
     return [...txns].reverse();
   }, [transactionData]);
 
   useEffect(() => {
-    // Scroll to bottom when new transactions are loaded
+
     if (transactions && transactions.length > 0) {
       setTimeout(() => {
         if (scrollRef.current) {
@@ -61,7 +61,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     }
   }, [transactions]);
 
-  // Handle scroll events to show/hide the scroll-to-bottom button
+
   useEffect(() => {
     const handleScroll = () => {
       if (scrollRef.current) {
@@ -78,7 +78,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     }
   }, []);
 
-  // Function to scroll to bottom
+
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
@@ -88,17 +88,17 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     }
   };
 
-  // Auto-scroll to bottom when new transactions are added
+
   useEffect(() => {
     if (transactions.length > 0 && !isLoading) {
-      // Scroll to bottom after a short delay to ensure content is rendered
+
       setTimeout(() => {
         scrollToBottom();
       }, 100);
     }
   }, [transactions.length, isLoading]);
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownOpen) {
@@ -144,7 +144,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   };
 
   const handleEditTransaction = (transactionId: string) => {
-    // Find the transaction in the current data
+
     const transaction = transactionData?.transactions.find(t => t.id === transactionId);
     if (transaction) {
       dispatch(openEditEntryModal({
@@ -171,13 +171,13 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   };
 
   const handleReply = () => {
-    // Navigate to messages tab
+
     router.push('/messages');
   };
 
   return (
     <div className={clsx('flex flex-col h-screen text-white', className)}>
-      {/* Header */}
+      
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10 flex-shrink-0">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -189,13 +189,13 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       </div>
 
-      {/* Messages Area - Threads style */}
+      
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4"
       >
         <div className="space-y-4">
-          {/* Loading skeleton */}
+          
           {isLoading && (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -210,7 +210,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
             </div>
           )}
 
-          {/* Empty State */}
+          
           {!isLoading && transactions.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
@@ -223,7 +223,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
             </div>
           )}
 
-          {/* Transaction Cards */}
+          
           {!isLoading && transactions.length > 0 && transactions.map((transaction, index) => (
             <div
               key={transaction.id}
@@ -247,7 +247,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
@@ -271,7 +271,7 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       )}
 
-      {/* Floating Scroll to Bottom Button */}
+      
       {showScrollToBottom && (
         <button
           onClick={scrollToBottom}

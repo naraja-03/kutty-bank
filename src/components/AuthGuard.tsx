@@ -24,7 +24,7 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     }
   }, [isAuthenticated, isLoading, requireAuth, router]);
 
-  // Show loading spinner while checking auth
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -36,7 +36,7 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     );
   }
 
-  // Don't render children if auth check fails
+
   if (requireAuth && !isAuthenticated) {
     return null;
   }

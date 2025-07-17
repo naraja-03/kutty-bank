@@ -57,7 +57,7 @@ export default function ListModal({
       maxHeight="max-h-[80vh]"
     >
       <div className="space-y-4">
-        {/* Create New Button */}
+        
         {showCreateNew && onCreateNew && (
           <button
             onClick={onCreateNew}
@@ -71,14 +71,14 @@ export default function ListModal({
           </button>
         )}
 
-        {/* Loading State */}
+        
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           </div>
         )}
 
-        {/* Items List */}
+        
         {!isLoading && items.length > 0 && (
           <div className="space-y-2">
             {items.map((item) => (
@@ -94,14 +94,14 @@ export default function ListModal({
                     : 'bg-white/5 hover:bg-white/10 border border-white/20'
                 }`}
               >
-                {/* Icon or Avatar */}
+                
                 {item.icon && (
                   <div className="w-10 h-10 flex items-center justify-center">
                     {item.icon}
                   </div>
                 )}
 
-                {/* Content */}
+                
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-white truncate">{item.label}</h3>
                   {item.subtitle && (
@@ -109,7 +109,7 @@ export default function ListModal({
                   )}
                 </div>
 
-                {/* Selection Indicator */}
+                
                 {selectedId === item.id && (
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <Check className="w-4 h-4 text-white" />
@@ -120,7 +120,7 @@ export default function ListModal({
           </div>
         )}
 
-        {/* Empty State */}
+        
         {!isLoading && items.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-400">{emptyText}</p>

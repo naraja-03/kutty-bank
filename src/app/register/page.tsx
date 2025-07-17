@@ -25,16 +25,16 @@ export default function RegisterPage() {
   const dispatch = useDispatch();
   const [register, { isLoading }] = useRegisterMutation();
 
-  // Ensure component is mounted
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Generate username when name changes (optional - user can override)
+
   useEffect(() => {
     if (formData.name && !formData.username) {
       const baseUsername = formData.name.toLowerCase().replace(/\s+/g, '_');
-      const randomNumbers = Math.floor(Math.random() * 900) + 100; // 3-digit number
+      const randomNumbers = Math.floor(Math.random() * 900) + 100;
       const generatedUsername = `${baseUsername}${randomNumbers}`;
       setFormData(prev => ({ ...prev, username: generatedUsername }));
     }
@@ -74,7 +74,7 @@ export default function RegisterPage() {
       const result = await register({
         name: formData.name,
         username: formData.username,
-        email: formData.username, // Use username as email for API compatibility
+        email: formData.username,
         password: formData.password
       }).unwrap();
 
@@ -98,7 +98,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="px-4 py-8">
         <div className="max-w-md mx-auto space-y-8 mt-10">
-          {/* Header */}
+
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 shadow-lg overflow-hidden relative">
                 <Image 
@@ -111,7 +111,7 @@ export default function RegisterPage() {
               <p className="text-gray-400">Family Budget Tracker</p>
             </div>
 
-            {/* Register Form */}
+
             <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white text-center mb-2">Create Account</h2>
@@ -125,7 +125,7 @@ export default function RegisterPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Full Name
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Username Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Email as Username
@@ -163,7 +163,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Password Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Password
@@ -189,7 +189,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Confirm Password Field */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Confirm Password
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Submit Button */}
+
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -235,7 +235,7 @@ export default function RegisterPage() {
                 </button>
               </form>
 
-              {/* Terms and Privacy */}
+
               <div className="mt-8 pt-6 border-t border-white/10">
                 <p className="text-xs text-gray-400 text-center">
                   By creating an account, you agree to our{' '}
@@ -250,7 +250,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Footer */}
+
             <div className="text-center py-6">
               <p className="text-gray-400">
                 Already have an account?{' '}
