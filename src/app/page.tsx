@@ -21,12 +21,12 @@ export default function Home() {
   }, [router, isAuthenticated, isLoading]);
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden">
-      <div className="flex flex-col items-center justify-center space-y-8">
-        <div className="relative w-32 h-32 animate-float">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center overflow-hidden">
+      <div className="flex flex-col items-center justify-center space-y-6">
+        <div className="relative w-20 h-20 animate-float">
           <div className="w-full h-full relative">
             <Image 
-              src="/logo without bg.png" 
+              src="/icon-glass.svg" 
               alt="Rightrack Logo" 
               fill
               className="object-contain drop-shadow-2xl"
@@ -36,7 +36,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 animate-shine-custom"></div>
         </div>
         
-        <p className="text-gray-400 text-lg animate-pulse">Loading...</p>
+        <p className="text-gray-400 text-sm animate-pulse">Loading...</p>
       </div>
     </div>
   );

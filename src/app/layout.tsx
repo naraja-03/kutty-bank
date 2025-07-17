@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   keywords: "family budget, expense tracker, financial management",
   authors: [{ name: "Threedot Family" }],
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/icon-glass.svg",
+    apple: "/icon-glass.svg",
   },
   formatDetection: {
     telephone: false,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Rightrack",
     images: [
       {
-        url: "/logo.png",
+        url: "/icon-glass.svg",
         width: 1200,
         height: 630,
         alt: "Rightrack - Family Budget Tracker",
@@ -63,7 +63,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white overflow-hidden`}
       >
         <ErrorBoundary>
           <ReduxProvider>
