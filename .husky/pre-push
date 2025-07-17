@@ -1,0 +1,25 @@
+#!/bin/sh
+# Git pre-push hook to prevent direct pushes to protected branches
+
+# Get the current branch name
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+# Protected branches
+protected_branches="master main"
+
+# Check if current branch is protected
+for protected in $protected_branches; do
+    if [ "$branch" = "$protected" ]; then
+        echo ""
+        echo "🚫 Direct push to '$branch' not allowed!"
+        echo ""
+        echo "💡 Quick options:"
+        echo "   1. Feature branch: git checkout -b feature/name"
+        echo "   2. Override: git push --no-verify origin master"
+        echo ""
+        exit 1
+    fi
+done
+
+echo "✅ Pushing to '$branch'..."
+exit 0

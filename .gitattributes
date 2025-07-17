@@ -13,8 +13,11 @@
 *.sh text eol=lf
 *.css text eol=lf
 
-# Husky files should use LF
+# Husky files and shell scripts should use LF
 .husky/* text eol=lf
+.husky/pre-push text eol=lf
+.husky/pre-commit text eol=lf
+.husky/commit-msg text eol=lf
 
 # Package files should use LF
 package.json text eol=lf

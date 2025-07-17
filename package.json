@@ -15,8 +15,8 @@
     "clean:next": "rm -rf .next",
     "analyze": "ANALYZE=true npm run build",
     "prepare": "husky",
-    "pre-commit": "lint-staged",
-    "commit": "cz"
+    "commit": "cz",
+    "validate": "npm run type-check && npm run lint && npm run format:check && npm run build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -52,19 +52,9 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,css}": [
-      "prettier --write"
-    ]
   },
   "config": {
     "commitizen": {
