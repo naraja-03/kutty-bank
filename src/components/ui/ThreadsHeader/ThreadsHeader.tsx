@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { Menu, ChevronDown, LogOut, User } from 'lucide-react';
+import { Menu, ChevronDown, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import { logout } from '@/store/slices/authSlice';
 import { RootState } from '@/store';
@@ -66,9 +66,6 @@ export default function ThreadsHeader({
           <div className="flex items-center space-x-3">
             {/* User Profile */}
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-gray-950 to-black rounded-full flex items-center justify-center backdrop-blur-sm border border-gray-800">
-                <User size={16} className="text-white" />
-              </div>
               <div className="hidden sm:block">
                 <p className="text-sm font-medium text-white">{currentUser?.name}</p>
                 <p className="text-xs text-gray-400 capitalize">{currentUser?.role}</p>

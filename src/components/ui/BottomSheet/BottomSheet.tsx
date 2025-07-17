@@ -65,7 +65,7 @@ export default function BottomSheet({
                 </div>
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/20 flex-shrink-0">
+                <div className="flex items-start justify-between px-6 py-4 border-b border-white/20 flex-shrink-0">
                   <div className="flex-1">
                     <Dialog.Title className="text-xl font-semibold text-white">
                       {title}
