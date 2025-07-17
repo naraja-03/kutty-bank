@@ -1,6 +1,6 @@
 # KuttyBank - Family Budget Tracker
 
-A Threads-style, real-time family budget tracker PWA built with Next.js, Redux Toolkit, and Firebase.
+A Threads-style, real-time family budget tracker built with Next.js, Redux Toolkit, and Firebase.
 
 ## Features
 

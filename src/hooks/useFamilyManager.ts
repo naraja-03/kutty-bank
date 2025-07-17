@@ -54,11 +54,16 @@ export function useFamilyManager(): FamilyManagerResult {
 
   // Auto-clear invalid family when families are loaded
   useEffect(() => {
-    if (!isLoading && families.length > 0 && currentFamilyId) {
-      const familyExists = families.some(family => family.id === currentFamilyId);
-      if (!familyExists) {
-        // Current family doesn't exist, clear it
+    if (!isLoading && currentFamilyId) {
+      if (families.length === 0) {
+        // No families available, clear current family
         clearInvalidFamily();
+      } else {
+        const familyExists = families.some(family => family.id === currentFamilyId);
+        if (!familyExists) {
+          // Current family doesn't exist, clear it
+          clearInvalidFamily();
+        }
       }
     }
   }, [families, currentFamilyId, isLoading, clearInvalidFamily]);

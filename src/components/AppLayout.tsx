@@ -6,11 +6,10 @@ import { RootState } from '../store';
 import { closeAddEntryModal, closeCustomBudgetModal, closePeriodSelector } from '../store/slices/uiSlice';
 import { setPeriodFromSelector } from '../store/slices/threadsSlice';
 import { useCreateTransactionMutation, useUpdateTransactionMutation } from '../store/api/transactionApi';
-import AddEntryModal, { TransactionFormData } from '../components/ui/AddEntryModal';
-import CustomThreadModal from '../components/ui/CustomThreadModal';
-import PeriodSelector from '../components/ui/PeriodSelector';
-import PWAInstallPrompt from '../components/ui/PWAInstallPrompt/PWAInstallPrompt';
-import GradientBackground from '../components/ui/GradientBackground';
+import AddEntryModal, { TransactionFormData } from './ui/AddEntryModal';
+import CustomThreadModal from './ui/CustomThreadModal';
+import PeriodSelector from './ui/PeriodSelector';
+import GradientBackground from './ui/GradientBackground';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -129,8 +128,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClose={() => dispatch(closePeriodSelector())}
               onPeriodSelect={handlePeriodSelect}
             />
-            
-            <PWAInstallPrompt />
           </GradientBackground>
         </AuthGuard>
       )}

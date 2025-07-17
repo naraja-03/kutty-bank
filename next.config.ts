@@ -6,12 +6,12 @@ const bundleAnalyzer = withBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // Performance optimizations
+  devIndicators: false,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // PWA optimizations
+  // Optimizations
   experimental: {
     // optimizeCss: true, // Disabled due to build issues
     optimizePackageImports: ['lucide-react', '@headlessui/react'],

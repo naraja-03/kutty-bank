@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, IndianRupee, ChevronDown, Trash2 } from 'lucide-react';
+import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, ChevronDown, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useGetFamilyQuery, useInviteMemberMutation, useUpdateBudgetMutation, useDeleteFamilyMutation } from '../../../store/api/familyApi';
 import { FamilyPageProps, InviteFormData } from './types';
@@ -10,6 +10,8 @@ import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
 import BottomNav from '../BottomNav';
 import FamilySelectorModal from '../FamilySelectorModal';
+import ConfirmationModal from '../ConfirmationModal';
+import FormModal from '../FormModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
 
@@ -41,21 +43,24 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   // Use family manager for proper family state management
   const {
     currentFamily,
-    isLoading: familyManagerLoading
+    isLoading: familyManagerLoading,
+    hasValidFamily
   } = useFamilyManager();
   
   const { data: family, isLoading, error } = useGetFamilyQuery(currentFamily || '', {
-    skip: !currentFamily
+    skip: !currentFamily || !hasValidFamily
   });
   
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation();
   const [updateBudget, { isLoading: isUpdatingBudget }] = useUpdateBudgetMutation();
   const [deleteFamily, { isLoading: isDeleting }] = useDeleteFamilyMutation();
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInviteSubmit = async (data: Record<string, string | number>) => {
     try {
-      await inviteMember(inviteData);
+      await inviteMember({
+        email: data.email as string,
+        role: data.role as 'admin' | 'member' | 'view-only'
+      });
       setInviteData({ email: '', role: 'member' });
       setShowInviteForm(false);
     } catch (error) {
@@ -63,20 +68,30 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     }
   };
 
-  const handleUpdateBudget = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInviteFieldChange = (fieldId: string, value: string | number) => {
+    setInviteData(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+  };
+
+  const handleBudgetSubmit = async (data: Record<string, string | number>) => {
     if (!family?.id) return;
     
     try {
       await updateBudget({ 
         familyId: family.id,
-        budgetCap: parseFloat(budgetAmount) 
+        budgetCap: data.budgetAmount as number
       });
       setShowBudgetForm(false);
       setBudgetAmount('');
     } catch (error) {
       console.error('Failed to update budget:', error);
     }
+  };
+
+  const handleBudgetFieldChange = (fieldId: string, value: string | number) => {
+    setBudgetAmount(value.toString());
   };
 
   const handleDeleteFamily = async () => {
@@ -89,7 +104,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
       // Clear the user's familyId from the auth state
       dispatch(updateUser({ familyId: undefined, role: undefined }));
       
-      // Redirect to dashboard
+      // Redirect to dashboard immediately to avoid fetching deleted family
       router.push('/dashboard');
     } catch (error) {
       console.error('Failed to delete family:', error);
@@ -351,148 +366,91 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         </div>
 
         {/* Invite Form Modal */}
-        {showInviteForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900/95/80 rounded-xl p-6 w-full max-w-md border border-gray-800/50 backdrop-blur-md">
-              <h3 className="text-lg font-semibold mb-4">Invite Family Member</h3>
-              <form onSubmit={handleInvite} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteData.email}
-                    onChange={(e) => setInviteData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="member@example.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Role
-                  </label>
-                  <select
-                    value={inviteData.role}
-                    onChange={(e) => setInviteData(prev => ({ ...prev, role: e.target.value as 'admin' | 'member' | 'view-only' }))}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    <option value="view-only">View Only</option>
-                  </select>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowInviteForm(false)}
-                    className="flex-1 py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isInviting}
-                    className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {isInviting ? 'Inviting...' : 'Send Invite'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <FormModal
+          isOpen={showInviteForm}
+          onClose={() => setShowInviteForm(false)}
+          onSubmit={handleInviteSubmit}
+          title="Invite Family Member"
+          subtitle="Add a new member to your family"
+          fields={[
+            {
+              id: 'email',
+              label: 'Email Address',
+              type: 'email',
+              value: inviteData.email,
+              placeholder: 'member@example.com',
+              required: true
+            },
+            {
+              id: 'role',
+              label: 'Role',
+              type: 'select',
+              value: inviteData.role,
+              options: [
+                { value: 'member', label: 'Member' },
+                { value: 'admin', label: 'Admin' },
+                { value: 'view-only', label: 'View Only' }
+              ],
+              required: true
+            }
+          ]}
+          onFieldChange={handleInviteFieldChange}
+          submitText="Send Invite"
+          isLoading={isInviting}
+        />
 
         {/* Budget Form Modal */}
-        {showBudgetForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900/95/80 rounded-xl p-6 w-full max-w-md border border-gray-800/50 backdrop-blur-md">
-              <h3 className="text-lg font-semibold mb-4">Set Monthly Budget</h3>
-              <form onSubmit={handleUpdateBudget} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Budget Amount
-                  </label>
-                  <div className="relative">
-                    <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    <input
-                      type="number"
-                      value={budgetAmount}
-                      onChange={(e) => setBudgetAmount(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="50000"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowBudgetForm(false)}
-                    className="flex-1 py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isUpdatingBudget}
-                    className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {isUpdatingBudget ? 'Updating...' : 'Update Budget'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <FormModal
+          isOpen={showBudgetForm}
+          onClose={() => setShowBudgetForm(false)}
+          onSubmit={handleBudgetSubmit}
+          title="Set Monthly Budget"
+          subtitle="Set a spending limit for your family"
+          fields={[
+            {
+              id: 'budgetAmount',
+              label: 'Budget Amount (₹)',
+              type: 'number',
+              value: budgetAmount ? parseFloat(budgetAmount) : 0,
+              placeholder: '50000',
+              required: true
+            }
+          ]}
+          onFieldChange={handleBudgetFieldChange}
+          submitText="Update Budget"
+          isLoading={isUpdatingBudget}
+        />
 
         {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900/95/80 rounded-xl p-6 w-full max-w-md border border-gray-800/50 backdrop-blur-md">
-              <h3 className="text-lg font-semibold mb-4 text-red-400">Delete Family</h3>
-              <p className="text-gray-300 mb-6">
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDeleteFamily}
+          title="Delete Family"
+          message={
+            <div>
+              <p className="mb-4">
                 Are you sure you want to delete &quot;{family?.name}&quot;? This action cannot be undone and will permanently delete:
               </p>
-              <ul className="text-sm text-gray-400 mb-6 space-y-1">
+              <ul className="text-sm space-y-1 text-left">
                 <li>• All family members will be removed</li>
                 <li>• All transactions will be deleted</li>
                 <li>• All budgets will be deleted</li>
                 <li>• All family data will be permanently lost</li>
               </ul>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteFamily}
-                  disabled={isDeleting}
-                  className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
-                >
-                  {isDeleting ? (
-                    <span>Deleting...</span>
-                  ) : (
-                    <>
-                      <Trash2 size={16} />
-                      <span>Delete Forever</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </div>
-          </div>
-        )}
+          }
+          confirmText="Delete Family"
+          variant="danger"
+          isLoading={isDeleting}
+        />
       </div>
       
       {/* Family Selector Modal */}
       <FamilySelectorModal
         isOpen={showFamilySelector}
         onClose={() => setShowFamilySelector(false)}
-        onSelectFamily={(familyId) => {
+        onSelectFamily={(familyId: string) => {
           // Implement proper family switching
           dispatch(updateUser({ familyId }));
           setShowFamilySelector(false);

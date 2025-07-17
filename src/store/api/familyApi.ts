@@ -42,6 +42,13 @@ export const familyApi = createApi({
     getFamily: builder.query<Family, string>({
       query: (familyId) => `?familyId=${familyId}`,
       providesTags: ['Family'],
+      // Handle 404 errors gracefully
+      transformErrorResponse: (response) => {
+        if (response.status === 404) {
+          return { status: 404, data: 'Family not found' };
+        }
+        return response;
+      },
     }),
     createFamily: builder.mutation<Family, { name: string }>({
       query: (data) => ({

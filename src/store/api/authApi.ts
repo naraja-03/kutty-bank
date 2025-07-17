@@ -4,6 +4,7 @@ import { RootState } from '../index';
 export interface User {
   id: string;
   name: string;
+  username: string;
   email: string;
   profileImage?: string;
   role: 'admin' | 'member' | 'view-only';
@@ -18,6 +19,7 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   name: string;
+  username: string;
   email: string;
   password: string;
 }
