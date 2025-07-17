@@ -2,9 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Users, Plus, Crown, Shield, Eye, Settings, MoreVertical, ChevronDown, Trash2 } from 'lucide-react';
+import {
+  Users,
+  Plus,
+  Crown,
+  Shield,
+  Eye,
+  Settings,
+  MoreVertical,
+  ChevronDown,
+  Trash2,
+} from 'lucide-react';
 import { clsx } from 'clsx';
-import { useGetFamilyQuery, useInviteMemberMutation, useUpdateBudgetMutation, useDeleteFamilyMutation } from '../../../store/api/familyApi';
+import {
+  useGetFamilyQuery,
+  useInviteMemberMutation,
+  useUpdateBudgetMutation,
+  useDeleteFamilyMutation,
+} from '../../../store/api/familyApi';
 import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
@@ -14,7 +29,6 @@ import ConfirmationModal from '../ConfirmationModal';
 import FormModal from '../FormModal';
 import { useRouter } from 'next/navigation';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
-
 
 const getInitials = (name: string) => {
   return name
@@ -32,25 +46,24 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [inviteData, setInviteData] = useState<InviteFormData>({
     email: '',
-    role: 'member'
+    role: 'member',
   });
   const [budgetAmount, setBudgetAmount] = useState('');
 
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-  
+
+  const { currentFamily, isLoading: familyManagerLoading, hasValidFamily } = useFamilyManager();
 
   const {
-    currentFamily,
-    isLoading: familyManagerLoading,
-    hasValidFamily
-  } = useFamilyManager();
-  
-  const { data: family, isLoading, error } = useGetFamilyQuery(currentFamily || '', {
-    skip: !currentFamily || !hasValidFamily
+    data: family,
+    isLoading,
+    error,
+  } = useGetFamilyQuery(currentFamily || '', {
+    skip: !currentFamily || !hasValidFamily,
   });
-  
+
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation();
   const [updateBudget, { isLoading: isUpdatingBudget }] = useUpdateBudgetMutation();
   const [deleteFamily, { isLoading: isDeleting }] = useDeleteFamilyMutation();
@@ -59,7 +72,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     try {
       await inviteMember({
         email: data.email as string,
-        role: data.role as 'admin' | 'member' | 'view-only'
+        role: data.role as 'admin' | 'member' | 'view-only',
       });
       setInviteData({ email: '', role: 'member' });
       setShowInviteForm(false);
@@ -71,17 +84,17 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const handleInviteFieldChange = (fieldId: string, value: string | number) => {
     setInviteData(prev => ({
       ...prev,
-      [fieldId]: value
+      [fieldId]: value,
     }));
   };
 
   const handleBudgetSubmit = async (data: Record<string, string | number>) => {
     if (!family?.id) return;
-    
+
     try {
-      await updateBudget({ 
+      await updateBudget({
         familyId: family.id,
-        budgetCap: data.budgetAmount as number
+        budgetCap: data.budgetAmount as number,
       });
       setShowBudgetForm(false);
       setBudgetAmount('');
@@ -96,14 +109,12 @@ export default function FamilyPage({ className }: FamilyPageProps) {
 
   const handleDeleteFamily = async () => {
     if (!family?.id) return;
-    
+
     try {
       await deleteFamily(family.id);
       setShowDeleteConfirm(false);
-      
 
       dispatch(updateUser({ familyId: undefined, role: undefined }));
-      
 
       router.push('/dashboard');
     } catch (error) {
@@ -111,9 +122,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     }
   };
 
-
   const isCurrentUserAdmin = user?.role === 'admin';
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -162,7 +171,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -172,7 +181,10 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         <div className="px-4 py-8">
           <div className="space-y-6">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800 animate-pulse backdrop-blur-sm">
+              <div
+                key={i}
+                className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800 animate-pulse backdrop-blur-sm"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gray-800 rounded-full" />
                   <div className="flex-1 space-y-2">
@@ -200,11 +212,9 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     );
   }
 
-
   if (!currentFamily && !familyManagerLoading) {
     return (
       <div className={clsx('min-h-screen text-white', className)}>
-        
         <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
@@ -221,7 +231,8 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             <Users size={48} className="mx-auto text-gray-400 mb-4" />
             <h2 className="text-xl font-semibold mb-2">No Family Found</h2>
             <p className="text-gray-400 mb-6">
-              You&apos;re not part of any family yet. Create a new family or join an existing one to get started.
+              You&apos;re not part of any family yet. Create a new family or join an existing one to
+              get started.
             </p>
             <button
               onClick={() => router.push('/dashboard')}
@@ -231,7 +242,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             </button>
           </div>
         </div>
-        
+
         <BottomNav />
       </div>
     );
@@ -239,7 +250,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
 
   return (
     <div className={clsx('min-h-screen text-white', className)}>
-      
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -247,7 +257,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <Users size={20} />
               <h1 className="text-xl font-bold">Family</h1>
             </div>
-            
+
             <button
               onClick={() => setShowFamilySelector(true)}
               className="flex items-center space-x-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg transition-colors"
@@ -260,15 +270,13 @@ export default function FamilyPage({ className }: FamilyPageProps) {
       </div>
 
       <div className="px-4 py-6 pb-20">
-        
         {family && (
           <div className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 mb-6 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">{family.name}</h2>
               <span className="text-sm text-gray-400">{family.members?.length || 0} members</span>
             </div>
-            
-            
+
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Monthly Budget</span>
               <div className="flex items-center space-x-2">
@@ -278,14 +286,12 @@ export default function FamilyPage({ className }: FamilyPageProps) {
                 <button
                   onClick={() => setShowBudgetForm(true)}
                   className="text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                </button>
+                ></button>
               </div>
             </div>
           </div>
         )}
 
-        
         <div className="flex space-x-3 mb-6">
           <button
             onClick={() => setShowInviteForm(true)}
@@ -294,8 +300,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             <Plus size={16} />
             <span>Invite Member</span>
           </button>
-          
-          
+
           <div className="relative settings-dropdown">
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
@@ -303,7 +308,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             >
               <Settings size={16} />
             </button>
-            
+
             {showSettingsMenu && (
               <div className="absolute right-0 top-full mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-10">
                 <button
@@ -315,7 +320,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
                 >
                   Set Budget
                 </button>
-                
+
                 {isCurrentUserAdmin && (
                   <button
                     onClick={() => {
@@ -333,14 +338,15 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           </div>
         </div>
 
-        
         <div className="space-y-4">
           <h3 className="font-semibold">Members</h3>
           {family?.members?.map((member, index) => (
-            <div key={member.id || `member-${index}`} className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 backdrop-blur-sm">
+            <div
+              key={member.id || `member-${index}`}
+              className="bg-gray-900/95/60 rounded-xl p-4 border border-gray-800/50 backdrop-blur-sm"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-950 to-black flex items-center justify-center border border-gray-800">
                     <span className="text-white text-sm font-semibold">
                       {getInitials(member.name || 'U')}
@@ -365,7 +371,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           ))}
         </div>
 
-        
         <FormModal
           isOpen={showInviteForm}
           onClose={() => setShowInviteForm(false)}
@@ -379,7 +384,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               type: 'email',
               value: inviteData.email,
               placeholder: 'member@example.com',
-              required: true
+              required: true,
             },
             {
               id: 'role',
@@ -389,17 +394,16 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               options: [
                 { value: 'member', label: 'Member' },
                 { value: 'admin', label: 'Admin' },
-                { value: 'view-only', label: 'View Only' }
+                { value: 'view-only', label: 'View Only' },
               ],
-              required: true
-            }
+              required: true,
+            },
           ]}
           onFieldChange={handleInviteFieldChange}
           submitText="Send Invite"
           isLoading={isInviting}
         />
 
-        
         <FormModal
           isOpen={showBudgetForm}
           onClose={() => setShowBudgetForm(false)}
@@ -413,15 +417,14 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               type: 'number',
               value: budgetAmount ? parseFloat(budgetAmount) : 0,
               placeholder: '50000',
-              required: true
-            }
+              required: true,
+            },
           ]}
           onFieldChange={handleBudgetFieldChange}
           submitText="Update Budget"
           isLoading={isUpdatingBudget}
         />
 
-        
         <ConfirmationModal
           isOpen={showDeleteConfirm}
           onClose={() => setShowDeleteConfirm(false)}
@@ -430,7 +433,8 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           message={
             <div>
               <p className="mb-4">
-                Are you sure you want to delete &quot;{family?.name}&quot;? This action cannot be undone and will permanently delete:
+                Are you sure you want to delete &quot;{family?.name}&quot;? This action cannot be
+                undone and will permanently delete:
               </p>
               <ul className="text-sm space-y-1 text-left">
                 <li>• All family members will be removed</li>
@@ -445,18 +449,16 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           isLoading={isDeleting}
         />
       </div>
-      
-      
+
       <FamilySelectorModal
         isOpen={showFamilySelector}
         onClose={() => setShowFamilySelector(false)}
         onSelectFamily={(familyId: string) => {
-
           dispatch(updateUser({ familyId }));
           setShowFamilySelector(false);
         }}
       />
-      
+
       <BottomNav />
     </div>
   );

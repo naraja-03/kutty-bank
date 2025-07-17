@@ -34,16 +34,16 @@ export const familyApi = createApi({
     },
   }),
   tagTypes: ['Family'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getFamilies: builder.query<Family[], string | void>({
-      query: (userId) => userId ? `?userId=${userId}` : '',
+      query: userId => (userId ? `?userId=${userId}` : ''),
       providesTags: ['Family'],
     }),
     getFamily: builder.query<Family, string>({
-      query: (familyId) => `?familyId=${familyId}`,
+      query: familyId => `?familyId=${familyId}`,
       providesTags: ['Family'],
       // Handle 404 errors gracefully
-      transformErrorResponse: (response) => {
+      transformErrorResponse: response => {
         if (response.status === 404) {
           return { status: 404, data: 'Family not found' };
         }
@@ -51,7 +51,7 @@ export const familyApi = createApi({
       },
     }),
     createFamily: builder.mutation<Family, { name: string }>({
-      query: (data) => ({
+      query: data => ({
         url: '',
         method: 'POST',
         body: data,
@@ -59,7 +59,7 @@ export const familyApi = createApi({
       invalidatesTags: ['Family'],
     }),
     inviteMember: builder.mutation<void, InviteMemberRequest>({
-      query: (data) => ({
+      query: data => ({
         url: '/invite',
         method: 'POST',
         body: data,
@@ -67,7 +67,7 @@ export const familyApi = createApi({
       invalidatesTags: ['Family'],
     }),
     updateBudget: builder.mutation<Family, UpdateBudgetRequest>({
-      query: (data) => ({
+      query: data => ({
         url: '',
         method: 'PUT',
         body: data,
@@ -75,14 +75,14 @@ export const familyApi = createApi({
       invalidatesTags: ['Family'],
     }),
     removeMember: builder.mutation<void, string>({
-      query: (userId) => ({
+      query: userId => ({
         url: `/members/${userId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Family'],
     }),
     deleteFamily: builder.mutation<void, string>({
-      query: (familyId) => ({
+      query: familyId => ({
         url: `?familyId=${familyId}`,
         method: 'DELETE',
       }),

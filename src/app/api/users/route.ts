@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
+import mongoose from 'mongoose';
 
 interface UserQuery {
   familyId?: string;
@@ -23,10 +24,8 @@ function transformUserData(user: any) {
     id: userObj._id?.toString() || userObj.id,
     _id: userObj._id?.toString(),
     familyId: userObj.familyId?._id?.toString() || userObj.familyId,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    families: userObj.families?.map((familyId: any) => 
-      familyId._id?.toString() || familyId.toString()
-    ) || []
+    families:
+      userObj.families?.map((familyId: mongoose.Types.ObjectId) => familyId.toString()) || [],
   };
 }
 
@@ -46,14 +45,11 @@ export async function GET(request: NextRequest) {
       const user = await User.findById(userId)
         .populate('familyId', 'name budgetCap')
         .select('-password');
-      
+
       if (!user) {
-        return NextResponse.json(
-          { error: 'User not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
-      
+
       return NextResponse.json(transformUserData(user));
     }
 
@@ -73,10 +69,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(users.map(transformUserData));
   } catch (error) {
     console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -89,10 +82,7 @@ export async function PUT(request: NextRequest) {
     const { userId, name, profileImage, role } = body;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Missing required field: userId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: userId' }, { status: 400 });
     }
 
     const updateData: UpdateUserBody = {};
@@ -102,25 +92,21 @@ export async function PUT(request: NextRequest) {
       updateData.role = role;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    )
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    })
       .populate('familyId', 'name budgetCap')
       .select('-password');
 
     if (!updatedUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error('Error updating user:', error);
-    
+
     // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
@@ -128,11 +114,8 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -145,30 +128,18 @@ export async function DELETE(request: NextRequest) {
     const userId = searchParams.get('userId');
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Missing required parameter: userId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required parameter: userId' }, { status: 400 });
     }
 
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: 'User deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

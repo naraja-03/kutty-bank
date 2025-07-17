@@ -47,12 +47,12 @@ export async function GET(request: NextRequest) {
     const [incomeStats, expenseStats] = await Promise.all([
       Transaction.aggregate([
         { $match: { ...baseQuery, type: 'income' } },
-        { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }
+        { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
       ]),
       Transaction.aggregate([
         { $match: { ...baseQuery, type: 'expense' } },
-        { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }
-      ])
+        { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+      ]),
     ]);
 
     const totalIncome = incomeStats[0]?.total || 0;
@@ -62,16 +62,16 @@ export async function GET(request: NextRequest) {
     // Get monthly stats
     const currentMonth = new Date();
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    
+
     const [monthlyIncomeStats, monthlyExpenseStats] = await Promise.all([
       Transaction.aggregate([
         { $match: { ...baseQuery, type: 'income', createdAt: { $gte: firstDayOfMonth } } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
+        { $group: { _id: null, total: { $sum: '$amount' } } },
       ]),
       Transaction.aggregate([
         { $match: { ...baseQuery, type: 'expense', createdAt: { $gte: firstDayOfMonth } } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
-      ])
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
     ]);
 
     const monthlyIncome = monthlyIncomeStats[0]?.total || 0;
@@ -85,8 +85,8 @@ export async function GET(request: NextRequest) {
         $group: {
           _id: '$category',
           total: { $sum: '$amount' },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       { $sort: { total: -1 } },
       {
@@ -94,9 +94,9 @@ export async function GET(request: NextRequest) {
           category: '$_id',
           total: 1,
           count: 1,
-          _id: 0
-        }
-      }
+          _id: 0,
+        },
+      },
     ]);
 
     // Get recent transactions
@@ -113,15 +113,12 @@ export async function GET(request: NextRequest) {
       monthlyExpense,
       monthlyBalance,
       categoryBreakdown,
-      recentTransactions
+      recentTransactions,
     };
 
     return NextResponse.json(stats);
   } catch (error) {
     console.error('Error fetching transaction stats:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

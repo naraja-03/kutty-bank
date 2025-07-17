@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { useGetTransactionsQuery, useDeleteTransactionMutation } from '../../../store/api/transactionApi';
+import {
+  useGetTransactionsQuery,
+  useDeleteTransactionMutation,
+} from '../../../store/api/transactionApi';
 import { ChevronDown, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
@@ -27,22 +30,26 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   const { activeThread } = useSelector((state: RootState) => state.threads);
   const { user } = useSelector((state: RootState) => state.auth);
 
-
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
-
 
   const shouldFetchTransactions = Boolean(user?.familyId);
 
-  const { data: transactionData, isLoading, refetch } = useGetTransactionsQuery({
-    limit: 50,
-    offset: 0,
-    budgetId: currentBudgetId
-  }, {
-    skip: !shouldFetchTransactions
-  });
+  const {
+    data: transactionData,
+    isLoading,
+    refetch,
+  } = useGetTransactionsQuery(
+    {
+      limit: 50,
+      offset: 0,
+      budgetId: currentBudgetId,
+    },
+    {
+      skip: !shouldFetchTransactions,
+    }
+  );
 
   const [deleteTransaction] = useDeleteTransactionMutation();
-
 
   const transactions = useMemo(() => {
     const txns = transactionData?.transactions || [];
@@ -51,7 +58,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   }, [transactionData]);
 
   useEffect(() => {
-
     if (transactions && transactions.length > 0) {
       setTimeout(() => {
         if (scrollRef.current) {
@@ -60,7 +66,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       }, 100);
     }
   }, [transactions]);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,26 +83,22 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
     }
   }, []);
 
-
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
 
-
   useEffect(() => {
     if (transactions.length > 0 && !isLoading) {
-
       setTimeout(() => {
         scrollToBottom();
       }, 100);
     }
   }, [transactions.length, isLoading]);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,13 +123,13 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       return date.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
       });
     }
 
     return date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -137,24 +138,25 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
 
     return type === 'expense' ? `-${formatted}` : `+${formatted}`;
   };
 
   const handleEditTransaction = (transactionId: string) => {
-
     const transaction = transactionData?.transactions.find(t => t.id === transactionId);
     if (transaction) {
-      dispatch(openEditEntryModal({
-        id: transaction.id,
-        amount: transaction.amount,
-        date: new Date(transaction.createdAt).toISOString().split('T')[0],
-        category: transaction.category,
-        type: transaction.type,
-        note: transaction.note
-      }));
+      dispatch(
+        openEditEntryModal({
+          id: transaction.id,
+          amount: transaction.amount,
+          date: new Date(transaction.createdAt).toISOString().split('T')[0],
+          category: transaction.category,
+          type: transaction.type,
+          note: transaction.note,
+        })
+      );
     }
     setDropdownOpen(null);
   };
@@ -171,13 +173,11 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
   };
 
   const handleReply = () => {
-
     router.push('/messages');
   };
 
   return (
     <div className={clsx('flex flex-col h-screen text-white', className)}>
-      
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10 flex-shrink-0">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -189,13 +189,8 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       </div>
 
-      
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4">
         <div className="space-y-4">
-          
           {isLoading && (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -210,7 +205,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
             </div>
           )}
 
-          
           {!isLoading && transactions.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
@@ -218,41 +212,47 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">No Activity Yet</h3>
               <p className="text-gray-400 mb-6 max-w-sm">
-                Your transaction activity will appear here. Start by adding your first income or expense!
+                Your transaction activity will appear here. Start by adding your first income or
+                expense!
               </p>
             </div>
           )}
 
-          
-          {!isLoading && transactions.length > 0 && transactions.map((transaction, index) => (
-            <div
-              key={transaction.id}
-              className="animate-in slide-in-from-bottom-4 duration-300"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <SwipeableTransactionCard
-                transaction={transaction}
-                onEdit={handleEditTransaction}
-                onDelete={(id: string) => { setShowDeleteModal(id); setDropdownOpen(null); }}
-                onReply={handleReply}
-                formatTime={formatTime}
-                formatAmount={formatAmount}
-                dropdownOpen={dropdownOpen}
-                setDropdownOpen={setDropdownOpen}
-                enableSwipe={true}
-                compact={false}
-              />
-            </div>
-          ))}
+          {!isLoading &&
+            transactions.length > 0 &&
+            transactions.map((transaction, index) => (
+              <div
+                key={transaction.id}
+                className="animate-in slide-in-from-bottom-4 duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <SwipeableTransactionCard
+                  transaction={transaction}
+                  onEdit={handleEditTransaction}
+                  onDelete={(id: string) => {
+                    setShowDeleteModal(id);
+                    setDropdownOpen(null);
+                  }}
+                  onReply={handleReply}
+                  formatTime={formatTime}
+                  formatAmount={formatAmount}
+                  dropdownOpen={dropdownOpen}
+                  setDropdownOpen={setDropdownOpen}
+                  enableSwipe={true}
+                  compact={false}
+                />
+              </div>
+            ))}
         </div>
       </div>
 
-      
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
             <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
-            <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            <p className="text-gray-400 mb-6">
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowDeleteModal(null)}
@@ -271,7 +271,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
         </div>
       )}
 
-      
       {showScrollToBottom && (
         <button
           onClick={scrollToBottom}

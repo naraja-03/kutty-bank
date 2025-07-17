@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const bundleAnalyzer = withBundleAnalyzer({
@@ -10,13 +10,13 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
+
   // Optimizations
   experimental: {
     // optimizeCss: true, // Disabled due to build issues
     optimizePackageImports: ['lucide-react', '@headlessui/react'],
   },
-  
+
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -44,10 +44,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  
+
   // Compression
   compress: true,
-  
+
   // Headers for security and performance
   async headers() {
     return [

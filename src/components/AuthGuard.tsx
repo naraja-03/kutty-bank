@@ -24,7 +24,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     }
   }, [isAuthenticated, isLoading, requireAuth, router]);
 
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -35,7 +34,6 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
       </div>
     );
   }
-
 
   if (requireAuth && !isAuthenticated) {
     return null;

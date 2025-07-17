@@ -5,12 +5,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useGetTransactionsQuery, useDeleteTransactionMutation } from '../../../store/api/transactionApi';
-import { 
-  openThreadSidebar, 
+import {
+  useGetTransactionsQuery,
+  useDeleteTransactionMutation,
+} from '../../../store/api/transactionApi';
+import {
+  openThreadSidebar,
   closeThreadSidebar,
   selectThreadFromList,
-  ThreadPeriod
+  ThreadPeriod,
 } from '../../../store/slices/threadsSlice';
 import { openEditEntryModal, openPeriodSelector } from '../../../store/slices/uiSlice';
 import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
@@ -21,10 +24,7 @@ import BottomNav from '../BottomNav';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 import FamilyModal from '../FamilyModal';
 import { DashboardProps, QuickAction } from './types';
-import { 
-  calculateBudgetProgress, 
-  BudgetPeriod
-} from '../../../lib/budgetCalculations';
+import { calculateBudgetProgress, BudgetPeriod } from '../../../lib/budgetCalculations';
 import { useCreateFamilyMutation } from '../../../store/api/familyApi';
 import { useUpdateUserActiveFamilyMutation } from '../../../store/api/authApi';
 import { useFamilyManager } from '../../../hooks/useFamilyManager';
@@ -39,46 +39,58 @@ const quickActions: QuickAction[] = [
 export default function Dashboard({ className }: DashboardProps) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { activeThread, allThreads, isThreadSidebarOpen } = useSelector((state: RootState) => state.threads);
+  const { activeThread, allThreads, isThreadSidebarOpen } = useSelector(
+    (state: RootState) => state.threads
+  );
   const { user } = useSelector((state: RootState) => state.auth);
-  
+
   const [selectedPeriod] = useState<BudgetPeriod>('month');
-  
+
   const {
     currentFamily,
     families,
     isLoading: familyLoading,
     needsFamilySelection,
-    hasValidFamily
+    hasValidFamily,
   } = useFamilyManager();
-  
-  const [showFamilyModal, setShowFamilyModal] = useState(false);
-  
-  const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
-  
-  const shouldFetchTransactions = hasValidFamily && !needsFamilySelection;
-  
-  const { data: transactionData, isLoading: transactionsLoading, refetch } = useGetTransactionsQuery({ 
-    limit: 100,
-    offset: 0,
-    budgetId: currentBudgetId
-  }, {
-    skip: !shouldFetchTransactions
-  });
 
-  const { data: recentTransactionData } = useGetTransactionsQuery({ 
-    limit: 5,
-    offset: 0,
-    budgetId: currentBudgetId
-  }, {
-    skip: !shouldFetchTransactions
-  });
+  const [showFamilyModal, setShowFamilyModal] = useState(false);
+
+  const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
+
+  const shouldFetchTransactions = hasValidFamily && !needsFamilySelection;
+
+  const {
+    data: transactionData,
+    isLoading: transactionsLoading,
+    refetch,
+  } = useGetTransactionsQuery(
+    {
+      limit: 100,
+      offset: 0,
+      budgetId: currentBudgetId,
+    },
+    {
+      skip: !shouldFetchTransactions,
+    }
+  );
+
+  const { data: recentTransactionData } = useGetTransactionsQuery(
+    {
+      limit: 5,
+      offset: 0,
+      budgetId: currentBudgetId,
+    },
+    {
+      skip: !shouldFetchTransactions,
+    }
+  );
 
   const [deleteTransaction] = useDeleteTransactionMutation();
 
   const [createFamily] = useCreateFamilyMutation();
   const [updateUserActiveFamily] = useUpdateUserActiveFamilyMutation();
-  
+
   React.useEffect(() => {
     if (needsFamilySelection && !familyLoading) {
       setShowFamilyModal(true);
@@ -87,8 +99,7 @@ export default function Dashboard({ className }: DashboardProps) {
     }
   }, [needsFamilySelection, familyLoading]);
 
-
-  const budgetProgress = transactionData?.transactions 
+  const budgetProgress = transactionData?.transactions
     ? calculateBudgetProgress(
         transactionData.transactions.map(t => ({
           id: t.id,
@@ -96,7 +107,7 @@ export default function Dashboard({ className }: DashboardProps) {
           type: t.type,
           createdAt: t.createdAt.toString(),
           category: t.category,
-          note: t.note
+          note: t.note,
         })),
         selectedPeriod,
         10000
@@ -106,13 +117,11 @@ export default function Dashboard({ className }: DashboardProps) {
         totalExpenses: 0,
         netAmount: 0,
         progress: 0,
-        isOverBudget: false
+        isOverBudget: false,
       };
-
 
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
-
 
   const transactions = recentTransactionData?.transactions || [];
 
@@ -121,7 +130,7 @@ export default function Dashboard({ className }: DashboardProps) {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -130,7 +139,7 @@ export default function Dashboard({ className }: DashboardProps) {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
 
     return type === 'expense' ? `-${formatted}` : `+${formatted}`;
@@ -145,13 +154,13 @@ export default function Dashboard({ className }: DashboardProps) {
       return date.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
       });
     }
 
     return date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -173,29 +182,28 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const getSavingsProgress = () => {
-
     const monthlyIncome = budgetProgress.totalIncome;
     const monthlyExpense = budgetProgress.totalExpenses;
     const savingsGoal = monthlyIncome * 0.2;
     const actualSavings = monthlyIncome - monthlyExpense;
-    
+
     if (savingsGoal === 0) return 0;
     return Math.min(Math.max((actualSavings / savingsGoal) * 100, 0), 100);
   };
 
-
   const handleEditTransaction = (id: string) => {
-
     const transaction = transactionData?.transactions.find(t => t.id === id);
     if (transaction) {
-      dispatch(openEditEntryModal({
-        id: transaction.id,
-        amount: transaction.amount,
-        date: new Date(transaction.createdAt).toISOString().split('T')[0],
-        category: transaction.category,
-        type: transaction.type,
-        note: transaction.note
-      }));
+      dispatch(
+        openEditEntryModal({
+          id: transaction.id,
+          amount: transaction.amount,
+          date: new Date(transaction.createdAt).toISOString().split('T')[0],
+          category: transaction.category,
+          type: transaction.type,
+          note: transaction.note,
+        })
+      );
     }
     setDropdownOpen(null);
   };
@@ -212,13 +220,8 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const handleReply = () => {
-
     router.push('/messages');
   };
-
-
-
-
 
   const handleOpenThreadSidebar = () => {
     dispatch(openThreadSidebar());
@@ -237,18 +240,15 @@ export default function Dashboard({ className }: DashboardProps) {
     dispatch(closeThreadSidebar());
   };
 
-
   const handleSelectFamily = async (familyId: string) => {
     try {
-
       dispatch(setCurrentFamily(familyId));
       dispatch(updateUser({ familyId }));
-      
 
       if (user?.id) {
         await updateUserActiveFamily({ userId: user.id, familyId }).unwrap();
       }
-      
+
       setShowFamilyModal(false);
     } catch (error) {
       console.error('Error updating active family:', error);
@@ -270,16 +270,17 @@ export default function Dashboard({ className }: DashboardProps) {
       const newFamily = await createFamily(familyData).unwrap();
 
       dispatch(setCurrentFamily(newFamily.id));
-      dispatch(updateUser({ 
-        familyId: newFamily.id,
-        families: [...(user?.families || []), newFamily.id]
-      }));
-      
+      dispatch(
+        updateUser({
+          familyId: newFamily.id,
+          families: [...(user?.families || []), newFamily.id],
+        })
+      );
 
       if (user?.id) {
         await updateUserActiveFamily({ userId: user.id, familyId: newFamily.id }).unwrap();
       }
-      
+
       setShowFamilyModal(false);
     } catch (error) {
       console.error('Error creating family:', error);
@@ -287,7 +288,6 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const handleCloseFamilyModal = () => {
-
     if (currentFamily) {
       setShowFamilyModal(false);
     }
@@ -295,7 +295,6 @@ export default function Dashboard({ className }: DashboardProps) {
 
   return (
     <div className={clsx('h-screen text-white flex flex-col', className)}>
-
       <ThreadsHeader
         title="Dashboard"
         onLeftAction={handleOpenThreadSidebar}
@@ -304,9 +303,7 @@ export default function Dashboard({ className }: DashboardProps) {
         onThreadSelectorClick={handleOpenPeriodSelector}
       />
 
-
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full">
-
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Filter size={16} className="text-gray-400" />
@@ -318,25 +315,27 @@ export default function Dashboard({ className }: DashboardProps) {
             <span>
               {activeThread.startDate && activeThread.endDate
                 ? `${activeThread.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${activeThread.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                : 'Current Period'
-              }
+                : 'Current Period'}
             </span>
           </div>
         </div>
 
-
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {getUpdatedQuickActions().map((action) => {
+          {getUpdatedQuickActions().map(action => {
             const Icon = action.icon;
             return (
               <div
                 key={action.id}
                 className={clsx(
                   'bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 shadow-xl',
-                  action.color === 'green' && 'bg-gradient-to-br from-green-950/30 to-green-900/15 border-green-600/20',
-                  action.color === 'red' && 'bg-gradient-to-br from-red-950/30 to-red-900/15 border-red-600/20',
-                  action.color === 'blue' && 'bg-gradient-to-br from-blue-950/30 to-blue-900/15 border-blue-600/20',
-                  action.color === 'purple' && 'bg-gradient-to-br from-purple-950/30 to-purple-900/15 border-purple-600/20'
+                  action.color === 'green' &&
+                    'bg-gradient-to-br from-green-950/30 to-green-900/15 border-green-600/20',
+                  action.color === 'red' &&
+                    'bg-gradient-to-br from-red-950/30 to-red-900/15 border-red-600/20',
+                  action.color === 'blue' &&
+                    'bg-gradient-to-br from-blue-950/30 to-blue-900/15 border-blue-600/20',
+                  action.color === 'purple' &&
+                    'bg-gradient-to-br from-purple-950/30 to-purple-900/15 border-purple-600/20'
                 )}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -365,7 +364,6 @@ export default function Dashboard({ className }: DashboardProps) {
           })}
         </div>
 
-
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-xl mb-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold flex items-center text-white text-sm">
@@ -382,11 +380,10 @@ export default function Dashboard({ className }: DashboardProps) {
           </div>
         </div>
 
-
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-white">Recent Transactions</h3>
-            <button 
+            <button
               onClick={() => router.push('/activity')}
               className="text-sm text-gray-400 hover:text-white transition-colors"
             >
@@ -397,7 +394,10 @@ export default function Dashboard({ className }: DashboardProps) {
           {transactionsLoading ? (
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 animate-pulse">
+                <div
+                  key={i}
+                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 animate-pulse"
+                >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-white/10 rounded-full" />
                     <div className="flex-1 space-y-2">
@@ -410,12 +410,15 @@ export default function Dashboard({ className }: DashboardProps) {
             </div>
           ) : transactions && transactions.length > 0 ? (
             <div className="space-y-3">
-              {transactions.slice(0, 3).map((transaction) => (
+              {transactions.slice(0, 3).map(transaction => (
                 <SwipeableTransactionCard
                   key={transaction.id}
                   transaction={transaction}
                   onEdit={handleEditTransaction}
-                  onDelete={(id: string) => {setShowDeleteModal(id); setDropdownOpen(null);}}
+                  onDelete={(id: string) => {
+                    setShowDeleteModal(id);
+                    setDropdownOpen(null);
+                  }}
                   onReply={handleReply}
                   formatTime={formatTime}
                   formatAmount={formatAmount}
@@ -436,12 +439,13 @@ export default function Dashboard({ className }: DashboardProps) {
         </div>
       </div>
 
-
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center scale-z-100 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
             <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
-            <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            <p className="text-gray-400 mb-6">
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowDeleteModal(null)}
@@ -460,7 +464,6 @@ export default function Dashboard({ className }: DashboardProps) {
         </div>
       )}
 
-
       {showFamilyModal && (
         <FamilyModal
           isOpen={showFamilyModal}
@@ -473,7 +476,6 @@ export default function Dashboard({ className }: DashboardProps) {
         />
       )}
 
-
       <ThreadSidebar
         isOpen={isThreadSidebarOpen}
         onClose={handleCloseThreadSidebar}
@@ -481,7 +483,7 @@ export default function Dashboard({ className }: DashboardProps) {
         activeThread={activeThread}
         onThreadSelect={handleSelectThread}
       />
-      
+
       <BottomNav />
     </div>
   );

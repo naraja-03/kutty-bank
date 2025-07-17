@@ -19,7 +19,7 @@ export default function ThreadsHeader({
   activeThread,
   showThreadSelector = false,
   onThreadSelectorClick,
-  className
+  className,
 }: ThreadsHeaderProps) {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -32,13 +32,14 @@ export default function ThreadsHeader({
     setShowLogoutModal(false);
   };
   return (
-    <header className={clsx(
-      'sticky top-0 bg-black/20 backdrop-blur-2xl border-b border-white/10 z-40 shadow-lg',
-      className
-    )}>
+    <header
+      className={clsx(
+        'sticky top-0 bg-black/20 backdrop-blur-2xl border-b border-white/10 z-40 shadow-lg',
+        className
+      )}
+    >
       <div className="px-4 py-4">
         <div className="flex items-center justify-between">
-
           <div className="flex items-center space-x-4">
             <button
               onClick={onLeftAction}
@@ -47,7 +48,7 @@ export default function ThreadsHeader({
             >
               <LeftIcon size={20} className="text-white" />
             </button>
-            
+
             <div className="flex flex-col">
               <h1 className="text-xl font-bold text-white">{title}</h1>
               {showThreadSelector && activeThread && (
@@ -62,9 +63,7 @@ export default function ThreadsHeader({
             </div>
           </div>
 
-
           <div className="flex items-center space-x-3">
-
             <div className="flex items-center space-x-3">
               <div className="hidden sm:block">
                 <p className="text-sm font-medium text-white">{currentUser?.name}</p>
@@ -82,7 +81,6 @@ export default function ThreadsHeader({
           </div>
         </div>
 
-
         {showThreadSelector && activeThread && (
           <div className="mt-3 p-3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
             <div className="flex items-center justify-between text-sm">
@@ -93,7 +91,15 @@ export default function ThreadsHeader({
               <div className="flex items-center justify-between text-xs mt-1">
                 <span className="text-gray-500">Range:</span>
                 <span className="text-gray-300">
-                  {activeThread.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {activeThread.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  {activeThread.startDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}{' '}
+                  -{' '}
+                  {activeThread.endDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
                 </span>
               </div>
             )}

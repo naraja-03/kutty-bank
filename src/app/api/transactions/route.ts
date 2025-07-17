@@ -37,7 +37,7 @@ interface TransactionResponse {
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const familyId = searchParams.get('familyId');
@@ -47,10 +47,10 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const page = parseInt(searchParams.get('page') || '1');
     const offset = parseInt(searchParams.get('offset') || '0');
-    
+
     // Use offset if provided, otherwise use page
     const skip = offset > 0 ? offset : (page - 1) * limit;
-    
+
     // Build query object with proper typing
     const query: TransactionQuery = {};
     if (userId) query.userId = userId;
@@ -58,13 +58,13 @@ export async function GET(request: NextRequest) {
     if (budgetId) query.budgetId = budgetId;
     if (type && (type === 'income' || type === 'expense')) query.type = type;
     if (category) query.category = category;
-    
+
     console.log('Transaction query:', query);
-    
+
     // Get transactions with error handling
     let transactions: unknown[] = [];
     let total = 0;
-    
+
     try {
       const rawTransactions = await Transaction.find(query)
         .sort({ createdAt: -1 })
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         .skip(skip)
         .populate('userId', 'name profileImage')
         .lean(); // Use lean() for better performance
-        
+
       // Transform transactions to include both _id and id fields
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transactions = rawTransactions.map((transaction: any) => ({
@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
         userName: transaction.userId?.name || 'Unknown User',
         profileImage: transaction.userId?.profileImage || null,
         createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt
+        updatedAt: transaction.updatedAt,
       }));
-        
+
       total = await Transaction.countDocuments(query);
     } catch (dbError) {
       console.error('Database query error:', dbError);
@@ -100,14 +100,14 @@ export async function GET(request: NextRequest) {
         current: page,
         total: Math.ceil(total / limit),
         hasNext: page * limit < total,
-        hasPrev: page > 1
-      }
+        hasPrev: page > 1,
+      },
     };
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    
+
     // Always return a valid response structure even on error
     const errorResponse: TransactionResponse = {
       transactions: [],
@@ -115,10 +115,10 @@ export async function GET(request: NextRequest) {
         current: 1,
         total: 0,
         hasNext: false,
-        hasPrev: false
-      }
+        hasPrev: false,
+      },
     };
-    
+
     return NextResponse.json(errorResponse, { status: 200 }); // Return 200 with empty data instead of 500
   }
 }
@@ -127,10 +127,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const body: CreateTransactionBody = await request.json();
     const { amount, category, type, userId, familyId, budgetId, note, imageUrl } = body;
-    
+
     // Validate required fields
     if (!amount || !category || !type || !userId) {
       return NextResponse.json(
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate transaction type
     if (!['income', 'expense'].includes(type)) {
       return NextResponse.json(
@@ -146,15 +146,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate amount is positive
     if (amount <= 0) {
-      return NextResponse.json(
-        { error: 'Amount must be greater than 0' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Amount must be greater than 0' }, { status: 400 });
     }
-    
+
     const transaction = new Transaction({
       amount: Number(amount),
       category,
@@ -165,10 +162,10 @@ export async function POST(request: NextRequest) {
       note: note || '',
       imageUrl: imageUrl || null,
     });
-    
+
     const savedTransaction = await transaction.save();
     await savedTransaction.populate('userId', 'name profileImage');
-    
+
     // Transform the response to include both _id and id fields
     const responseTransaction = {
       ...savedTransaction.toObject(),
@@ -178,11 +175,11 @@ export async function POST(request: NextRequest) {
       userName: savedTransaction.userId?.name || 'Unknown User',
       profileImage: savedTransaction.userId?.profileImage || null,
     };
-    
+
     return NextResponse.json(responseTransaction, { status: 201 });
   } catch (error) {
     console.error('Error creating transaction:', error);
-    
+
     // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
@@ -190,10 +187,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

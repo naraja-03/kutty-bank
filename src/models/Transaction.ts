@@ -79,17 +79,17 @@ TransactionSchema.index({ budgetId: 1, createdAt: -1 });
 TransactionSchema.index({ type: 1, createdAt: -1 });
 
 // Virtual for id
-TransactionSchema.virtual('id').get(function(this: ITransaction) {
+TransactionSchema.virtual('id').get(function (this: ITransaction) {
   return this._id.toString();
 });
 
 // Ensure virtual fields are serialised
 TransactionSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     return ret;
-  }
+  },
 });
 
-export default mongoose.models.Transaction || 
+export default mongoose.models.Transaction ||
   mongoose.model<ITransaction>('Transaction', TransactionSchema);

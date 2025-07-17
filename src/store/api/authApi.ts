@@ -43,16 +43,16 @@ export const authApi = createApi({
     },
   }),
   tagTypes: ['User'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
-      query: (credentials) => ({
+      query: credentials => ({
         url: '/login',
         method: 'POST',
         body: credentials,
       }),
     }),
     register: builder.mutation<AuthResponse, RegisterRequest>({
-      query: (userData) => ({
+      query: userData => ({
         url: '/register',
         method: 'POST',
         body: userData,

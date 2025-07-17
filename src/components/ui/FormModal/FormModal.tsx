@@ -43,60 +43,71 @@ export default function FormModal({
   isLoading = false,
   showDeleteButton = false,
   onDelete,
-  children
+  children,
 }: FormModalProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const data = fields.reduce((acc, field) => {
-      acc[field.id] = field.value;
-      return acc;
-    }, {} as Record<string, string | number>);
+    const data = fields.reduce(
+      (acc, field) => {
+        acc[field.id] = field.value;
+        return acc;
+      },
+      {} as Record<string, string | number>
+    );
     onSubmit(data);
   };
 
   const renderField = (field: FormField) => {
-    const baseInputClasses = "w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors";
-    
+    const baseInputClasses =
+      'w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors';
+
     switch (field.type) {
       case 'select':
         return (
           <select
             id={field.id}
             value={field.value}
-            onChange={(e) => onFieldChange(field.id, e.target.value)}
+            onChange={e => onFieldChange(field.id, e.target.value)}
             className={baseInputClasses}
             required={field.required}
             disabled={field.disabled || isLoading}
           >
-            <option value="" disabled>Select {field.label}</option>
-            {field.options?.map((option) => (
+            <option value="" disabled>
+              Select {field.label}
+            </option>
+            {field.options?.map(option => (
               <option key={option.value} value={option.value} className="bg-gray-900 text-white">
                 {option.label}
               </option>
             ))}
           </select>
         );
-      
+
       case 'textarea':
         return (
           <textarea
             id={field.id}
             value={field.value}
-            onChange={(e) => onFieldChange(field.id, e.target.value)}
+            onChange={e => onFieldChange(field.id, e.target.value)}
             placeholder={field.placeholder}
             className={`${baseInputClasses} min-h-[100px] resize-none`}
             required={field.required}
             disabled={field.disabled || isLoading}
           />
         );
-      
+
       default:
         return (
           <input
             id={field.id}
             type={field.type}
             value={field.value}
-            onChange={(e) => onFieldChange(field.id, field.type === 'number' ? Number(e.target.value) : e.target.value)}
+            onChange={e =>
+              onFieldChange(
+                field.id,
+                field.type === 'number' ? Number(e.target.value) : e.target.value
+              )
+            }
             placeholder={field.placeholder}
             className={baseInputClasses}
             required={field.required}
@@ -107,15 +118,9 @@ export default function FormModal({
   };
 
   return (
-    <BottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      subtitle={subtitle}
-    >
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={title} subtitle={subtitle}>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
-        {fields.map((field) => (
+        {fields.map(field => (
           <div key={field.id} className="space-y-2">
             <label htmlFor={field.id} className="block text-sm font-medium text-white/80">
               {field.label}
@@ -125,12 +130,9 @@ export default function FormModal({
           </div>
         ))}
 
-        
         {children}
 
-        
         <div className="space-y-3 pt-4">
-          
           {showDeleteButton && onDelete && (
             <button
               type="button"
@@ -141,8 +143,7 @@ export default function FormModal({
               Delete
             </button>
           )}
-          
-          
+
           <div className="flex gap-3">
             <button
               type="button"

@@ -6,7 +6,6 @@ import { clsx } from 'clsx';
 import { animated, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 
-
 const getInitials = (name: string) => {
   return name
     .split(' ')
@@ -39,17 +38,17 @@ interface SwipeableTransactionCardProps {
   compact?: boolean;
 }
 
-export default function SwipeableTransactionCard({ 
-  transaction, 
-  onEdit, 
-  onDelete, 
-  onReply, 
-  formatTime, 
-  formatAmount, 
-  dropdownOpen, 
+export default function SwipeableTransactionCard({
+  transaction,
+  onEdit,
+  onDelete,
+  onReply,
+  formatTime,
+  formatAmount,
+  dropdownOpen,
   setDropdownOpen,
   enableSwipe = true,
-  compact = false
+  compact = false,
 }: SwipeableTransactionCardProps) {
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
   const [replied, setReplied] = useState(false);
@@ -57,7 +56,6 @@ export default function SwipeableTransactionCard({
   const bind = useDrag(
     ({ active, movement: [mx], cancel }) => {
       if (!enableSwipe || !onReply) return;
-      
 
       if (mx < 0) {
         cancel();
@@ -91,50 +89,48 @@ export default function SwipeableTransactionCard({
 
   return (
     <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl">
-      
       {enableSwipe && onReply && (
         <animated.div
           className="absolute inset-y-0 left-0 flex items-center justify-start pl-6 transition-opacity duration-200"
           style={{
             width: '100px',
-            opacity: x.to((val: number) => val > 30 ? 1 : 0),
+            opacity: x.to((val: number) => (val > 30 ? 1 : 0)),
           }}
         >
           <MessageCircle size={24} className="text-white" />
         </animated.div>
       )}
 
-      
       <animated.div
         {...(enableSwipe ? bind() : {})}
         style={enableSwipe ? { x } : {}}
-        className={clsx("touch-pan-y", compact ? "p-3" : "p-4")}
+        className={clsx('touch-pan-y', compact ? 'p-3' : 'p-4')}
       >
-        
-        <div className={clsx("flex items-start justify-between", compact ? "mb-2" : "mb-3")}>
+        <div className={clsx('flex items-start justify-between', compact ? 'mb-2' : 'mb-3')}>
           <div className="flex items-center space-x-3 flex-1">
-            
-            <div className={clsx(
-              "rounded-full bg-gradient-to-br from-gray-950 to-black flex items-center justify-center border border-gray-800 flex-shrink-0",
-              compact ? "w-8 h-8" : "w-10 h-10"
-            )}>
-              <span className={clsx("text-white font-semibold", compact ? "text-xs" : "text-sm")}>
+            <div
+              className={clsx(
+                'rounded-full bg-gradient-to-br from-gray-950 to-black flex items-center justify-center border border-gray-800 flex-shrink-0',
+                compact ? 'w-8 h-8' : 'w-10 h-10'
+              )}
+            >
+              <span className={clsx('text-white font-semibold', compact ? 'text-xs' : 'text-sm')}>
                 {getInitials(transaction.userName || 'U')}
               </span>
             </div>
 
-            
             <div className="flex-1 min-w-0">
-              <span className={clsx("text-white font-medium", compact ? "text-xs" : "text-sm")}>
+              <span className={clsx('text-white font-medium', compact ? 'text-xs' : 'text-sm')}>
                 {transaction.userName || 'Unknown'}
               </span>
             </div>
           </div>
 
-          
           <div className="relative dropdown-container ml-2">
             <button
-              onClick={() => setDropdownOpen(dropdownOpen === transaction.id ? null : transaction.id)}
+              onClick={() =>
+                setDropdownOpen(dropdownOpen === transaction.id ? null : transaction.id)
+              }
               className="text-gray-500 hover:text-gray-300 transition-colors p-2"
             >
               <MoreHorizontal size={compact ? 14 : 16} />
@@ -161,43 +157,39 @@ export default function SwipeableTransactionCard({
           </div>
         </div>
 
-        
         <div className="flex space-x-3">
-          
-          <div className={clsx("flex-shrink-0", compact ? "w-8" : "w-10")}></div>
+          <div className={clsx('flex-shrink-0', compact ? 'w-8' : 'w-10')}></div>
 
-          
           <div className="flex-1">
-            
-            <div className={clsx(
-              'font-bold mb-1',
-              compact ? 'text-lg' : 'text-2xl',
-              transaction.type === 'income' ? 'text-green-400' : 'text-red-400'
-            )}>
+            <div
+              className={clsx(
+                'font-bold mb-1',
+                compact ? 'text-lg' : 'text-2xl',
+                transaction.type === 'income' ? 'text-green-400' : 'text-red-400'
+              )}
+            >
               {formatAmount(transaction.amount, transaction.type)}
             </div>
 
-            
-            <div className={clsx("text-gray-300", compact ? "text-xs" : "text-sm")}>
+            <div className={clsx('text-gray-300', compact ? 'text-xs' : 'text-sm')}>
               {transaction.type === 'income'
                 ? `received from ${transaction.category}`
-                : `spent on ${transaction.category}`
-              }
+                : `spent on ${transaction.category}`}
             </div>
 
-            
             {transaction.note && (
-              <div className={clsx(compact ? "mt-2" : "mt-3")}>
-                <p className={clsx("text-gray-300 leading-relaxed", compact ? "text-xs" : "text-sm")}>
+              <div className={clsx(compact ? 'mt-2' : 'mt-3')}>
+                <p
+                  className={clsx('text-gray-300 leading-relaxed', compact ? 'text-xs' : 'text-sm')}
+                >
                   {transaction.note}
                 </p>
               </div>
             )}
           </div>
 
-          
           <div className="flex items-end">
-            <p className={clsx("text-gray-400", compact ? "text-xs" : "text-xs")}>
+            <p className={clsx('text-gray-400', compact ? 'text-xs' : 'text-xs')}>
               {formatTime(transaction.createdAt)}
             </p>
           </div>

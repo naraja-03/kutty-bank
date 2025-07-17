@@ -13,57 +13,60 @@ export interface IBudget extends Document {
   updatedAt: Date;
 }
 
-const BudgetSchema = new Schema<IBudget>({
-  label: {
-    type: String,
-    required: true,
-    trim: true
+const BudgetSchema = new Schema<IBudget>(
+  {
+    label: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    value: {
+      type: String,
+      enum: ['week', 'month', 'year', 'custom'],
+      required: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    targetAmount: {
+      type: Number,
+      default: 0,
+    },
+    userId: {
+      type: String,
+      required: true,
+    },
+    familyId: {
+      type: String,
+    },
+    isCustom: {
+      type: Boolean,
+      default: false,
+    },
   },
-  value: {
-    type: String,
-    enum: ['week', 'month', 'year', 'custom'],
-    required: true
-  },
-  description: {
-    type: String,
-    trim: true
-  },
-  targetAmount: {
-    type: Number,
-    default: 0
-  },
-  userId: {
-    type: String,
-    required: true
-  },
-  familyId: {
-    type: String
-  },
-  isCustom: {
-    type: Boolean,
-    default: false
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Index for efficient queries
 BudgetSchema.index({ userId: 1, createdAt: -1 });
 BudgetSchema.index({ familyId: 1, createdAt: -1 });
 
 // Virtual for id
-BudgetSchema.virtual('id').get(function(this: IBudget) {
+BudgetSchema.virtual('id').get(function (this: IBudget) {
   return this._id.toString();
 });
 
 // Ensure virtual fields are serialised
 BudgetSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     delete (ret as unknown as Record<string, unknown>)._id;
     delete (ret as unknown as Record<string, unknown>).__v;
     return ret;
-  }
+  },
 });
 
 export default mongoose.models.Budget || mongoose.model<IBudget>('Budget', BudgetSchema);

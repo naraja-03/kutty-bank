@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Optional: You can add custom commit message validation here
+# For now, we'll allow any commit message format
+
+echo "✅ Commit message accepted"

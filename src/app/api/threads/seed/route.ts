@@ -6,14 +6,11 @@ import Thread from '@/models/Thread';
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const { userId, familyId } = await request.json();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
     // Create sample threads
@@ -50,7 +47,7 @@ export async function POST(request: NextRequest) {
         isCustom: true,
         startDate: new Date('2025-03-01'),
         endDate: new Date('2025-09-30'),
-      }
+      },
     ];
 
     // Delete existing sample threads for this user
@@ -59,15 +56,15 @@ export async function POST(request: NextRequest) {
     // Create new threads
     const threads = await Thread.insertMany(sampleThreads);
 
-    return NextResponse.json({
-      message: 'Sample threads created successfully',
-      threads
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: 'Sample threads created successfully',
+        threads,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating sample threads:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

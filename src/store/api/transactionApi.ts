@@ -62,8 +62,11 @@ export const transactionApi = createApi({
     },
   }),
   tagTypes: ['Transaction', 'Stats'],
-  endpoints: (builder) => ({
-    getTransactions: builder.query<TransactionResponse, { limit?: number; offset?: number; budgetId?: string }>({
+  endpoints: builder => ({
+    getTransactions: builder.query<
+      TransactionResponse,
+      { limit?: number; offset?: number; budgetId?: string }
+    >({
       query: ({ limit = 20, offset = 0, budgetId }) => {
         const params = new URLSearchParams();
         params.append('limit', limit.toString());
@@ -80,14 +83,17 @@ export const transactionApi = createApi({
       providesTags: ['Stats'],
     }),
     createTransaction: builder.mutation<TransactionData, CreateTransactionRequest>({
-      query: (transaction) => ({
+      query: transaction => ({
         url: '',
         method: 'POST',
         body: transaction,
       }),
       invalidatesTags: ['Transaction', 'Stats'],
     }),
-    updateTransaction: builder.mutation<TransactionData, { id: string; data: UpdateTransactionRequest }>({
+    updateTransaction: builder.mutation<
+      TransactionData,
+      { id: string; data: UpdateTransactionRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/${id}`,
         method: 'PUT',
@@ -96,7 +102,7 @@ export const transactionApi = createApi({
       invalidatesTags: ['Transaction', 'Stats'],
     }),
     deleteTransaction: builder.mutation<void, string>({
-      query: (id) => ({
+      query: id => ({
         url: `/${id}`,
         method: 'DELETE',
       }),

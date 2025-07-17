@@ -40,7 +40,7 @@ export default function ListModal({
   onCreateNew,
   createNewText = 'Create New',
   emptyText = 'No items available',
-  isLoading = false
+  isLoading = false,
 }: ListModalProps) {
   const handleSelect = (item: ListItem) => {
     if (!item.disabled) {
@@ -57,7 +57,6 @@ export default function ListModal({
       maxHeight="max-h-[80vh]"
     >
       <div className="space-y-4">
-        
         {showCreateNew && onCreateNew && (
           <button
             onClick={onCreateNew}
@@ -71,17 +70,15 @@ export default function ListModal({
           </button>
         )}
 
-        
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           </div>
         )}
 
-        
         {!isLoading && items.length > 0 && (
           <div className="space-y-2">
-            {items.map((item) => (
+            {items.map(item => (
               <button
                 key={item.id}
                 onClick={() => handleSelect(item)}
@@ -90,18 +87,14 @@ export default function ListModal({
                   item.disabled
                     ? 'opacity-50 cursor-not-allowed'
                     : selectedId === item.id
-                    ? 'bg-blue-500/30 border border-blue-400/40'
-                    : 'bg-white/5 hover:bg-white/10 border border-white/20'
+                      ? 'bg-blue-500/30 border border-blue-400/40'
+                      : 'bg-white/5 hover:bg-white/10 border border-white/20'
                 }`}
               >
-                
                 {item.icon && (
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    {item.icon}
-                  </div>
+                  <div className="w-10 h-10 flex items-center justify-center">{item.icon}</div>
                 )}
 
-                
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-white truncate">{item.label}</h3>
                   {item.subtitle && (
@@ -109,7 +102,6 @@ export default function ListModal({
                   )}
                 </div>
 
-                
                 {selectedId === item.id && (
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <Check className="w-4 h-4 text-white" />
@@ -120,7 +112,6 @@ export default function ListModal({
           </div>
         )}
 
-        
         {!isLoading && items.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-400">{emptyText}</p>

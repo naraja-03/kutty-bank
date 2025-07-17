@@ -9,23 +9,23 @@ const QUICK_THREADS: ThreadPeriod[] = [
   {
     id: 'this-week',
     label: 'This Week',
-    value: 'week'
+    value: 'week',
   },
   {
     id: 'this-month',
     label: 'This Month',
-    value: 'month'
+    value: 'month',
   },
   {
     id: 'this-quarter',
     label: 'Quarter',
-    value: 'quarter'
+    value: 'quarter',
   },
   {
     id: 'this-year',
     label: 'This Year',
-    value: 'year'
-  }
+    value: 'year',
+  },
 ];
 
 export default function ThreadBottomBar({
@@ -34,7 +34,7 @@ export default function ThreadBottomBar({
   onCustomThread,
   onPrevious,
   onNext,
-  className
+  className,
 }: ThreadBottomBarProps) {
   const getThreadIcon = (thread: ThreadPeriod) => {
     switch (thread.value) {
@@ -72,10 +72,10 @@ export default function ThreadBottomBar({
 
   const formatDateRange = (startDate?: Date, endDate?: Date) => {
     if (!startDate || !endDate) return 'Current Period';
-    
+
     const start = format(startDate, 'MMM dd');
     const end = format(endDate, 'MMM dd');
-    
+
     return `${start} - ${end}`;
   };
 
@@ -87,14 +87,14 @@ export default function ThreadBottomBar({
   };
 
   return (
-    <div className={clsx(
-      'fixed bottom-20 left-0 right-0 bg-black/95 backdrop-blur-md z-30',
-      className
-    )}>
-      
+    <div
+      className={clsx(
+        'fixed bottom-20 left-0 right-0 bg-black/95 backdrop-blur-md z-30',
+        className
+      )}
+    >
       <div className="px-4 py-2">
         <div className="flex items-center justify-between">
-          
           {onPrevious && (
             <button
               onClick={onPrevious}
@@ -104,12 +104,12 @@ export default function ThreadBottomBar({
             </button>
           )}
 
-          
           <div className="flex-1 mx-4">
             <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-              {QUICK_THREADS.map((thread) => {
-                const isActive = activeThread.id === thread.id || activeThread.value === thread.value;
-                
+              {QUICK_THREADS.map(thread => {
+                const isActive =
+                  activeThread.id === thread.id || activeThread.value === thread.value;
+
                 return (
                   <button
                     key={thread.id}
@@ -126,8 +126,7 @@ export default function ThreadBottomBar({
                   </button>
                 );
               })}
-              
-              
+
               <button
                 onClick={onCustomThread}
                 className={clsx(
@@ -143,7 +142,6 @@ export default function ThreadBottomBar({
             </div>
           </div>
 
-          
           {onNext && (
             <button
               onClick={onNext}
@@ -155,19 +153,13 @@ export default function ThreadBottomBar({
         </div>
       </div>
 
-      
       <div className="px-4 py-2 bg-gray-900/95/50 border-t border-gray-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className={clsx(
-              'w-2 h-2 rounded-full',
-              getThreadColor(activeThread)
-            )} />
-            <span className="text-sm font-medium text-white">
-              {activeThread.label}
-            </span>
+            <div className={clsx('w-2 h-2 rounded-full', getThreadColor(activeThread))} />
+            <span className="text-sm font-medium text-white">{activeThread.label}</span>
           </div>
-          
+
           <div className="flex items-center space-x-2 text-xs text-gray-400">
             <Calendar size={12} />
             <span>{formatDateRange(activeThread.startDate, activeThread.endDate)}</span>
@@ -175,10 +167,9 @@ export default function ThreadBottomBar({
         </div>
       </div>
 
-      
       <div className="flex justify-center py-2">
         <div className="flex space-x-1">
-          {QUICK_THREADS.map((thread) => {
+          {QUICK_THREADS.map(thread => {
             const isActive = activeThread.id === thread.id || activeThread.value === thread.value;
             return (
               <button
@@ -198,7 +189,9 @@ export default function ThreadBottomBar({
             onClick={onCustomThread}
             className={clsx(
               'w-1.5 h-1.5 rounded-full transition-all duration-200',
-              activeThread.value === 'custom' ? 'bg-purple-400 scale-125' : 'bg-gray-600 hover:bg-purple-500'
+              activeThread.value === 'custom'
+                ? 'bg-purple-400 scale-125'
+                : 'bg-gray-600 hover:bg-purple-500'
             )}
           />
         </div>

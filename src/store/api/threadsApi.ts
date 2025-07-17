@@ -50,38 +50,38 @@ export const threadsApi = createApi({
     },
   }),
   tagTypes: ['Thread'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getThreads: builder.query<Thread[], { userId: string; familyId?: string }>({
       query: ({ userId, familyId }) => ({
         url: '',
-        params: { userId, familyId }
+        params: { userId, familyId },
       }),
       providesTags: ['Thread'],
     }),
-    
+
     createThread: builder.mutation<Thread, CreateThreadRequest>({
-      query: (threadData) => ({
+      query: threadData => ({
         url: '',
         method: 'POST',
         body: threadData,
       }),
       invalidatesTags: ['Thread'],
     }),
-    
+
     updateThread: builder.mutation<Thread, UpdateThreadRequest>({
-      query: (threadData) => ({
+      query: threadData => ({
         url: '',
         method: 'PUT',
         body: threadData,
       }),
       invalidatesTags: ['Thread'],
     }),
-    
+
     deleteThread: builder.mutation<{ message: string }, { id: string; userId: string }>({
       query: ({ id, userId }) => ({
         url: '',
         method: 'DELETE',
-        params: { id, userId }
+        params: { id, userId },
       }),
       invalidatesTags: ['Thread'],
     }),

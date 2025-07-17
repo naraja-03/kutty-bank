@@ -7,92 +7,92 @@ const categories = [
     name: 'Food & Dining',
     icon: '🍽️',
     color: '#FF6B6B',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'transport',
     name: 'Transportation',
     icon: '🚗',
     color: '#4ECDC4',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'entertainment',
     name: 'Entertainment',
     icon: '🎬',
     color: '#45B7D1',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'shopping',
     name: 'Shopping',
     icon: '🛍️',
     color: '#96CEB4',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'bills',
     name: 'Bills & Utilities',
     icon: '💡',
     color: '#FECA57',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'healthcare',
     name: 'Healthcare',
     icon: '🏥',
     color: '#FF9FF3',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'education',
     name: 'Education',
     icon: '📚',
     color: '#54A0FF',
-    type: 'expense'
+    type: 'expense',
   },
   {
     id: 'salary',
     name: 'Salary',
     icon: '💰',
     color: '#5F27CD',
-    type: 'income'
+    type: 'income',
   },
   {
     id: 'business',
     name: 'Business',
     icon: '💼',
     color: '#00D2D3',
-    type: 'income'
+    type: 'income',
   },
   {
     id: 'investment',
     name: 'Investment',
     icon: '📈',
     color: '#FF9F43',
-    type: 'income'
+    type: 'income',
   },
   {
     id: 'allowance',
     name: 'Allowance',
     icon: '💵',
     color: '#A55EEA',
-    type: 'income'
+    type: 'income',
   },
   {
     id: 'gift',
     name: 'Gift',
     icon: '🎁',
     color: '#26DE81',
-    type: 'income'
+    type: 'income',
   },
   {
     id: 'other',
     name: 'Other',
     icon: '📂',
     color: '#778CA3',
-    type: 'both'
-  }
+    type: 'both',
+  },
 ];
 
 // GET /api/categories - Get transaction categories
@@ -112,10 +112,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(filteredCategories);
   } catch (error) {
     console.error('Error fetching categories:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -127,10 +124,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!name || !type) {
-      return NextResponse.json(
-        { error: 'Missing required fields: name, type' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields: name, type' }, { status: 400 });
     }
 
     // Validate type
@@ -148,15 +142,12 @@ export async function POST(request: NextRequest) {
       icon: icon || '📂',
       color: color || '#778CA3',
       type,
-      custom: true
+      custom: true,
     };
 
     return NextResponse.json(customCategory, { status: 201 });
   } catch (error) {
     console.error('Error creating category:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

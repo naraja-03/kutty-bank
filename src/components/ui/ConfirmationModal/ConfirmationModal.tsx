@@ -24,29 +24,29 @@ const variantConfig = {
     iconBg: 'bg-red-500/30',
     iconColor: 'text-red-400',
     confirmBg: 'bg-red-500/80 border border-red-400/40 hover:bg-red-500/90',
-    confirmText: 'Delete'
+    confirmText: 'Delete',
   },
   warning: {
     icon: AlertTriangle,
     iconBg: 'bg-yellow-500/30',
     iconColor: 'text-yellow-400',
     confirmBg: 'bg-yellow-500/80 border border-yellow-400/40 hover:bg-yellow-500/90',
-    confirmText: 'Continue'
+    confirmText: 'Continue',
   },
   success: {
     icon: Check,
     iconBg: 'bg-green-500/30',
     iconColor: 'text-green-400',
     confirmBg: 'bg-green-500/80 border border-green-400/40 hover:bg-green-500/90',
-    confirmText: 'Confirm'
+    confirmText: 'Confirm',
   },
   info: {
     icon: LogOut,
     iconBg: 'bg-blue-500/30',
     iconColor: 'text-blue-400',
     confirmBg: 'bg-blue-500/80 border border-blue-400/40 hover:bg-blue-500/90',
-    confirmText: 'Confirm'
-  }
+    confirmText: 'Confirm',
+  },
 };
 
 export default function ConfirmationModal({
@@ -58,7 +58,7 @@ export default function ConfirmationModal({
   confirmText,
   cancelText = 'Cancel',
   variant = 'info',
-  isLoading = false
+  isLoading = false,
 }: ConfirmationModalProps) {
   const config = variantConfig[variant];
   const Icon = config.icon;
@@ -72,20 +72,16 @@ export default function ConfirmationModal({
       maxHeight="max-h-[50vh]"
     >
       <div className="text-center">
-        
-        <div className={`w-16 h-16 ${config.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
+        <div
+          className={`w-16 h-16 ${config.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}
+        >
           <Icon className={`w-8 h-8 ${config.iconColor}`} />
         </div>
 
-        
         <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
 
-        
-        <div className="text-gray-300 mb-8 text-sm leading-relaxed">
-          {message}
-        </div>
+        <div className="text-gray-300 mb-8 text-sm leading-relaxed">{message}</div>
 
-        
         <div className="flex gap-3">
           <button
             onClick={onClose}

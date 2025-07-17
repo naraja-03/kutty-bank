@@ -44,38 +44,38 @@ export const budgetsApi = createApi({
     },
   }),
   tagTypes: ['Budget'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getBudgets: builder.query<Budget[], { userId: string; familyId?: string }>({
       query: ({ userId, familyId }) => ({
         url: '',
-        params: { userId, familyId }
+        params: { userId, familyId },
       }),
       providesTags: ['Budget'],
     }),
-    
+
     createBudget: builder.mutation<Budget, CreateBudgetRequest>({
-      query: (budgetData) => ({
+      query: budgetData => ({
         url: '',
         method: 'POST',
         body: budgetData,
       }),
       invalidatesTags: ['Budget'],
     }),
-    
+
     updateBudget: builder.mutation<Budget, UpdateBudgetRequest>({
-      query: (budgetData) => ({
+      query: budgetData => ({
         url: '',
         method: 'PUT',
         body: budgetData,
       }),
       invalidatesTags: ['Budget'],
     }),
-    
+
     deleteBudget: builder.mutation<{ message: string }, { id: string; userId: string }>({
       query: ({ id, userId }) => ({
         url: '',
         method: 'DELETE',
-        params: { id, userId }
+        params: { id, userId },
       }),
       invalidatesTags: ['Budget'],
     }),

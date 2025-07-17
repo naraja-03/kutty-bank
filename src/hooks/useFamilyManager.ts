@@ -19,20 +19,22 @@ interface FamilyManagerResult {
 export function useFamilyManager(): FamilyManagerResult {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-  
-  const { 
-    data: families = [], 
-    isLoading, 
-    error 
+
+  const {
+    data: families = [],
+    isLoading,
+    error,
   } = useGetFamiliesQuery(user?.id, {
-    skip: !user?.id
+    skip: !user?.id,
   });
 
   const currentFamilyId = user?.familyId;
-  
+
   // Check if current family is valid (exists in user's families array)
-  const hasValidFamily = Boolean(currentFamilyId && families.some(family => family.id === currentFamilyId));
-  
+  const hasValidFamily = Boolean(
+    currentFamilyId && families.some(family => family.id === currentFamilyId)
+  );
+
   // User needs family selection if they have no current family OR current family is invalid
   const needsFamilySelection = !hasValidFamily && !isLoading;
 
@@ -76,6 +78,6 @@ export function useFamilyManager(): FamilyManagerResult {
     hasValidFamily,
     needsFamilySelection,
     switchToValidFamily,
-    clearInvalidFamily
+    clearInvalidFamily,
   };
 }

@@ -17,10 +17,12 @@ const FamilySchema = new Schema<IFamily>(
       trim: true,
       maxlength: 100,
     },
-    members: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     budgetCap: {
       type: Number,
       min: 0,
@@ -35,19 +37,18 @@ const FamilySchema = new Schema<IFamily>(
 FamilySchema.index({ name: 1 });
 
 // Virtual for id
-FamilySchema.virtual('id').get(function(this: IFamily) {
+FamilySchema.virtual('id').get(function (this: IFamily) {
   return this._id.toString();
 });
 
 // Ensure virtual fields are serialised
 FamilySchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     delete (ret as unknown as Record<string, unknown>)._id;
     delete (ret as unknown as Record<string, unknown>).__v;
     return ret;
-  }
+  },
 });
 
-export default mongoose.models.Family || 
-  mongoose.model<IFamily>('Family', FamilySchema);
+export default mongoose.models.Family || mongoose.model<IFamily>('Family', FamilySchema);

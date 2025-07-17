@@ -33,27 +33,18 @@ export async function POST(request: NextRequest) {
     // Check if family exists
     const family = await Family.findById(familyId);
     if (!family) {
-      return NextResponse.json(
-        { error: 'Family not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found with this email' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found with this email' }, { status: 404 });
     }
 
     // Check if user is already in a family
     if (user.familyId) {
-      return NextResponse.json(
-        { error: 'User is already part of a family' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'User is already part of a family' }, { status: 409 });
     }
 
     // Add user to family
@@ -71,10 +62,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(family);
   } catch (error) {
     console.error('Error adding family member:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -97,22 +85,19 @@ export async function DELETE(request: NextRequest) {
     // Check if family exists
     const family = await Family.findById(familyId);
     if (!family) {
-      return NextResponse.json(
-        { error: 'Family not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
     // Remove user from family members
     family.members = family.members.filter(
-      (memberId: typeof family.members[0]) => memberId.toString() !== userId
+      (memberId: (typeof family.members)[0]) => memberId.toString() !== userId
     );
     await family.save();
 
     // Update user's familyId
     await User.findByIdAndUpdate(userId, {
       familyId: null,
-      role: 'member'
+      role: 'member',
     });
 
     // Return updated family
@@ -121,9 +106,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(family);
   } catch (error) {
     console.error('Error removing family member:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

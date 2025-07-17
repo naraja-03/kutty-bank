@@ -13,7 +13,7 @@ interface ThreadSelectorProps {
 export default function ThreadSelector({
   activeThread,
   onThreadChange,
-  className
+  className,
 }: ThreadSelectorProps) {
   const getDateRange = (thread: ThreadPeriod) => {
     const now = new Date();
@@ -25,22 +25,22 @@ export default function ThreadSelector({
       case 'week':
         return {
           start: startOfWeek,
-          end: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000)
+          end: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000),
         };
       case 'month':
         return {
           start: startOfMonth,
-          end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0)
+          end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0),
         };
       case 'year':
         return {
           start: startOfYear,
-          end: new Date(startOfYear.getFullYear() + 1, 0, 0)
+          end: new Date(startOfYear.getFullYear() + 1, 0, 0),
         };
       default:
         return {
           start: thread.startDate || new Date(),
-          end: thread.endDate || new Date()
+          end: thread.endDate || new Date(),
         };
     }
   };
@@ -48,13 +48,13 @@ export default function ThreadSelector({
   const formatDateRange = (thread: ThreadPeriod) => {
     const { start, end } = getDateRange(thread);
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
-        year: start.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+        year: start.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
       });
     };
-    
+
     return `${formatDate(start)} - ${formatDate(end)}`;
   };
 
@@ -65,13 +65,11 @@ export default function ThreadSelector({
           <Clock size={16} className="text-gray-400" />
           <h3 className="font-semibold text-white">Time Period</h3>
         </div>
-        <span className="text-xs text-gray-400">
-          {formatDateRange(activeThread)}
-        </span>
+        <span className="text-xs text-gray-400">{formatDateRange(activeThread)}</span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        {DEFAULT_THREADS.map((thread) => (
+        {DEFAULT_THREADS.map(thread => (
           <button
             key={thread.id}
             onClick={() => onThreadChange(thread)}
@@ -90,11 +88,13 @@ export default function ThreadSelector({
       </div>
 
       <button
-        onClick={() => onThreadChange({
-          id: 'custom',
-          label: 'Custom Range',
-          value: 'custom'
-        })}
+        onClick={() =>
+          onThreadChange({
+            id: 'custom',
+            label: 'Custom Range',
+            value: 'custom',
+          })
+        }
         className={clsx(
           'w-full mt-2 p-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2',
           activeThread.value === 'custom'

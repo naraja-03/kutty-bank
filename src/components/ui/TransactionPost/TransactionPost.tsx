@@ -18,13 +18,12 @@ export default function TransactionPost({
   onEdit,
   onDelete,
   onUpdateNote,
-  showActions = true
+  showActions = true,
 }: TransactionPostProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(false);
   const [editedNote, setEditedNote] = useState(note || '');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -50,7 +49,7 @@ export default function TransactionPost({
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -95,7 +94,7 @@ export default function TransactionPost({
       investment: 'Investment',
       allowance: 'Allowance',
       gift: 'Gift',
-      other: 'Other'
+      other: 'Other',
     };
     return iconMap[category] || 'Other';
   };
@@ -117,40 +116,34 @@ export default function TransactionPost({
   };
 
   return (
-    <div className={clsx(
-      'bg-black border-b border-gray-800 p-4 hover:bg-gray-950 transition-colors duration-200',
-      className
-    )}>
+    <div
+      className={clsx(
+        'bg-black border-b border-gray-800 p-4 hover:bg-gray-950 transition-colors duration-200',
+        className
+      )}
+    >
       <div className="flex items-start space-x-3">
-        
         <div className="flex-shrink-0">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border border-gray-700">
-            <span className="text-white text-sm font-semibold">
-              {getInitials(userName)}
-            </span>
+            <span className="text-white text-sm font-semibold">{getInitials(userName)}</span>
           </div>
         </div>
 
-        
         <div className="flex-1 min-w-0">
-          
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <span className="text-white font-medium text-sm">{userName}</span>
-              <span className="text-gray-500 text-xs">
-                {formatTimestamp(createdAt)}
-              </span>
+              <span className="text-gray-500 text-xs">{formatTimestamp(createdAt)}</span>
             </div>
-            
-            
+
             <div className="relative dropdown-container">
-              <button 
+              <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="text-gray-500 hover:text-gray-300 transition-colors"
               >
                 <MoreHorizontal size={16} />
               </button>
-              
+
               {dropdownOpen && showActions && (
                 <div className="absolute right-0 top-8 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10 min-w-[140px]">
                   <button
@@ -172,9 +165,7 @@ export default function TransactionPost({
             </div>
           </div>
 
-          
           <div className="space-y-3">
-            
             <div className="flex items-center space-x-2 text-gray-300 text-sm">
               <span className="px-2 py-1 bg-gray-800 rounded-md text-xs font-medium">
                 {getCategoryIcon(category)}
@@ -182,21 +173,22 @@ export default function TransactionPost({
               <span>{getStatusText()}</span>
             </div>
 
-            
-            <div className={clsx(
-              'text-2xl font-bold',
-              type === 'income' ? 'text-green-400' : 'text-red-400'
-            )}>
-              {type === 'income' ? '+' : '-'}{formatAmount(Math.abs(amount))}
+            <div
+              className={clsx(
+                'text-2xl font-bold',
+                type === 'income' ? 'text-green-400' : 'text-red-400'
+              )}
+            >
+              {type === 'income' ? '+' : '-'}
+              {formatAmount(Math.abs(amount))}
             </div>
 
-            
             {editingNote ? (
               <div className="space-y-2">
                 <input
                   type="text"
                   value={editedNote}
-                  onChange={(e) => setEditedNote(e.target.value)}
+                  onChange={e => setEditedNote(e.target.value)}
                   className="w-full px-3 py-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
                   placeholder="Add a note..."
                   autoFocus
@@ -217,14 +209,9 @@ export default function TransactionPost({
                 </div>
               </div>
             ) : (
-              note && (
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  {note}
-                </p>
-              )
+              note && <p className="text-gray-300 text-sm leading-relaxed">{note}</p>
             )}
 
-            
             <div className="flex items-center justify-between pt-3 border-t border-gray-800">
               <div className="flex items-center space-x-6">
                 <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-blue-400 transition-colors">
@@ -233,7 +220,6 @@ export default function TransactionPost({
                 </button>
               </div>
 
-              
               <div className="flex items-center space-x-1 px-2 py-1 bg-gray-800 rounded-full">
                 <span className="text-xs text-gray-400">#{category}</span>
               </div>
@@ -242,12 +228,13 @@ export default function TransactionPost({
         </div>
       </div>
 
-      
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
             <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
-            <p className="text-gray-400 mb-6">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            <p className="text-gray-400 mb-6">
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}

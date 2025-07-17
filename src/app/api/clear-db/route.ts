@@ -10,7 +10,7 @@ import Family from '@/models/Family';
 export async function POST() {
   try {
     await connectToDatabase();
-    
+
     // Clear all collections
     await Transaction.deleteMany({});
     await Thread.deleteMany({});
@@ -18,15 +18,15 @@ export async function POST() {
     await User.deleteMany({});
     await Family.deleteMany({});
 
-    return NextResponse.json({
-      message: 'Database cleared successfully',
-      cleared: ['transactions', 'threads', 'budgets', 'users', 'families']
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: 'Database cleared successfully',
+        cleared: ['transactions', 'threads', 'budgets', 'users', 'families'],
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error clearing database:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

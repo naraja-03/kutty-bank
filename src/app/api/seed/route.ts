@@ -24,7 +24,7 @@ export async function POST() {
 
     // Create users with proper roles
     const hashedPassword = await bcrypt.hash('password123', 10);
-    
+
     const raja = new User({
       name: 'Raja',
       email: 'raja@example.com',
@@ -128,9 +128,6 @@ export async function POST() {
     });
   } catch (error) {
     console.error('Seeding error:', error);
-    return NextResponse.json(
-      { error: 'Failed to seed database' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to seed database' }, { status: 500 });
   }
 }

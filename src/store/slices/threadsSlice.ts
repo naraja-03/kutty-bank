@@ -42,8 +42,8 @@ const defaultThreads: SavedThread[] = [
     totalTransactions: 12,
     totalAmount: 15600,
     budgetId: 'daily',
-    isCustomBudget: false
-  }
+    isCustomBudget: false,
+  },
 ];
 
 const initialState: ThreadsState = {
@@ -52,7 +52,7 @@ const initialState: ThreadsState = {
     label: 'Daily Budget',
     value: 'daily',
     budgetId: 'daily',
-    isCustomBudget: false
+    isCustomBudget: false,
   },
   savedThreads: defaultThreads,
   allThreads: defaultThreads,
@@ -66,46 +66,52 @@ const threadsSlice = createSlice({
     setActiveThread: (state, action: PayloadAction<ThreadPeriod>) => {
       state.activeThread = action.payload;
     },
-    
+
     addSavedThread: (state, action: PayloadAction<SavedThread>) => {
       state.savedThreads.push(action.payload);
       state.allThreads.push(action.payload);
     },
-    
+
     removeSavedThread: (state, action: PayloadAction<string>) => {
       state.savedThreads = state.savedThreads.filter(thread => thread.id !== action.payload);
       state.allThreads = state.allThreads.filter(thread => thread.id !== action.payload);
     },
-    
-    updateThreadStats: (state, action: PayloadAction<{ id: string; totalTransactions: number; totalAmount: number }>) => {
+
+    updateThreadStats: (
+      state,
+      action: PayloadAction<{ id: string; totalTransactions: number; totalAmount: number }>
+    ) => {
       const { id, totalTransactions, totalAmount } = action.payload;
-      
+
       const threadIndex = state.savedThreads.findIndex(thread => thread.id === id);
       if (threadIndex !== -1) {
         state.savedThreads[threadIndex].totalTransactions = totalTransactions;
         state.savedThreads[threadIndex].totalAmount = totalAmount;
       }
-      
+
       const allThreadIndex = state.allThreads.findIndex(thread => thread.id === id);
       if (allThreadIndex !== -1) {
         state.allThreads[allThreadIndex].totalTransactions = totalTransactions;
         state.allThreads[allThreadIndex].totalAmount = totalAmount;
       }
     },
-    
-    openThreadSidebar: (state) => {
+
+    openThreadSidebar: state => {
       state.isThreadSidebarOpen = true;
     },
-    
-    closeThreadSidebar: (state) => {
+
+    closeThreadSidebar: state => {
       state.isThreadSidebarOpen = false;
     },
-    
-    createCustomThread: (state, action: PayloadAction<{ 
-      label: string; 
-      description?: string; 
-      targetAmount?: number; 
-    }>) => {
+
+    createCustomThread: (
+      state,
+      action: PayloadAction<{
+        label: string;
+        description?: string;
+        targetAmount?: number;
+      }>
+    ) => {
       const { label, description, targetAmount } = action.payload;
       const customThread: SavedThread = {
         id: `custom-${Date.now()}`,
@@ -116,51 +122,54 @@ const threadsSlice = createSlice({
         totalAmount: 0,
         isCustom: true,
         description,
-        targetAmount
+        targetAmount,
       };
-      
+
       state.savedThreads.push(customThread);
       state.allThreads.push(customThread);
       state.activeThread = customThread;
     },
 
-    updateCustomThread: (state, action: PayloadAction<{
-      id: string;
-      label: string;
-      description?: string;
-      targetAmount?: number;
-    }>) => {
+    updateCustomThread: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        label: string;
+        description?: string;
+        targetAmount?: number;
+      }>
+    ) => {
       const { id, label, description, targetAmount } = action.payload;
-      
+
       const threadIndex = state.savedThreads.findIndex(thread => thread.id === id);
       if (threadIndex !== -1) {
         state.savedThreads[threadIndex] = {
           ...state.savedThreads[threadIndex],
           label,
           description,
-          targetAmount
+          targetAmount,
         };
       }
-      
+
       const allThreadIndex = state.allThreads.findIndex(thread => thread.id === id);
       if (allThreadIndex !== -1) {
         state.allThreads[allThreadIndex] = {
           ...state.allThreads[allThreadIndex],
           label,
           description,
-          targetAmount
+          targetAmount,
         };
       }
-      
+
       // Update active thread if it's the one being edited
       if (state.activeThread.id === id) {
         state.activeThread = {
           ...state.activeThread,
-          label
+          label,
         };
       }
     },
-    
+
     selectThreadFromList: (state, action: PayloadAction<string>) => {
       const selectedThread = state.allThreads.find(thread => thread.id === action.payload);
       if (selectedThread) {
@@ -171,18 +180,21 @@ const threadsSlice = createSlice({
           startDate: selectedThread.startDate,
           endDate: selectedThread.endDate,
           budgetId: selectedThread.budgetId,
-          isCustomBudget: selectedThread.isCustomBudget
+          isCustomBudget: selectedThread.isCustomBudget,
         };
       }
     },
-    addCustomBudgetThread: (state, action: PayloadAction<{
-      id: string;
-      label: string;
-      description?: string;
-      targetAmount?: number;
-      startDate?: Date;
-      endDate?: Date;
-    }>) => {
+    addCustomBudgetThread: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        label: string;
+        description?: string;
+        targetAmount?: number;
+        startDate?: Date;
+        endDate?: Date;
+      }>
+    ) => {
       const newThread: SavedThread = {
         id: action.payload.id,
         label: action.payload.label,
@@ -196,16 +208,16 @@ const threadsSlice = createSlice({
         isCustomBudget: true,
         budgetId: action.payload.id,
         description: action.payload.description,
-        targetAmount: action.payload.targetAmount
+        targetAmount: action.payload.targetAmount,
       };
-      
+
       state.allThreads.push(newThread);
       state.savedThreads.push(newThread);
     },
     removeCustomBudgetThread: (state, action: PayloadAction<string>) => {
       state.allThreads = state.allThreads.filter(thread => thread.id !== action.payload);
       state.savedThreads = state.savedThreads.filter(thread => thread.id !== action.payload);
-      
+
       // If active thread is removed, switch to daily budget
       if (state.activeThread.id === action.payload) {
         const dailyBudget = state.allThreads.find(thread => thread.budgetId === 'daily');
@@ -215,25 +227,28 @@ const threadsSlice = createSlice({
             label: dailyBudget.label,
             value: dailyBudget.value,
             budgetId: dailyBudget.budgetId,
-            isCustomBudget: dailyBudget.isCustomBudget
+            isCustomBudget: dailyBudget.isCustomBudget,
           };
         }
       }
     },
-    setPeriodFromSelector: (state, action: PayloadAction<{ 
-      label: string; 
-      date: Date; 
-      type: 'week' | 'month' | 'year' 
-    }>) => {
+    setPeriodFromSelector: (
+      state,
+      action: PayloadAction<{
+        label: string;
+        date: Date;
+        type: 'week' | 'month' | 'year';
+      }>
+    ) => {
       const { label, date, type } = action.payload;
       state.activeThread = {
         id: `selected-${type}-${Date.now()}`,
         label,
         value: type,
         startDate: date,
-        endDate: date
+        endDate: date,
       };
-    }
+    },
   },
 });
 
@@ -249,7 +264,7 @@ export const {
   selectThreadFromList,
   setPeriodFromSelector,
   addCustomBudgetThread,
-  removeCustomBudgetThread
+  removeCustomBudgetThread,
 } = threadsSlice.actions;
 
 export default threadsSlice.reducer;

@@ -40,22 +40,16 @@ export async function POST(request: NextRequest) {
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     // Generate JWT token
@@ -63,12 +57,8 @@ export async function POST(request: NextRequest) {
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not configured');
     }
-    
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      jwtSecret,
-      { expiresIn: '7d' }
-    );
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, jwtSecret, { expiresIn: '7d' });
 
     const response: LoginResponse = {
       user: {
@@ -78,17 +68,14 @@ export async function POST(request: NextRequest) {
         role: user.role,
         profileImage: user.profileImage,
         familyId: user.familyId?.toString(),
-        families: (user.families || []).map(String)
+        families: (user.families || []).map(String),
       },
-      token
+      token,
     };
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('Error during login:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -12,25 +12,25 @@ export default function FamilySelectorModal({
   isOpen,
   onClose,
   onSelectFamily,
-  onCreateFamily
+  onCreateFamily,
 }: FamilySelectorModalProps) {
   const { user } = useSelector((state: RootState) => state.auth);
   const [families, setFamilies] = useState<FamilyOption[]>([]);
-  
 
-  const { data: userFamilies = [], isLoading } = useGetFamiliesQuery(
-    user?.id || '',
-    { skip: !user?.id }
-  );
+  const { data: userFamilies = [], isLoading } = useGetFamiliesQuery(user?.id || '', {
+    skip: !user?.id,
+  });
 
   useEffect(() => {
     if (userFamilies) {
-      const familyOptions: FamilyOption[] = userFamilies.map((family: { id: string; name: string; members?: unknown[] }) => ({
-        id: family.id,
-        name: family.name,
-        memberCount: family.members?.length || 0,
-        isActive: family.id === user?.familyId
-      }));
+      const familyOptions: FamilyOption[] = userFamilies.map(
+        (family: { id: string; name: string; members?: unknown[] }) => ({
+          id: family.id,
+          name: family.name,
+          memberCount: family.members?.length || 0,
+          isActive: family.id === user?.familyId,
+        })
+      );
       setFamilies(familyOptions);
     }
   }, [userFamilies, user?.familyId]);
@@ -41,11 +41,8 @@ export default function FamilySelectorModal({
   };
 
   const handleCreateNew = () => {
-
-
     onClose();
     if (onCreateFamily) {
-
       console.log('Create new family functionality not implemented yet');
     }
   };
@@ -59,14 +56,14 @@ export default function FamilySelectorModal({
     ) : (
       <Users className="w-5 h-5 text-white/70" />
     ),
-    disabled: false
+    disabled: false,
   }));
 
   return (
     <ListModal
       isOpen={isOpen}
       onClose={onClose}
-      onSelect={(item) => handleSelectFamily(item.id)}
+      onSelect={item => handleSelectFamily(item.id)}
       title="Switch Family"
       subtitle="Select a family to manage"
       items={listItems}

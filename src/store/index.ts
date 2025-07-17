@@ -1,13 +1,13 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import { transactionApi } from "./api/transactionApi";
-import { threadsApi } from "./api/threadsApi";
-import { budgetsApi } from "./api/budgetsApi";
-import authSlice from "./slices/authSlice";
-import threadsSlice from "./slices/threadsSlice";
-import uiSlice from "./slices/uiSlice";
-import { authApi } from "./api/authApi";
-import { familyApi } from "./api/familyApi";
+import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
+import { transactionApi } from './api/transactionApi';
+import { threadsApi } from './api/threadsApi';
+import { budgetsApi } from './api/budgetsApi';
+import authSlice from './slices/authSlice';
+import threadsSlice from './slices/threadsSlice';
+import uiSlice from './slices/uiSlice';
+import { authApi } from './api/authApi';
+import { familyApi } from './api/familyApi';
 
 export const store = configureStore({
   reducer: {
@@ -20,35 +20,35 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [familyApi.reducerPath]: familyApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [
-          "persist/PERSIST", 
-          "persist/REHYDRATE",
+          'persist/PERSIST',
+          'persist/REHYDRATE',
           // RTK Query actions
-          "api/executeQuery/pending",
-          "api/executeQuery/fulfilled",
-          "api/executeQuery/rejected",
+          'api/executeQuery/pending',
+          'api/executeQuery/fulfilled',
+          'api/executeQuery/rejected',
         ],
         ignoredPaths: [
-          "threads.activeThread.startDate",
-          "threads.activeThread.endDate",
-          "threads.savedThreads",
-          "threads.allThreads",
-          "api.meta.baseQueryMeta",
-          "threads.activeThread.createdAt",
+          'threads.activeThread.startDate',
+          'threads.activeThread.endDate',
+          'threads.savedThreads',
+          'threads.allThreads',
+          'api.meta.baseQueryMeta',
+          'threads.activeThread.createdAt',
           // RTK Query paths
-          "api.queries",
-          "api.mutations",
+          'api.queries',
+          'api.mutations',
         ],
         ignoredActionPaths: [
-          "payload.startDate",
-          "payload.endDate",
-          "payload.createdAt",
-          "meta.baseQueryMeta",
-          "meta.arg",
-          "error",
+          'payload.startDate',
+          'payload.endDate',
+          'payload.createdAt',
+          'meta.baseQueryMeta',
+          'meta.arg',
+          'error',
         ],
       },
     }).concat(

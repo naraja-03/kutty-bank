@@ -38,7 +38,7 @@ export const EXPENSE_CATEGORIES: CategoryOption[] = [
   { value: 'health', label: 'Health & Fitness', emoji: '🏥' },
   { value: 'education', label: 'Education', emoji: '📚' },
   { value: 'travel', label: 'Travel', emoji: '✈️' },
-  { value: 'other', label: 'Other', emoji: '📦' }
+  { value: 'other', label: 'Other', emoji: '📦' },
 ];
 
 export const INCOME_CATEGORIES: CategoryOption[] = [
@@ -48,5 +48,5 @@ export const INCOME_CATEGORIES: CategoryOption[] = [
   { value: 'investment', label: 'Investment', emoji: '📈' },
   { value: 'gift', label: 'Gift', emoji: '🎁' },
   { value: 'refund', label: 'Refund', emoji: '💰' },
-  { value: 'other', label: 'Other', emoji: '📦' }
+  { value: 'other', label: 'Other', emoji: '📦' },
 ];

@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production
+/build
+/.next/
+/out/
+
+# Misc
+.DS_Store
+*.tsbuildinfo
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.log
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+
+# Husky
+.husky/_
+
+# Generated PNG files (temporary)
+generate-png-icons.html

@@ -24,38 +24,26 @@ function transformTransactionData(transaction: any) {
 }
 
 // GET /api/transactions/[id] - Get a specific transaction
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
-    
+
     const { id } = await params;
     const transaction = await Transaction.findById(id);
 
     if (!transaction) {
-      return NextResponse.json(
-        { error: "Transaction not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
     return NextResponse.json(transformTransactionData(transaction));
   } catch (error) {
     console.error('Error fetching transaction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // PUT /api/transactions/[id] - Update a specific transaction
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
 
@@ -81,10 +69,7 @@ export async function PUT(
 
     // Validate amount is positive
     if (amount <= 0) {
-      return NextResponse.json(
-        { error: 'Amount must be greater than 0' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Amount must be greater than 0' }, { status: 400 });
     }
 
     const updatedTransaction = await Transaction.findByIdAndUpdate(
@@ -100,10 +85,7 @@ export async function PUT(
     );
 
     if (!updatedTransaction) {
-      return NextResponse.json(
-        { error: 'Transaction not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
     await updatedTransaction.populate('userId', 'name profileImage');
@@ -111,7 +93,7 @@ export async function PUT(
     return NextResponse.json(transformTransactionData(updatedTransaction));
   } catch (error) {
     console.error('Error updating transaction:', error);
-    
+
     // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
@@ -119,11 +101,8 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -139,21 +118,12 @@ export async function DELETE(
     const deletedTransaction = await Transaction.findByIdAndDelete(id);
 
     if (!deletedTransaction) {
-      return NextResponse.json(
-        { error: 'Transaction not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: 'Transaction deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'Transaction deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error deleting transaction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

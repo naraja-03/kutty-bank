@@ -5,6 +5,7 @@ import User from '@/models/User';
 import Budget from '@/models/Budget';
 import Transaction from '@/models/Transaction';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 interface CreateFamilyBody {
   name: string;
@@ -29,12 +30,14 @@ function transformFamilyData(family: any) {
     ...familyObj,
     id: familyObj._id?.toString() || familyObj.id,
     _id: familyObj._id?.toString(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    members: familyObj.members?.map((member: any) => ({
-      ...member,
-      id: member._id?.toString() || member.id,
-      _id: member._id?.toString(),
-    })) || []
+    members:
+      familyObj.members?.map(
+        (member: mongoose.Types.ObjectId | { _id?: mongoose.Types.ObjectId; id?: string }) => ({
+          ...member,
+          id: typeof member === 'object' && member._id ? member._id.toString() : member.toString(),
+          _id: typeof member === 'object' && member._id ? member._id.toString() : member.toString(),
+        })
+      ) || [],
   };
 }
 
@@ -47,8 +50,10 @@ async function getUserFromToken(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
-    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as {
+      userId: string;
+    };
+
     await connectToDatabase();
     const user = await User.findById(decoded.userId);
     return user;
@@ -71,16 +76,13 @@ export async function GET(request: NextRequest) {
     if (!userId && !familyId) {
       const currentUser = await getUserFromToken(request);
       if (!currentUser) {
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 401 }
-        );
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
 
       // Get all families the user belongs to
       if (currentUser.families && currentUser.families.length > 0) {
         const families = await Family.find({
-          _id: { $in: currentUser.families }
+          _id: { $in: currentUser.families },
         }).populate('members', 'name email profileImage role');
         return NextResponse.json(families.map(transformFamilyData));
       }
@@ -89,28 +91,27 @@ export async function GET(request: NextRequest) {
 
     if (familyId) {
       // Get specific family
-      const family = await Family.findById(familyId)
-        .populate('members', 'name email profileImage role');
-      
+      const family = await Family.findById(familyId).populate(
+        'members',
+        'name email profileImage role'
+      );
+
       if (!family) {
-        return NextResponse.json(
-          { error: 'Family not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Family not found' }, { status: 404 });
       }
-      
+
       return NextResponse.json(transformFamilyData(family));
     }
 
     // Build query
     const query: FamilyQuery = {};
-    
+
     if (userId) {
       // Find families where user is a member
       const user = await User.findById(userId);
       if (user && user.families && user.families.length > 0) {
         const families = await Family.find({
-          _id: { $in: user.families }
+          _id: { $in: user.families },
         }).populate('members', 'name email profileImage role');
         return NextResponse.json(families.map(transformFamilyData));
       }
@@ -125,10 +126,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(families.map(transformFamilyData));
   } catch (error) {
     console.error('Error fetching families:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -143,25 +141,19 @@ export async function POST(request: NextRequest) {
     // Get current user from token
     const currentUser = await getUserFromToken(request);
     if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Validate required fields
     if (!name) {
-      return NextResponse.json(
-        { error: 'Missing required field: name' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: name' }, { status: 400 });
     }
 
     // Create family
     const family = new Family({
       name,
       budgetCap: targetSavingPerMonth,
-      members: [currentUser._id] // Start with current user as the only member
+      members: [currentUser._id], // Start with current user as the only member
     });
 
     const savedFamily = await family.save();
@@ -170,7 +162,7 @@ export async function POST(request: NextRequest) {
     await User.findByIdAndUpdate(currentUser._id, {
       familyId: savedFamily._id,
       role: 'admin',
-      $addToSet: { families: savedFamily._id }
+      $addToSet: { families: savedFamily._id },
     });
 
     // Create default budgets for the family
@@ -182,7 +174,7 @@ export async function POST(request: NextRequest) {
         targetAmount: 0,
         userId: currentUser._id,
         familyId: savedFamily._id,
-        isCustom: false
+        isCustom: false,
       },
       {
         label: 'This Month',
@@ -191,7 +183,7 @@ export async function POST(request: NextRequest) {
         targetAmount: targetSavingPerMonth || 0,
         userId: currentUser._id,
         familyId: savedFamily._id,
-        isCustom: false
+        isCustom: false,
       },
       {
         label: 'This Year',
@@ -200,8 +192,8 @@ export async function POST(request: NextRequest) {
         targetAmount: (targetSavingPerMonth || 0) * 12,
         userId: currentUser._id,
         familyId: savedFamily._id,
-        isCustom: false
-      }
+        isCustom: false,
+      },
     ];
 
     await Budget.insertMany(defaultBudgets);
@@ -215,7 +207,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(transformFamilyData(savedFamily), { status: 201 });
   } catch (error) {
     console.error('Error creating family:', error);
-    
+
     // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
@@ -223,11 +215,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -240,10 +229,7 @@ export async function PUT(request: NextRequest) {
     const { familyId, name, budgetCap } = body;
 
     if (!familyId) {
-      return NextResponse.json(
-        { error: 'Missing required field: familyId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: familyId' }, { status: 400 });
     }
 
     const updatedFamily = await Family.findByIdAndUpdate(
@@ -253,19 +239,13 @@ export async function PUT(request: NextRequest) {
     ).populate('members', 'name email profileImage role');
 
     if (!updatedFamily) {
-      return NextResponse.json(
-        { error: 'Family not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
     return NextResponse.json(updatedFamily);
   } catch (error) {
     console.error('Error updating family:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -278,28 +258,19 @@ export async function DELETE(request: NextRequest) {
     const familyId = searchParams.get('familyId');
 
     if (!familyId) {
-      return NextResponse.json(
-        { error: 'Missing required parameter: familyId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required parameter: familyId' }, { status: 400 });
     }
 
     // Get current user from token
     const currentUser = await getUserFromToken(request);
     if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find the family and check if user is an admin
     const family = await Family.findById(familyId);
     if (!family) {
-      return NextResponse.json(
-        { error: 'Family not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
     // Check if current user is admin of this family
@@ -313,9 +284,9 @@ export async function DELETE(request: NextRequest) {
     // Remove family reference from all members
     await User.updateMany(
       { families: familyId },
-      { 
+      {
         $pull: { families: familyId },
-        $unset: { familyId: "", role: "" }
+        $unset: { familyId: '', role: '' },
       }
     );
 
@@ -328,15 +299,9 @@ export async function DELETE(request: NextRequest) {
     // Delete the family
     await Family.findByIdAndDelete(familyId);
 
-    return NextResponse.json(
-      { message: 'Family deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: 'Family deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error deleting family:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -55,11 +55,13 @@ src/
 ## Getting Started
 
 1. **Install dependencies**:
+
 ```bash
 npm install
 ```
 
 2. **Set up environment variables**:
+
 ```bash
 # Create .env.local file
 MONGODB_URI=your_mongodb_connection_string
@@ -69,43 +71,50 @@ FIREBASE_PROJECT_ID=your_firebase_project_id
 ```
 
 3. **Run the development server**:
+
 ```bash
 npm run dev
 ```
 
 4. **Open your browser**:
-Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Components
 
 ### BottomNav
+
 - Fixed bottom navigation with 5 tabs
 - Central "+" button for adding transactions
 - Auto-highlights active tab based on current route
 
 ### TransactionPost
+
 - Threads-style post layout
 - Shows profile picture, amount, category, and timestamp
 - Supports optional notes and images
 - Color-coded for income (green) and expenses (red)
 
 ### AddEntryModal
+
 - Dark modal with form inputs
 - Toggle between Income/Expense
 - Category selection with emojis
 - Optional note and image upload
 
 ### Dashboard
+
 - Live statistics cards
 - Savings goal progress bar
 - Recent transactions feed
 - Time filter (weekly/monthly/yearly)
 
 ### ActivityFeed
+
 - Real-time transaction timeline
 - Infinite scroll with load more
 
 ### FamilyPage
+
 - Family member management
 - Role-based permissions (Admin, Member, View-only)
 - Budget cap settings
@@ -116,11 +125,13 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ### Adding New Components
 
 1. Create component folder:
+
 ```bash
 mkdir src/components/ui/ComponentName
 ```
 
 2. Create files:
+
 - `ComponentName.tsx` - Main component
 - `types.ts` - TypeScript interfaces
 - `index.ts` - Export file
@@ -130,23 +141,27 @@ mkdir src/components/ui/ComponentName
 ### API Integration
 
 The app uses RTK Query for API calls. Add new endpoints in the respective API files:
+
 - `transactionApi.ts` - Transaction-related endpoints
-- `authApi.ts` - Authentication endpoints  
+- `authApi.ts` - Authentication endpoints
 - `familyApi.ts` - Family management endpoints
 
 ## Deployment
 
 1. **Build the project**:
+
 ```bash
 npm run build
 ```
 
 2. **Start production server**:
+
 ```bash
 npm start
 ```
 
 3. **Deploy to Vercel** (recommended):
+
 ```bash
 vercel deploy
 ```

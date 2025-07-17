@@ -24,7 +24,7 @@ export default function BottomSheet({
   children,
   showCloseButton = true,
   className,
-  maxHeight = 'max-h-[90vh]'
+  maxHeight = 'max-h-[90vh]',
 }: BottomSheetProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -52,27 +52,23 @@ export default function BottomSheet({
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-full"
             >
-              <Dialog.Panel 
+              <Dialog.Panel
                 className={clsx(
                   'w-full transform overflow-hidden rounded-t-3xl bg-gray-900/90 backdrop-blur-xl border-t border-gray-700/50 shadow-2xl transition-all flex flex-col',
                   maxHeight,
                   className
                 )}
               >
-
                 <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
                   <div className="w-12 h-1 bg-white/40 rounded-full" />
                 </div>
-
 
                 <div className="flex items-start justify-between px-6 py-4 border-b border-white/20 flex-shrink-0">
                   <div className="flex-1">
                     <Dialog.Title className="text-xl font-semibold text-white">
                       {title}
                     </Dialog.Title>
-                    {subtitle && (
-                      <p className="text-sm text-white/70 mt-1">{subtitle}</p>
-                    )}
+                    {subtitle && <p className="text-sm text-white/70 mt-1">{subtitle}</p>}
                   </div>
                   {showCloseButton && (
                     <button
@@ -84,10 +80,7 @@ export default function BottomSheet({
                   )}
                 </div>
 
-
-                <div className="flex-1 overflow-y-auto px-6 py-4">
-                  {children}
-                </div>
+                <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

@@ -44,10 +44,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
     // Validate password strength
@@ -60,12 +57,9 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User already exists with this email' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'User already exists with this email' }, { status: 409 });
     }
 
     // Hash password
@@ -78,7 +72,7 @@ export async function POST(request: NextRequest) {
       email: email.toLowerCase(),
       password: hashedPassword,
       role,
-      familyId
+      familyId,
     });
 
     const savedUser = await user.save();
@@ -88,12 +82,10 @@ export async function POST(request: NextRequest) {
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not configured');
     }
-    
-    const token = jwt.sign(
-      { userId: savedUser._id, email: savedUser.email },
-      jwtSecret,
-      { expiresIn: '7d' }
-    );
+
+    const token = jwt.sign({ userId: savedUser._id, email: savedUser.email }, jwtSecret, {
+      expiresIn: '7d',
+    });
 
     const response: RegisterResponse = {
       user: {
@@ -103,15 +95,15 @@ export async function POST(request: NextRequest) {
         role: savedUser.role,
         profileImage: savedUser.profileImage,
         familyId: savedUser.familyId?.toString(),
-        families: (savedUser.families || []).map(String)
+        families: (savedUser.families || []).map(String),
       },
-      token
+      token,
     };
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
     console.error('Error during registration:', error);
-    
+
     // Handle validation errors
     if (error instanceof Error && error.name === 'ValidationError') {
       return NextResponse.json(
@@ -119,10 +111,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

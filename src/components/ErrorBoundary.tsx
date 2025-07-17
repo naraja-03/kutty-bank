@@ -13,7 +13,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-
 function ErrorFallback({ reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 

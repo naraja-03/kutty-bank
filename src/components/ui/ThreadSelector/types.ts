@@ -26,17 +26,17 @@ export const DEFAULT_THREADS: ThreadPeriod[] = [
   {
     id: 'current-year',
     label: 'This Year',
-    value: 'year'
+    value: 'year',
   },
   {
     id: 'current-month',
     label: 'This Month',
-    value: 'month'
+    value: 'month',
   },
   {
     id: 'current-week',
     label: 'This Week',
     value: 'week',
-    isActive: true
-  }
+    isActive: true,
+  },
 ];
