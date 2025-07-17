@@ -16,26 +16,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KuttyBank - Family Budget Tracker",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || 'https://rightrack.vercel.app'),
+  title: "Rightrack - Family Budget Tracker",
   description: "A Threads-style family budget tracker for real-time family expense tracking",
   keywords: "family budget, expense tracker, financial management",
   authors: [{ name: "Threedot Family" }],
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
-    title: "KuttyBank - Family Budget Tracker",
+    title: "Rightrack - Family Budget Tracker",
     description: "A Threads-style family budget tracker for real-time family expense tracking",
     type: "website",
-    siteName: "KuttyBank",
+    siteName: "Rightrack",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Rightrack - Family Budget Tracker",
+      },
+    ],
   },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: "#000000",
   colorScheme: "dark",
   viewportFit: "cover",

@@ -1,4 +1,3 @@
-// filepath: c:\Users\BRIGHTSPEED\Documents\GitHub\kutty-bank\src\models\Transaction.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITransaction extends Document {
@@ -88,8 +87,6 @@ TransactionSchema.virtual('id').get(function(this: ITransaction) {
 TransactionSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {
-    delete ret._id;
-    delete ret.__v;
     return ret;
   }
 });

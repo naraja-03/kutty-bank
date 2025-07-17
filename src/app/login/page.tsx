@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
+import Image from 'next/image';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import { useLoginMutation } from '@/store/api/authApi';
 import { loginSuccess } from '@/store/slices/authSlice';
@@ -13,7 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
-  
+
   const router = useRouter();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -38,7 +39,7 @@ export default function LoginPage() {
 
     try {
       const result = await login({ email: loginInput, password }).unwrap();
-      
+
       dispatch(loginSuccess({
         user: result.user,
         token: result.token
@@ -47,7 +48,7 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', result.token);
       }
-      
+
       router.push('/dashboard');
     } catch (err: unknown) {
       const error = err as { data?: { error?: string } };
@@ -55,45 +56,26 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickLogin = async (quickEmail: string, quickPassword: string) => {
-    setLoginInput(quickEmail);
-    setPassword(quickPassword);
-    setError('');
-
-    try {
-      const result = await login({ email: quickEmail, password: quickPassword }).unwrap();
-      
-      dispatch(loginSuccess({
-        user: result.user,
-        token: result.token
-      }));
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', result.token);
-      }
-      router.push('/dashboard');
-    } catch (err: unknown) {
-      const error = err as { data?: { error?: string } };
-      setError(error?.data?.error || 'Login failed. Please try again.');
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      <div className="flex-1 overflow-y-auto px-4 py-8">
-        <div className="min-h-full flex items-center justify-center">
-          <div className="max-w-md w-full space-y-8">
-            {/* Header */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-white to-gray-300 rounded-2xl mb-6 shadow-lg">
-                <span className="text-2xl font-bold text-gray-900">K</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="px-4 py-8">
+        <div className="max-w-md mx-auto space-y-8 mt-10">
+          {/* Header */}
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 shadow-lg overflow-hidden relative">
+                <Image
+                  src="/logo without bg.png"
+                  alt="Rightrack Logo"
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <h1 className="text-4xl font-bold text-white mb-2">KuttyBank</h1>
               <p className="text-gray-400">Family Budget Tracker</p>
             </div>
 
             {/* Login Form */}
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl max-h-[80vh] overflow-y-auto">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white text-center mb-2">Welcome Back</h2>
                 <p className="text-gray-400 text-center">Sign in to your account</p>
@@ -169,32 +151,6 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* Quick Login Options */}
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <p className="text-sm text-gray-400 mb-4 text-center">Quick Login (Demo)</p>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => handleQuickLogin('raja@example.com', 'password123')}
-                    className="w-full bg-white/5 border border-white/10 text-white py-3 px-4 rounded-xl text-sm hover:bg-white/10 transition-all duration-200 backdrop-blur-sm"
-                    disabled={isLoading}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>Login as Raja</span>
-                      <span className="text-xs text-gray-400">Admin</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleQuickLogin('suriya@example.com', 'password123')}
-                    className="w-full bg-white/5 border border-white/10 text-white py-3 px-4 rounded-xl text-sm hover:bg-white/10 transition-all duration-200 backdrop-blur-sm"
-                    disabled={isLoading}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>Login as Suriya</span>
-                      <span className="text-xs text-gray-400">Member</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* Footer */}
@@ -208,7 +164,6 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

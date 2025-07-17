@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Transaction categories for KuttyBank
+// Transaction categories for Rightrack
 const categories = [
   {
     id: 'food',

@@ -1,4 +1,4 @@
-# KuttyBank - Family Budget Tracker
+# Rightrack - Family Budget Tracker
 
 A Threads-style, real-time family budget tracker built with Next.js, Redux Toolkit, and Firebase.
 

@@ -9,9 +9,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  height: 100vh;
-  height: -webkit-fill-available;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  /* PWA-specific fixes */
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 * {
@@ -30,8 +33,9 @@ body {
 
 html {
   scroll-behavior: smooth;
-  height: 100vh;
-  height: -webkit-fill-available;
+  /* PWA-specific fixes */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -192,4 +196,73 @@ select:focus-visible {
 
 .sidebar-backdrop-keyframe:not(.open) {
   animation: fadeOut 300ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+/* Custom shining animation for logo */
+@keyframes shine-custom {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+.animate-shine-custom {
+  animation: shine-custom 2s ease-in-out infinite;
+}
+
+/* Floating animation for logo */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* PWA-specific optimizations */
+@media (display-mode: standalone) {
+  body {
+    /* Prevent bounce effect on iOS PWA */
+    overscroll-behavior: none;
+    /* Enable momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix for Safari PWA scrolling issues */
+  #__next {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Mobile-specific fixes */
+@media screen and (max-width: 768px) {
+  body {
+    /* Prevent horizontal scrolling */
+    overflow-x: hidden;
+    /* Enable vertical scrolling */
+    overflow-y: auto;
+    /* iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    /* Fix for iOS Safari viewport issues */
+    min-height: -webkit-fill-available;
+  }
 }

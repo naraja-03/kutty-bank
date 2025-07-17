@@ -60,8 +60,8 @@ BudgetSchema.virtual('id').get(function(this: IBudget) {
 BudgetSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {
-    delete ret._id;
-    delete ret.__v;
+    delete (ret as unknown as Record<string, unknown>)._id;
+    delete (ret as unknown as Record<string, unknown>).__v;
     return ret;
   }
 });

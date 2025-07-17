@@ -1,4 +1,4 @@
-// Firebase configuration for KuttyBank
+// Firebase configuration for Rightrack
 // This will be used for real-time features and file uploads
 
 import { initializeApp } from 'firebase/app';

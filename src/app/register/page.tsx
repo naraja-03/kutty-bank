@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
+import Image from 'next/image';
+import { Eye, EyeOff, Lock, User, UserPlus } from 'lucide-react';
 import { useRegisterMutation } from '@/store/api/authApi';
 import { loginSuccess } from '@/store/slices/authSlice';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
-    username: '', // Auto-generated
-    email: '',
+    username: '',
     password: '',
     confirmPassword: ''
   });
@@ -30,15 +30,15 @@ export default function RegisterPage() {
     setMounted(true);
   }, []);
 
-  // Generate username when name changes
+  // Generate username when name changes (optional - user can override)
   useEffect(() => {
-    if (formData.name) {
+    if (formData.name && !formData.username) {
       const baseUsername = formData.name.toLowerCase().replace(/\s+/g, '_');
       const randomNumbers = Math.floor(Math.random() * 900) + 100; // 3-digit number
       const generatedUsername = `${baseUsername}${randomNumbers}`;
       setFormData(prev => ({ ...prev, username: generatedUsername }));
     }
-  }, [formData.name]);
+  }, [formData.name, formData.username]);
 
   if (!mounted) {
     return null;
@@ -55,7 +55,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.username || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -74,7 +74,7 @@ export default function RegisterPage() {
       const result = await register({
         name: formData.name,
         username: formData.username,
-        email: formData.email,
+        email: formData.username, // Use username as email for API compatibility
         password: formData.password
       }).unwrap();
 
@@ -95,21 +95,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
-      <div className="flex-1 overflow-y-auto px-4 py-8">
-        <div className="min-h-full flex items-center justify-center">
-          <div className="max-w-md w-full space-y-8">
-            {/* Header */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-white to-gray-300 rounded-2xl mb-6 shadow-lg">
-                <span className="text-2xl font-bold text-gray-900">K</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="px-4 py-8">
+        <div className="max-w-md mx-auto space-y-8 mt-10">
+          {/* Header */}
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 shadow-lg overflow-hidden relative">
+                <Image 
+                  src="/logo without bg.png" 
+                  alt="Rightrack Logo" 
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <h1 className="text-4xl font-bold text-white mb-2">KuttyBank</h1>
               <p className="text-gray-400">Family Budget Tracker</p>
             </div>
 
             {/* Register Form */}
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl max-h-[80vh] overflow-y-auto">
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white text-center mb-2">Create Account</h2>
                 <p className="text-gray-400 text-center">Join your family budget tracker</p>
@@ -141,10 +144,10 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Username Field (Auto-generated) */}
+                {/* Username Field */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Username (Auto-generated)
+                    Email as Username
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -154,27 +157,7 @@ export default function RegisterPage() {
                       value={formData.username}
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 backdrop-blur-sm transition-all"
-                      placeholder="Username will be generated automatically"
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Username is generated from your name with a 3-digit number</p>
-                </div>
-
-                {/* Email Field */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 backdrop-blur-sm transition-all"
-                      placeholder="Enter your email"
+                      placeholder="Enter your username"
                       required
                     />
                   </div>
@@ -278,7 +261,6 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
