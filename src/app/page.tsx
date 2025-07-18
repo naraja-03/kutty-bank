@@ -1,42 +1,20 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
-import Image from 'next/image';
-import { RootState } from '@/store';
-
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.push('/dashboard');
-      } else {
-        router.push('/login');
-      }
-    }
-  }, [router, isAuthenticated, isLoading]);
-
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center overflow-hidden">
-      <div className="flex flex-col items-center justify-center space-y-6">
-        <div className="relative w-20 h-20 animate-float">
-          <div className="w-full h-full relative">
-            <Image
-              src="/icon-glass.svg"
-              alt="Rightrack Logo"
-              fill
-              className="object-contain drop-shadow-2xl"
-            />
-          </div>
-
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 animate-shine-custom"></div>
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <span className="text-2xl font-bold text-white">R</span>
         </div>
-
-        <p className="text-gray-400 text-sm animate-pulse">Loading...</p>
+        <h1 className="text-2xl font-bold text-white mb-2">RightTrack</h1>
+        <p className="text-gray-400 text-sm mb-8">Family budget tracker</p>
+        <a 
+          href="/welcome" 
+          className="inline-block bg-white text-black py-3 px-8 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+        >
+          Get Started
+        </a>
       </div>
     </div>
   );

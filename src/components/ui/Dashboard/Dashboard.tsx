@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter, AlertCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import {
   useGetTransactionsQuery,
@@ -20,10 +20,11 @@ import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
 import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
-import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
-import FamilyModal from '../FamilyModal';
+import FamilyBudgetWizard from '../FamilyBudgetWizard';
+import SignInModal from '../SignInModal';
+import { FamilyBudgetData } from '../FamilyBudgetWizard';
 import { DashboardProps, QuickAction } from './types';
 import { calculateBudgetProgress, BudgetPeriod } from '../../../lib/budgetCalculations';
 import { useCreateFamilyMutation } from '../../../store/api/familyApi';
@@ -49,13 +50,13 @@ export default function Dashboard({ className }: DashboardProps) {
 
   const {
     currentFamily,
-    families,
     isLoading: familyLoading,
     needsFamilySelection,
     hasValidFamily,
   } = useFamilyManager();
 
   const [showFamilyModal, setShowFamilyModal] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
 
@@ -241,33 +242,21 @@ export default function Dashboard({ className }: DashboardProps) {
     dispatch(closeThreadSidebar());
   };
 
-  const handleSelectFamily = async (familyId: string) => {
+  const handleCreateFamily = async (familyBudgetData: FamilyBudgetData) => {
     try {
-      dispatch(setCurrentFamily(familyId));
-      dispatch(updateUser({ familyId }));
-
-      if (user?.id) {
-        await updateUserActiveFamily({ userId: user.id, familyId }).unwrap();
+      // Check if user is anonymous and show sign-in modal instead
+      if (user?.isAnonymous) {
+        setShowFamilyModal(false);
+        setShowSignInModal(true);
+        return;
       }
 
-      setShowFamilyModal(false);
-    } catch (error) {
-      console.error('Error updating active family:', error);
+      // Convert FamilyBudgetData to the format expected by the API
+      const familyData = {
+        name: familyBudgetData.basicInfo.name,
+        targetSavingPerMonth: familyBudgetData.totalSavings,
+      };
 
-      setShowFamilyModal(false);
-    }
-  };
-
-  const handleCreateFamily = async (familyData: {
-    name: string;
-    targetSavingPerMonth: number;
-    members: Array<{
-      email: string;
-      name: string;
-      role: 'admin' | 'member' | 'viewer';
-    }>;
-  }) => {
-    try {
       const newFamily = await createFamily(familyData).unwrap();
 
       dispatch(setCurrentFamily(newFamily.id));
@@ -305,6 +294,24 @@ export default function Dashboard({ className }: DashboardProps) {
       />
 
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full">
+        {/* Anonymous User Banner */}
+        {user?.isAnonymous && (
+          <div className="mb-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center space-x-3">
+            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-amber-200 font-medium">Guest Mode</p>
+              <p className="text-xs text-amber-300/80">
+                Your data won&apos;t be saved. <button 
+                  onClick={() => router.push('/welcome')}
+                  className="underline hover:text-amber-200 transition-colors"
+                >
+                  Sign in to save your progress
+                </button>
+              </p>
+            </div>
+          </div>
+        )}
+        
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Filter size={16} className="text-gray-400" />
@@ -463,16 +470,21 @@ export default function Dashboard({ className }: DashboardProps) {
       </BottomSheet>
 
       {showFamilyModal && (
-        <FamilyModal
+        <FamilyBudgetWizard
           isOpen={showFamilyModal}
           onClose={handleCloseFamilyModal}
-          onSelectFamily={handleSelectFamily}
-          onCreateFamily={handleCreateFamily}
-          families={families}
-          isLoading={familyLoading}
-          canDismiss={!!currentFamily}
+          onComplete={handleCreateFamily}
+          editMode={false}
         />
       )}
+
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        title="Sign In Required"
+        message="Please sign in to create and save your family budget"
+        dismissible={false}
+      />
 
       <ThreadSidebar
         isOpen={isThreadSidebarOpen}
@@ -481,8 +493,6 @@ export default function Dashboard({ className }: DashboardProps) {
         activeThread={activeThread}
         onThreadSelect={handleSelectThread}
       />
-
-      <BottomNav />
     </div>
   );
 }

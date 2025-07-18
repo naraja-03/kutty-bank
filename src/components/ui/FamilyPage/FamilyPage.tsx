@@ -23,7 +23,6 @@ import {
 import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
-import BottomNav from '../BottomNav';
 import FamilySelectorModal from '../FamilySelectorModal';
 import ConfirmationModal from '../ConfirmationModal';
 import FormModal from '../FormModal';
@@ -196,7 +195,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             ))}
           </div>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -207,7 +205,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         <div className="px-4 py-8 text-center">
           <p className="text-red-400">Error loading family data</p>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -242,8 +239,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             </button>
           </div>
         </div>
-
-        <BottomNav />
       </div>
     );
   }
@@ -434,17 +429,11 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             <div>
               <p className="mb-4">
                 Are you sure you want to delete &quot;{family?.name}&quot;? This action cannot be
-                undone and will permanently delete:
+                undone and will permanently delete
               </p>
-              <ul className="text-sm space-y-1 text-left">
-                <li>• All family members will be removed</li>
-                <li>• All transactions will be deleted</li>
-                <li>• All budgets will be deleted</li>
-                <li>• All family data will be permanently lost</li>
-              </ul>
             </div>
           }
-          confirmText="Delete Family"
+          confirmText="Delete"
           variant="danger"
           isLoading={isDeleting}
         />
@@ -458,8 +447,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           setShowFamilySelector(false);
         }}
       />
-
-      <BottomNav />
     </div>
   );
 }

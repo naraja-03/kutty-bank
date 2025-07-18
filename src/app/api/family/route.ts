@@ -106,7 +106,12 @@ export async function GET(request: NextRequest) {
     // Build query
     const query: FamilyQuery = {};
 
-    if (userId) {
+    if (userId && userId !== 'anonymous') {
+      // Validate ObjectId format
+      if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+        return NextResponse.json({ error: 'Invalid user ID format' }, { status: 400 });
+      }
+      
       // Find families where user is a member
       const user = await User.findById(userId);
       if (user && user.families && user.families.length > 0) {
@@ -141,7 +146,18 @@ export async function POST(request: NextRequest) {
     // Get current user from token
     const currentUser = await getUserFromToken(request);
     if (!currentUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ 
+        error: 'Authentication required',
+        requireSignIn: true 
+      }, { status: 401 });
+    }
+
+    // Check if user is anonymous
+    if (currentUser.isAnonymous) {
+      return NextResponse.json({ 
+        error: 'Please sign in to create a family budget',
+        requireSignIn: true 
+      }, { status: 403 });
     }
 
     // Validate required fields
@@ -225,16 +241,52 @@ export async function PUT(request: NextRequest) {
   try {
     await connectToDatabase();
 
+    // Get current user from token
+    const currentUser = await getUserFromToken(request);
+    if (!currentUser) {
+      return NextResponse.json({ 
+        error: 'Authentication required',
+        requireSignIn: true 
+      }, { status: 401 });
+    }
+
+    // Check if user is anonymous
+    if (currentUser.isAnonymous) {
+      return NextResponse.json({ 
+        error: 'Please sign in to save family data',
+        requireSignIn: true 
+      }, { status: 403 });
+    }
+
     const body = await request.json();
-    const { familyId, name, budgetCap } = body;
+    const { familyId, name, budgetCap, income, essentials, commitments, savings, budgetPeriod } = body;
 
     if (!familyId) {
       return NextResponse.json({ error: 'Missing required field: familyId' }, { status: 400 });
     }
 
+    // Prepare update object
+    const updateData: Partial<{
+      name: string;
+      budgetCap: number;
+      income: number;
+      essentials: number;
+      commitments: number;
+      savings: number;
+      budgetPeriod: 'week' | 'month' | 'year';
+      lastUpdated: Date;
+    }> = { lastUpdated: new Date() };
+    if (name !== undefined) updateData.name = name;
+    if (budgetCap !== undefined) updateData.budgetCap = budgetCap;
+    if (income !== undefined) updateData.income = income;
+    if (essentials !== undefined) updateData.essentials = essentials;
+    if (commitments !== undefined) updateData.commitments = commitments;
+    if (savings !== undefined) updateData.savings = savings;
+    if (budgetPeriod !== undefined) updateData.budgetPeriod = budgetPeriod;
+
     const updatedFamily = await Family.findByIdAndUpdate(
       familyId,
-      { name, budgetCap },
+      updateData,
       { new: true, runValidators: true }
     ).populate('members', 'name email profileImage role');
 

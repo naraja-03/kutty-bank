@@ -12,17 +12,20 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isLoading, user } = useSelector((state: RootState) => state.auth);
+
+  // Check if user is anonymous (guest) - only check user state, no localStorage
+  const isAnonymous = user?.isAnonymous || false;
 
   useEffect(() => {
     if (!isLoading) {
-      if (requireAuth && !isAuthenticated) {
-        router.push('/login');
-      } else if (!requireAuth && isAuthenticated) {
+      if (requireAuth && !isAuthenticated && !isAnonymous) {
+        router.push('/welcome');
+      } else if (!requireAuth && (isAuthenticated || isAnonymous)) {
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, router]);
+  }, [isAuthenticated, isLoading, requireAuth, router, isAnonymous]);
 
   if (isLoading) {
     return (
@@ -35,7 +38,7 @@ export default function AuthGuard({ children, requireAuth = true }: AuthGuardPro
     );
   }
 
-  if (requireAuth && !isAuthenticated) {
+  if (requireAuth && !isAuthenticated && !isAnonymous) {
     return null;
   }
 

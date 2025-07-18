@@ -11,7 +11,6 @@ import { ChevronDown, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { openEditEntryModal } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
-import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 
@@ -278,8 +277,6 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           <ChevronDown className="w-5 h-5" />
         </button>
       )}
-
-      <BottomNav />
     </div>
   );
 }

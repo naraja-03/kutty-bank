@@ -2,6 +2,7 @@
 
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 import { RootState } from '../store';
 import {
   closeAddEntryModal,
@@ -9,6 +10,7 @@ import {
   closePeriodSelector,
 } from '../store/slices/uiSlice';
 import { setPeriodFromSelector } from '../store/slices/threadsSlice';
+import { initializeAuth } from '../store/slices/authSlice';
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
@@ -17,6 +19,7 @@ import AddEntryModal, { TransactionFormData } from './ui/AddEntryModal';
 import CustomThreadModal from './ui/CustomThreadModal';
 import PeriodSelector from './ui/PeriodSelector';
 import GradientBackground from './ui/GradientBackground';
+import BottomNav from './ui/BottomNav';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -34,7 +37,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
 
-  const publicPaths = ['/login', '/register'];
+  // Initialize auth on app startup
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  const publicPaths = ['/welcome'];
   const isPublicPage = publicPaths.includes(pathname);
 
   const getGradientVariant = () => {
@@ -42,8 +50,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (pathname === '/activity') return 'activity';
     if (pathname === '/family') return 'family';
     if (pathname === '/messages') return 'messages';
-    if (pathname === '/login') return 'login';
-    if (pathname === '/register') return 'register';
+    if (pathname === '/settings') return 'settings';
+    if (pathname === '/ai-insights') return 'ai-insights';
+    if (pathname === '/welcome') return 'welcome';
     return 'default';
   };
 
@@ -114,7 +123,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       ) : (
         <AuthGuard>
           <GradientBackground variant={getGradientVariant()}>
-            <div className="relative z-10 min-h-screen">{children}</div>
+            <div className="relative z-10 min-h-screen pb-20">{children}</div>
+
+            {/* Bottom Navigation */}
+            <BottomNav />
 
             <AddEntryModal
               isOpen={isAddEntryModalOpen}

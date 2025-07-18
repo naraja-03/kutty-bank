@@ -24,11 +24,14 @@ if (!global.mongoose) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
+  console.log('connectToDatabase called');
   if (cached.conn) {
+    console.log('Using cached connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
+    console.log('Creating new database connection...');
     const opts = {
       bufferCommands: false,
     };
@@ -40,8 +43,11 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   }
 
   try {
+    console.log('Awaiting database connection...');
     cached.conn = await cached.promise;
+    console.log('Database connection established');
   } catch (e) {
+    console.error('Database connection failed:', e);
     cached.promise = null;
     throw e;
   }
