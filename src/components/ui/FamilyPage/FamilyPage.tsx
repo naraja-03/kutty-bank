@@ -10,7 +10,6 @@ import {
   Eye,
   Settings,
   MoreVertical,
-  ChevronDown,
   Trash2,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -24,7 +23,6 @@ import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
 import BottomNav from '../BottomNav';
-import FamilySelectorModal from '../FamilySelectorModal';
 import ConfirmationModal from '../ConfirmationModal';
 import FormModal from '../FormModal';
 import { useRouter } from 'next/navigation';
@@ -41,7 +39,6 @@ const getInitials = (name: string) => {
 export default function FamilyPage({ className }: FamilyPageProps) {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
-  const [showFamilySelector, setShowFamilySelector] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [inviteData, setInviteData] = useState<InviteFormData>({
@@ -54,14 +51,14 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
 
-  const { currentFamily, isLoading: familyManagerLoading, hasValidFamily } = useFamilyManager();
+  const { currentFamily, family: familyFromManager, isLoading: familyManagerLoading, hasFamily } = useFamilyManager();
 
   const {
     data: family,
     isLoading,
     error,
   } = useGetFamilyQuery(currentFamily || '', {
-    skip: !currentFamily || !hasValidFamily,
+    skip: !currentFamily || !hasFamily,
   });
 
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation();
@@ -212,7 +209,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
     );
   }
 
-  if (!currentFamily && !familyManagerLoading) {
+  if (!hasFamily && !familyManagerLoading) {
     return (
       <div className={clsx('min-h-screen text-white', className)}>
         <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
@@ -257,14 +254,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
               <Users size={20} />
               <h1 className="text-xl font-bold">Family</h1>
             </div>
-
-            <button
-              onClick={() => setShowFamilySelector(true)}
-              className="flex items-center space-x-2 px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg transition-colors"
-            >
-              <span className="text-sm text-blue-400">Switch Family</span>
-              <ChevronDown size={16} className="text-blue-400" />
-            </button>
           </div>
         </div>
       </div>
@@ -449,15 +438,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           isLoading={isDeleting}
         />
       </div>
-
-      <FamilySelectorModal
-        isOpen={showFamilySelector}
-        onClose={() => setShowFamilySelector(false)}
-        onSelectFamily={(familyId: string) => {
-          dispatch(updateUser({ familyId }));
-          setShowFamilySelector(false);
-        }}
-      />
 
       <BottomNav />
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { setCurrentFamily, updateUser } from '../store/slices/authSlice';
@@ -7,13 +7,11 @@ import { Family } from '../store/api/familyApi';
 
 interface FamilyManagerResult {
   currentFamily: string | null;
-  families: Family[];
+  family: Family | null;
   isLoading: boolean;
   error: unknown;
-  hasValidFamily: boolean;
-  needsFamilySelection: boolean;
-  switchToValidFamily: () => void;
-  clearInvalidFamily: () => void;
+  hasFamily: boolean;
+  needsFamilyCreation: boolean;
 }
 
 export function useFamilyManager(): FamilyManagerResult {
@@ -28,56 +26,25 @@ export function useFamilyManager(): FamilyManagerResult {
     skip: !user?.id,
   });
 
-  const currentFamilyId = user?.familyId;
+  // For single family approach: user should have exactly one family
+  const family = families.length > 0 ? families[0] : null;
+  const hasFamily = Boolean(family);
+  const needsFamilyCreation = !hasFamily && !isLoading;
 
-  // Check if current family is valid (exists in user's families array)
-  const hasValidFamily = Boolean(
-    currentFamilyId && families.some(family => family.id === currentFamilyId)
-  );
-
-  // User needs family selection if they have no current family OR current family is invalid
-  const needsFamilySelection = !hasValidFamily && !isLoading;
-
-  // Function to switch to a valid family automatically
-  const switchToValidFamily = useCallback(() => {
-    if (families.length > 0 && !hasValidFamily) {
-      const firstValidFamily = families[0];
-      dispatch(setCurrentFamily(firstValidFamily.id));
-      dispatch(updateUser({ familyId: firstValidFamily.id }));
-    }
-  }, [families, hasValidFamily, dispatch]);
-
-  // Function to clear invalid family from user state
-  const clearInvalidFamily = useCallback(() => {
-    if (currentFamilyId && !hasValidFamily) {
-      dispatch(updateUser({ familyId: undefined, role: undefined }));
-    }
-  }, [currentFamilyId, hasValidFamily, dispatch]);
-
-  // Auto-clear invalid family when families are loaded
+  // Auto-assign the user's only family
   useEffect(() => {
-    if (!isLoading && currentFamilyId) {
-      if (families.length === 0) {
-        // No families available, clear current family
-        clearInvalidFamily();
-      } else {
-        const familyExists = families.some(family => family.id === currentFamilyId);
-        if (!familyExists) {
-          // Current family doesn't exist, clear it
-          clearInvalidFamily();
-        }
-      }
+    if (family && (!user?.familyId || user.familyId !== family.id)) {
+      dispatch(setCurrentFamily(family.id));
+      dispatch(updateUser({ familyId: family.id }));
     }
-  }, [families, currentFamilyId, isLoading, clearInvalidFamily]);
+  }, [family, user?.familyId, dispatch]);
 
   return {
-    currentFamily: hasValidFamily ? currentFamilyId || null : null,
-    families,
+    currentFamily: family?.id || null,
+    family,
     isLoading,
     error,
-    hasValidFamily,
-    needsFamilySelection,
-    switchToValidFamily,
-    clearInvalidFamily,
+    hasFamily,
+    needsFamilyCreation,
   };
 }

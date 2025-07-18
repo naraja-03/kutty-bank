@@ -48,17 +48,17 @@ export default function Dashboard({ className }: DashboardProps) {
 
   const {
     currentFamily,
-    families,
+    family,
     isLoading: familyLoading,
-    needsFamilySelection,
-    hasValidFamily,
+    needsFamilyCreation,
+    hasFamily,
   } = useFamilyManager();
 
   const [showFamilyModal, setShowFamilyModal] = useState(false);
 
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
 
-  const shouldFetchTransactions = hasValidFamily && !needsFamilySelection;
+  const shouldFetchTransactions = hasFamily && !needsFamilyCreation;
 
   const {
     data: transactionData,
@@ -92,12 +92,12 @@ export default function Dashboard({ className }: DashboardProps) {
   const [updateUserActiveFamily] = useUpdateUserActiveFamilyMutation();
 
   React.useEffect(() => {
-    if (needsFamilySelection && !familyLoading) {
+    if (needsFamilyCreation && !familyLoading) {
       setShowFamilyModal(true);
     } else {
       setShowFamilyModal(false);
     }
-  }, [needsFamilySelection, familyLoading]);
+  }, [needsFamilyCreation, familyLoading]);
 
   const budgetProgress = transactionData?.transactions
     ? calculateBudgetProgress(
@@ -241,20 +241,9 @@ export default function Dashboard({ className }: DashboardProps) {
   };
 
   const handleSelectFamily = async (familyId: string) => {
-    try {
-      dispatch(setCurrentFamily(familyId));
-      dispatch(updateUser({ familyId }));
-
-      if (user?.id) {
-        await updateUserActiveFamily({ userId: user.id, familyId }).unwrap();
-      }
-
-      setShowFamilyModal(false);
-    } catch (error) {
-      console.error('Error updating active family:', error);
-
-      setShowFamilyModal(false);
-    }
+    // Family selection not needed in single-family mode
+    console.log('Family selection not available in single-family mode:', familyId);
+    setShowFamilyModal(false);
   };
 
   const handleCreateFamily = async (familyData: {
@@ -470,9 +459,9 @@ export default function Dashboard({ className }: DashboardProps) {
           onClose={handleCloseFamilyModal}
           onSelectFamily={handleSelectFamily}
           onCreateFamily={handleCreateFamily}
-          families={families}
+          families={[]}
           isLoading={familyLoading}
-          canDismiss={!!currentFamily}
+          canDismiss={false}
         />
       )}
 

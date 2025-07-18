@@ -22,7 +22,6 @@ interface UIState {
   isAddEntryModalOpen: boolean;
   isCustomBudgetModalOpen: boolean;
   isPeriodSelectorOpen: boolean;
-  isFamilySelectorModalOpen: boolean;
   customBudgetMode: 'create' | 'edit';
   customBudgetEditData: CustomBudgetEditData | null;
   isLoading: boolean;
@@ -35,7 +34,6 @@ const initialState: UIState = {
   isAddEntryModalOpen: false,
   isCustomBudgetModalOpen: false,
   isPeriodSelectorOpen: false,
-  isFamilySelectorModalOpen: false,
   customBudgetMode: 'create',
   customBudgetEditData: null,
   isLoading: false,
@@ -88,12 +86,6 @@ const uiSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    openFamilySelectorModal: state => {
-      state.isFamilySelectorModalOpen = true;
-    },
-    closeFamilySelectorModal: state => {
-      state.isFamilySelectorModalOpen = false;
-    },
     setCurrentTab: (
       state,
       action: PayloadAction<'dashboard' | 'messages' | 'activity' | 'family'>
@@ -115,8 +107,6 @@ export const {
   closeCustomBudgetModal,
   openPeriodSelector,
   closePeriodSelector,
-  openFamilySelectorModal,
-  closeFamilySelectorModal,
   setLoading,
   setError,
   setCurrentTab,
