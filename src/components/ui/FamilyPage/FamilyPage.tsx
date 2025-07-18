@@ -51,7 +51,7 @@ export default function FamilyPage({ className }: FamilyPageProps) {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
 
-  const { currentFamily, family: familyFromManager, isLoading: familyManagerLoading, hasFamily } = useFamilyManager();
+  const { currentFamily, isLoading: familyManagerLoading, hasFamily } = useFamilyManager();
 
   const {
     data: family,

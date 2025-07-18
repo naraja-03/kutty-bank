@@ -48,7 +48,6 @@ export default function Dashboard({ className }: DashboardProps) {
 
   const {
     currentFamily,
-    family,
     isLoading: familyLoading,
     needsFamilyCreation,
     hasFamily,
