@@ -122,8 +122,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform _id to id for frontend compatibility
-    const transformedCategories = categories.map((category: any) => {
-      const { _id, ...rest } = category;
+    const transformedCategories = categories.map(category => {
+      const { _id, ...rest } = category as { _id: { toString: () => string }; [key: string]: unknown };
       return {
         ...rest,
         id: _id.toString()

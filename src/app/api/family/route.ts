@@ -259,15 +259,34 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { familyId, name, budgetCap } = body;
+    const { familyId, name, budgetCap, income, essentials, commitments, savings, budgetPeriod } = body;
 
     if (!familyId) {
       return NextResponse.json({ error: 'Missing required field: familyId' }, { status: 400 });
     }
 
+    // Prepare update object
+    const updateData: Partial<{
+      name: string;
+      budgetCap: number;
+      income: number;
+      essentials: number;
+      commitments: number;
+      savings: number;
+      budgetPeriod: 'week' | 'month' | 'year';
+      lastUpdated: Date;
+    }> = { lastUpdated: new Date() };
+    if (name !== undefined) updateData.name = name;
+    if (budgetCap !== undefined) updateData.budgetCap = budgetCap;
+    if (income !== undefined) updateData.income = income;
+    if (essentials !== undefined) updateData.essentials = essentials;
+    if (commitments !== undefined) updateData.commitments = commitments;
+    if (savings !== undefined) updateData.savings = savings;
+    if (budgetPeriod !== undefined) updateData.budgetPeriod = budgetPeriod;
+
     const updatedFamily = await Family.findByIdAndUpdate(
       familyId,
-      { name, budgetCap },
+      updateData,
       { new: true, runValidators: true }
     ).populate('members', 'name email profileImage role');
 

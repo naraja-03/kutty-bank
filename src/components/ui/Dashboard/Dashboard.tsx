@@ -24,6 +24,7 @@ import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 import FamilyBudgetWizard from '../FamilyBudgetWizard';
+import SignInModal from '../SignInModal';
 import { FamilyBudgetData } from '../FamilyBudgetWizard';
 import { DashboardProps, QuickAction } from './types';
 import { calculateBudgetProgress, BudgetPeriod } from '../../../lib/budgetCalculations';
@@ -56,6 +57,7 @@ export default function Dashboard({ className }: DashboardProps) {
   } = useFamilyManager();
 
   const [showFamilyModal, setShowFamilyModal] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const currentBudgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
 
@@ -243,17 +245,17 @@ export default function Dashboard({ className }: DashboardProps) {
 
   const handleCreateFamily = async (familyBudgetData: FamilyBudgetData) => {
     try {
+      // Check if user is anonymous and show sign-in modal instead
+      if (user?.isAnonymous) {
+        setShowFamilyModal(false);
+        setShowSignInModal(true);
+        return;
+      }
+
       // Convert FamilyBudgetData to the format expected by the API
       const familyData = {
         name: familyBudgetData.basicInfo.name,
         targetSavingPerMonth: familyBudgetData.totalSavings,
-        members: [
-          {
-            email: user?.email || '',
-            name: user?.name || '',
-            role: 'admin' as const
-          }
-        ]
       };
 
       const newFamily = await createFamily(familyData).unwrap();
@@ -476,6 +478,14 @@ export default function Dashboard({ className }: DashboardProps) {
           editMode={false}
         />
       )}
+
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        title="Sign In Required"
+        message="Please sign in to create and save your family budget"
+        dismissible={false}
+      />
 
       <ThreadSidebar
         isOpen={isThreadSidebarOpen}

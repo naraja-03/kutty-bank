@@ -125,40 +125,80 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const mainCategory = searchParams.get('mainCategory');
 
-    let filter = {};
-    if (mainCategory) {
-      filter = { mainCategory };
+    // Check if user is authenticated
+    const user = await getUserFromToken(request);
+
+    let categories = [];
+
+    if (user) {
+      // For authenticated users, get both default categories and user-specific ones
+      const filter: Record<string, unknown> = {
+        $or: [
+          { isDefault: true },
+          { userId: user._id }
+        ]
+      };
+      if (mainCategory) {
+        filter.mainCategory = mainCategory;
+      }
+      categories = await Category.find(filter).lean();
+    } else {
+      // For anonymous users, only show default categories
+      const filter: Record<string, unknown> = { isDefault: true };
+      if (mainCategory) {
+        filter.mainCategory = mainCategory;
+      }
+      categories = await Category.find(filter).lean();
     }
 
-    // First, try to get categories from database
-    let categories = await Category.find(filter).lean();
-
-    // If no categories found or we need defaults, seed the database
-    if (categories.length === 0) {
+    // If no default categories found, seed them
+    const defaultCategoriesExist = categories.some(cat => cat.isDefault);
+    if (!defaultCategoriesExist) {
       const categoriesToSeed = mainCategory 
         ? defaultCategories.filter(cat => cat.mainCategory === mainCategory)
         : defaultCategories;
 
       if (categoriesToSeed.length > 0) {
         await Category.insertMany(categoriesToSeed);
+        // Re-fetch categories after seeding
+        const filter: Record<string, unknown> = user ? {
+          $or: [
+            { isDefault: true },
+            { userId: user._id }
+          ]
+        } : { isDefault: true };
+        if (mainCategory) {
+          filter.mainCategory = mainCategory;
+        }
         categories = await Category.find(filter).lean();
       }
     }
 
     // Transform categories to include id field and remove _id
-    const transformedCategories = categories.map(category => ({
-      ...category,
-      id: (category._id as any).toString(),
-      _id: undefined
-    })) as any[];
+
+    interface CategoryForTransform {
+      _id: { toString(): string };
+      mainCategory?: string;
+      [key: string]: unknown;
+    }
+
+    const transformedCategories = categories.map(category => {
+      // Since we use .lean(), category is already a plain object  
+      const categoryWithId = category as unknown as CategoryForTransform;
+      return {
+        ...categoryWithId,
+        id: categoryWithId._id.toString(),
+        _id: undefined
+      };
+    });
 
     // If no mainCategory specified, return organized by category
     if (!mainCategory) {
       const organized = {
-        income: transformedCategories.filter((cat: any) => cat.mainCategory === 'income'),
-        essentials: transformedCategories.filter((cat: any) => cat.mainCategory === 'essentials'),
-        commitments: transformedCategories.filter((cat: any) => cat.mainCategory === 'commitments'),
-        savings: transformedCategories.filter((cat: any) => cat.mainCategory === 'savings'),
+        income: transformedCategories.filter(cat => cat.mainCategory === 'income'),
+        essentials: transformedCategories.filter(cat => cat.mainCategory === 'essentials'),
+        commitments: transformedCategories.filter(cat => cat.mainCategory === 'commitments'),
+        savings: transformedCategories.filter(cat => cat.mainCategory === 'savings'),
       };
       return NextResponse.json({ categoriesByType: organized, categories: transformedCategories });
     }

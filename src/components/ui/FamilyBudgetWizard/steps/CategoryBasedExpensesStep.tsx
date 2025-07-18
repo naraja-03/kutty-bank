@@ -68,7 +68,18 @@ export default function CategoryBasedExpensesStep({
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
 
   const categories = categoriesData?.categories || [];
-  const currentExpenses = (data as any)[config.dataKey] || [];
+  const currentExpenses = (() => {
+    switch (stepType) {
+      case 'essentials':
+        return Array.isArray(data.essentials) ? data.essentials : [];
+      case 'commitments':
+        return Array.isArray(data.commitments) ? data.commitments : [];
+      case 'savings':
+        return Array.isArray(data.savings) ? data.savings : [];
+      default:
+        return [];
+    }
+  })();
 
   const addExpense = () => {
     if (newExpense.name && newExpense.amount && newExpense.amount > 0 && newExpense.categoryId) {
@@ -127,7 +138,18 @@ export default function CategoryBasedExpensesStep({
   };
 
   const getTotalByType = (type: 'essentials' | 'commitments' | 'savings') => {
-    const expenses = (data as any)[type] || [];
+    const expenses = (() => {
+      switch (type) {
+        case 'essentials':
+          return Array.isArray(data.essentials) ? data.essentials : [];
+        case 'commitments':
+          return Array.isArray(data.commitments) ? data.commitments : [];
+        case 'savings':
+          return Array.isArray(data.savings) ? data.savings : [];
+        default:
+          return [];
+      }
+    })();
     return expenses.reduce((sum: number, expense: ExpenseItem) => sum + expense.amount, 0);
   };
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, DollarSign, ChevronDown } from 'lucide-react';
+import { Plus, Minus, ChevronDown } from 'lucide-react';
 import { FamilyBudgetData, IncomeSource } from '../types';
 import { useGetCategoriesQuery, useCreateCategoryMutation } from '../../../../store/api/categoriesApi';
 import DynamicIcon from '../../DynamicIcon';
@@ -29,7 +29,7 @@ export default function IncomeStep({ data, onUpdate, onNext, onPrevious }: Incom
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery({ mainCategory: 'income' });
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
 
-  const categories = categoriesData?.categories || [];
+  const categories = React.useMemo(() => categoriesData?.categories || [], [categoriesData?.categories]);
 
   // Auto-select first category when categories load and none is selected
   React.useEffect(() => {

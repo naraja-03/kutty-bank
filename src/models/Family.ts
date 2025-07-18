@@ -5,6 +5,13 @@ export interface IFamily extends Document {
   name: string;
   members: mongoose.Types.ObjectId[];
   budgetCap?: number;
+  // Budget planning fields
+  income?: number;
+  essentials?: number;
+  commitments?: number;
+  savings?: number;
+  budgetPeriod?: 'week' | 'month' | 'year';
+  lastUpdated?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +33,36 @@ const FamilySchema = new Schema<IFamily>(
     budgetCap: {
       type: Number,
       min: 0,
+    },
+    // Budget planning fields
+    income: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    essentials: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    commitments: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    savings: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    budgetPeriod: {
+      type: String,
+      enum: ['week', 'month', 'year'],
+      default: 'month',
+    },
+    lastUpdated: {
+      type: Date,
+      default: Date.now,
     },
   },
   {

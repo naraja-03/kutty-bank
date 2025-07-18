@@ -41,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     dispatch(initializeAuth());
   }, [dispatch]);
 
-  const publicPaths = ['/login', '/register', '/welcome'];
+  const publicPaths = ['/welcome'];
   const isPublicPage = publicPaths.includes(pathname);
 
   const getGradientVariant = () => {
@@ -49,8 +49,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (pathname === '/activity') return 'activity';
     if (pathname === '/family') return 'family';
     if (pathname === '/messages') return 'messages';
-    if (pathname === '/login') return 'login';
-    if (pathname === '/register') return 'register';
+    if (pathname === '/settings') return 'settings';
+    if (pathname === '/ai-insights') return 'ai-insights';
+    if (pathname === '/welcome') return 'welcome';
     return 'default';
   };
 

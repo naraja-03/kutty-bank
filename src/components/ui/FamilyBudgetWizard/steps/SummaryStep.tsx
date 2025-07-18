@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { FamilyBudgetData } from '../types';
+import { BUDGET_RULE } from '../utils/budgetValidation';
 
 interface SummaryStepProps {
   data: FamilyBudgetData;
@@ -47,42 +48,46 @@ export default function SummaryStep({ data, onPrevious, onComplete, editMode }: 
   const savingsPercentage = data.totalIncome > 0 ? (savingsTotal / data.totalIncome) * 100 : 0;
   const remainingPercentage = data.totalIncome > 0 ? (remainingIncome / data.totalIncome) * 100 : 0;
 
-  // Pie chart data
+  // Pie chart data - using percentages for chart values
   const pieData = [
     {
       name: 'Essentials',
-      value: essentialsTotal,
-      percentage: essentialsPercentage,
+      value: essentialsPercentage,
+      rawAmount: essentialsTotal,
+      target: BUDGET_RULE.ESSENTIALS,
       color: '#FF6B6B'
     },
     {
       name: 'Commitments', 
-      value: commitmentsTotal,
-      percentage: commitmentsPercentage,
+      value: commitmentsPercentage,
+      rawAmount: commitmentsTotal,
+      target: BUDGET_RULE.COMMITMENTS,
       color: '#4ECDC4'
     },
     {
       name: 'Savings',
-      value: savingsTotal,
-      percentage: savingsPercentage,
+      value: savingsPercentage,
+      rawAmount: savingsTotal,
+      target: BUDGET_RULE.SAVINGS,
       color: '#45B7D1'
     },
     {
       name: 'Available',
-      value: remainingIncome > 0 ? remainingIncome : 0,
-      percentage: remainingPercentage > 0 ? remainingPercentage : 0,
+      value: remainingPercentage > 0 ? remainingPercentage : 0,
+      rawAmount: remainingIncome > 0 ? remainingIncome : 0,
+      target: 0,
       color: '#96CEB4'
     }
   ].filter(item => item.value > 0);
 
-  const customTooltip = ({ active, payload }: any) => {
+  const customTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string; rawAmount: number; target: number } }> }) => {
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
         <div className="bg-black/90 border border-white/20 rounded-lg p-3">
           <p className="text-white font-medium">{data.payload.name}</p>
-          <p className="text-gray-300">₹{data.value.toLocaleString()}</p>
-          <p className="text-gray-400">{data.payload.percentage.toFixed(1)}%</p>
+          <p className="text-gray-300">₹{data.payload.rawAmount.toLocaleString()}</p>
+          <p className="text-gray-400">{data.value.toFixed(1)}% {data.payload.target > 0 ? `(Target: ${data.payload.target}%)` : ''}</p>
         </div>
       );
     }
@@ -160,7 +165,7 @@ export default function SummaryStep({ data, onPrevious, onComplete, editMode }: 
               ></div>
               <span className="text-white text-sm">{item.name}</span>
               <span className="text-gray-400 text-sm">
-                {item.percentage.toFixed(1)}%
+                {item.value.toFixed(1)}%
               </span>
             </div>
           ))}

@@ -11,7 +11,6 @@ import {
   EssentialsStep,
   CommitmentsStep,
   SavingsStep,
-  CategoryBasedExpensesStep,
   SummaryStep
 } from './steps';
 
@@ -27,20 +26,6 @@ export default function FamilyBudgetWizard({
     allowAnonymous: true,
     skipRedirect: true // We'll handle this manually since this is a modal
   });
-
-  // If not authenticated, don't render the wizard
-  if (shouldRedirect && !canMakeAPICall) {
-    // Close the modal and let the parent handle redirect
-    React.useEffect(() => {
-      if (isOpen) {
-        onClose();
-        // Redirect will be handled by the parent component or route guard
-        window.location.href = '/welcome';
-      }
-    }, [isOpen, onClose]);
-    
-    return null;
-  }
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FamilyBudgetData>({
@@ -75,6 +60,15 @@ export default function FamilyBudgetWizard({
     totalExpenses: 0,
     totalSavings: 0
   });
+
+  // Handle authentication redirect effect
+  React.useEffect(() => {
+    if (shouldRedirect && !canMakeAPICall && isOpen) {
+      onClose();
+      // Redirect will be handled by the parent component or route guard
+      window.location.href = '/welcome';
+    }
+  }, [shouldRedirect, canMakeAPICall, isOpen, onClose]);
 
   // Load existing data in edit mode
   useEffect(() => {
@@ -171,6 +165,11 @@ export default function FamilyBudgetWizard({
   };
 
   if (!isOpen) return null;
+
+  // If not authenticated, don't render the wizard content
+  if (shouldRedirect && !canMakeAPICall) {
+    return null;
+  }
 
   const currentStepData = WIZARD_STEPS[currentStep - 1];
   const progress = (currentStep / WIZARD_STEPS.length) * 100;

@@ -27,6 +27,7 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   // Redux selectors
   const isAnonymous = useSelector(selectIsAnonymous);
@@ -35,7 +36,7 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery({ mainCategory: 'essentials' });
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
 
-  const categories = categoriesData?.categories || [];
+  const categories = React.useMemo(() => categoriesData?.categories || [], [categoriesData?.categories]);
 
   // Auto-select first category when categories load and none is selected
   React.useEffect(() => {
@@ -49,6 +50,16 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
 
   const addEssentialExpense = () => {
     if (newExpense.name && newExpense.amount && newExpense.amount > 0 && newExpense.categoryId) {
+      // Check if adding this expense would exceed total income
+      const totalAfterAddition = currentEssentialsUsed + newExpense.amount;
+      if (totalAfterAddition > totalIncome) {
+        setValidationError(`Cannot exceed total income. Available: ₹${availableBalance.toLocaleString()}`);
+        return;
+      }
+
+      // Clear validation error if we got here
+      setValidationError('');
+
       const expense: ExpenseItem = {
         id: Date.now().toString(),
         name: newExpense.name,
@@ -66,6 +77,8 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
         amount: 0,
         categoryId: categories.length > 0 ? categories[0].id : ''
       });
+    } else {
+      setValidationError('Please fill in all fields');
     }
   };
 
@@ -89,11 +102,12 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
         setNewExpense({ ...newExpense, categoryId: result.category.id });
         setNewCategoryName('');
         setShowAddCategory(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to create category:', error);
         
         // Check if error requires sign in
-        if (error?.data?.requireSignIn || error?.status === 401 || error?.status === 403) {
+        const typedError = error as { data?: { requireSignIn?: boolean }; status?: number };
+        if (typedError?.data?.requireSignIn || typedError?.status === 401 || typedError?.status === 403) {
           setShowAddCategory(false);
           setShowSignInModal(true);
         }
@@ -109,8 +123,30 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
     return categories.find(cat => cat.id === categoryId);
   };
 
+  // Calculate available balance (Income - Essentials spending)
+  const totalIncome = data.totalIncome || 0;
+  const currentEssentialsUsed = currentEssentials.reduce((sum, expense) => sum + expense.amount, 0);
+  const availableBalance = totalIncome - currentEssentialsUsed;
+
   return (
     <div className="space-y-6">
+      {/* Available Balance Display */}
+      {totalIncome > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center"
+        >
+          <h3 className="text-lg font-semibold text-white mb-1">Available Balance</h3>
+          <p className={`text-3xl font-bold ${availableBalance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            ₹{availableBalance.toLocaleString()}
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            Remaining from ₹{totalIncome.toLocaleString()} income
+          </p>
+        </motion.div>
+      )}
+
       {/* Existing essentials */}
       {currentEssentials.length > 0 && (
         <motion.div
@@ -279,6 +315,17 @@ export default function EssentialsStep({ data, onUpdate, onNext, onPrevious }: E
               className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
             />
           </div>
+          
+          {/* Validation Error */}
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
+            >
+              <p className="text-red-300 text-sm">{validationError}</p>
+            </motion.div>
+          )}
         </div>
 
         <button

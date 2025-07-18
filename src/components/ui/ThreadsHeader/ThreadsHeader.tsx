@@ -28,7 +28,7 @@ export default function ThreadsHeader({
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/login');
+    router.push('/welcome');
     setShowLogoutModal(false);
   };
   return (

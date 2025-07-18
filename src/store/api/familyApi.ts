@@ -10,6 +10,16 @@ export interface Family {
   createdAt: string;
 }
 
+export interface CreateFamilyRequest {
+  name: string;
+  targetSavingPerMonth: number;
+  members?: Array<{
+    email: string;
+    name: string;
+    role: 'admin' | 'member' | 'viewer';
+  }>;
+}
+
 export interface InviteMemberRequest {
   email: string;
   role: 'admin' | 'member' | 'view-only';
@@ -50,7 +60,7 @@ export const familyApi = createApi({
         return response;
       },
     }),
-    createFamily: builder.mutation<Family, { name: string }>({
+    createFamily: builder.mutation<Family, CreateFamilyRequest>({
       query: data => ({
         url: '',
         method: 'POST',

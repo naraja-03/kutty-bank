@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { AlertTriangle, Target, TrendingUp } from 'lucide-react';
 
 interface BudgetAnalysisProps {
@@ -84,7 +84,7 @@ export default function BudgetAnalysis({
   const { ruleName, rule } = getBestRule();
   const isGoodSavings = currentPercentages.savings >= 20;
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { name: string; value: number; percentage: number } }> }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

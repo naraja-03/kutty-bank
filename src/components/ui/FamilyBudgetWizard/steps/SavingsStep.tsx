@@ -27,6 +27,7 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   // Redux selectors
   const isAnonymous = useSelector(selectIsAnonymous);
@@ -35,7 +36,7 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery({ mainCategory: 'savings' });
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
 
-  const categories = categoriesData?.categories || [];
+  const categories = React.useMemo(() => categoriesData?.categories || [], [categoriesData?.categories]);
 
   // Auto-select first category when categories load and none is selected
   React.useEffect(() => {
@@ -49,6 +50,16 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
 
   const addSaving = () => {
     if (newSaving.name && newSaving.amount && newSaving.amount > 0 && newSaving.categoryId) {
+      // Check if adding this saving would exceed available balance
+      const totalAfterAddition = essentialsUsed + commitmentsUsed + currentSavingsUsed + newSaving.amount;
+      if (totalAfterAddition > totalIncome) {
+        setValidationError(`Cannot exceed available balance. Available: ₹${availableBalance.toLocaleString()}`);
+        return;
+      }
+
+      // Clear validation error if we got here
+      setValidationError('');
+
       const saving: ExpenseItem = {
         id: Date.now().toString(),
         name: newSaving.name,
@@ -66,6 +77,8 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
         amount: 0,
         categoryId: categories.length > 0 ? categories[0].id : ''
       });
+    } else {
+      setValidationError('Please fill in all fields');
     }
   };
 
@@ -89,11 +102,12 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
         setNewSaving({ ...newSaving, categoryId: result.category.id });
         setNewCategoryName('');
         setShowAddCategory(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to create category:', error);
         
         // Check if error requires sign in
-        if (error?.data?.requireSignIn || error?.status === 401 || error?.status === 403) {
+        const typedError = error as { data?: { requireSignIn?: boolean }; status?: number };
+        if (typedError?.data?.requireSignIn || typedError?.status === 401 || typedError?.status === 403) {
           setShowAddCategory(false);
           setShowSignInModal(true);
         }
@@ -109,8 +123,36 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
     return categories.find(cat => cat.id === categoryId);
   };
 
+  // Calculate available balance (Income - Essentials - Commitments - Savings)
+  const totalIncome = data.totalIncome || 0;
+  const essentialsUsed = Array.isArray(data.essentials) 
+    ? data.essentials.reduce((sum, expense) => sum + expense.amount, 0)
+    : 0;
+  const commitmentsUsed = Array.isArray(data.commitments) 
+    ? data.commitments.reduce((sum, commitment) => sum + commitment.amount, 0)
+    : 0;
+  const currentSavingsUsed = currentSavings.reduce((sum, saving) => sum + saving.amount, 0);
+  const availableBalance = totalIncome - essentialsUsed - commitmentsUsed - currentSavingsUsed;
+
   return (
     <div className="space-y-6">
+      {/* Available Balance Display */}
+      {totalIncome > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center"
+        >
+          <h3 className="text-lg font-semibold text-white mb-1">Available Balance</h3>
+          <p className={`text-3xl font-bold ${availableBalance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            ₹{availableBalance.toLocaleString()}
+          </p>
+          <p className="text-gray-400 text-sm mt-1">
+            After essentials (₹{essentialsUsed.toLocaleString()}) and commitments (₹{commitmentsUsed.toLocaleString()})
+          </p>
+        </motion.div>
+      )}
+
       {/* Existing savings */}
       {currentSavings.length > 0 && (
         <motion.div
@@ -271,6 +313,17 @@ export default function SavingsStep({ data, onUpdate, onNext, onPrevious }: Savi
               className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
             />
           </div>
+          
+          {/* Validation Error */}
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
+            >
+              <p className="text-red-300 text-sm">{validationError}</p>
+            </motion.div>
+          )}
         </div>
 
         <button
