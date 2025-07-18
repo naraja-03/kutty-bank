@@ -21,6 +21,7 @@ import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
 import BottomNav from '../BottomNav';
+import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 import FamilyModal from '../FamilyModal';
 import { DashboardProps, QuickAction } from './types';
@@ -439,30 +440,27 @@ export default function Dashboard({ className }: DashboardProps) {
         </div>
       </div>
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center scale-z-100 p-4">
-          <div className="bg-gray-900/95 rounded-2xl p-6 max-w-sm w-full border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-2">Delete Transaction</h3>
-            <p className="text-gray-400 mb-6">
-              Are you sure you want to delete this transaction? This action cannot be undone.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowDeleteModal(null)}
-                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteTransaction(showDeleteModal)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+      <BottomSheet
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        title="Delete Transaction"
+        subtitle="Are you sure you want to delete this transaction?"
+      >
+        <div className="flex space-x-3 mt-4">
+          <button
+            onClick={() => setShowDeleteModal(null)}
+            className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => showDeleteModal && handleDeleteTransaction(showDeleteModal)}
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
         </div>
-      )}
+      </BottomSheet>
 
       {showFamilyModal && (
         <FamilyModal
