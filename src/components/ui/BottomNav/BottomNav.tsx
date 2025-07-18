@@ -144,7 +144,7 @@ export default function BottomNav({ activeTab, onTabChange, onAddClick }: Bottom
     <>
       {/* Main Bottom Navigation */}
       <motion.nav 
-        className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-gray-800/50 shadow-2xl z-40"
+        className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-gray-800/50 shadow-2xl z-30"
         onPanEnd={handlePanEnd}
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
@@ -194,7 +194,7 @@ export default function BottomNav({ activeTab, onTabChange, onAddClick }: Bottom
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             />
 
             {/* Menu Panel */}
@@ -207,7 +207,7 @@ export default function BottomNav({ activeTab, onTabChange, onAddClick }: Bottom
                 damping: 25, 
                 stiffness: 300 
               }}
-              className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-gray-800/50 rounded-t-3xl z-50"
+              className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-2xl border-t border-gray-800/50 rounded-t-3xl z-40"
             >
               {/* Handle */}
               <div className="flex justify-center py-3">

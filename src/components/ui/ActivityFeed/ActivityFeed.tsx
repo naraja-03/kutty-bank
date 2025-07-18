@@ -13,6 +13,7 @@ import { openEditEntryModal } from '../../../store/slices/uiSlice';
 import { RootState } from '../../../store';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
+import BottomNav from '../BottomNav';
 
 interface ActivityFeedProps {
   className?: string;
@@ -277,6 +278,8 @@ export default function ActivityFeed({ className }: ActivityFeedProps) {
           <ChevronDown className="w-5 h-5" />
         </button>
       )}
+
+      <BottomNav />
     </div>
   );
 }

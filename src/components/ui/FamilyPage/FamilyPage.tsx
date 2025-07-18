@@ -22,6 +22,7 @@ import {
 } from '../../../store/api/familyApi';
 import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
+import BottomNav from '../BottomNav';
 import { updateUser } from '../../../store/slices/authSlice';
 import FamilySelectorModal from '../FamilySelectorModal';
 import ConfirmationModal from '../ConfirmationModal';
@@ -447,6 +448,8 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           setShowFamilySelector(false);
         }}
       />
+
+      <BottomNav />
     </div>
   );
 }

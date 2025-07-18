@@ -11,13 +11,27 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Optimizations
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.infrastructureLogging = {
+        level: 'error',
+      };
+      
+      config.stats = {
+        warnings: false,
+        children: false,
+        modules: false,
+        entrypoints: false,
+      };
+    }
+    return config;
+  },
+
   experimental: {
     // optimizeCss: true, // Disabled due to build issues
     optimizePackageImports: ['lucide-react', '@headlessui/react'],
   },
 
-  // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,

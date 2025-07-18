@@ -18,6 +18,7 @@ import {
 import { openEditEntryModal, openPeriodSelector } from '../../../store/slices/uiSlice';
 import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
 import { RootState } from '../../../store';
+import BottomNav from '../BottomNav';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
 import BottomSheet from '../BottomSheet';
@@ -493,6 +494,8 @@ export default function Dashboard({ className }: DashboardProps) {
         activeThread={activeThread}
         onThreadSelect={handleSelectThread}
       />
+
+      <BottomNav />
     </div>
   );
 }
