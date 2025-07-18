@@ -166,7 +166,6 @@ export default function FamilyBudgetWizard({
 
   if (!isOpen) return null;
 
-  // If not authenticated, don't render the wizard content
   if (shouldRedirect && !canMakeAPICall) {
     return null;
   }
@@ -180,7 +179,7 @@ export default function FamilyBudgetWizard({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-end"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-end"
         onClick={onClose}
       >
         <motion.div
