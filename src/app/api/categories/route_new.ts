@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Category from '@/models/Category';
-import User from '@/models/User';
-import jwt from 'jsonwebtoken';
 
 // Default categories organized by main category - these will be shown first
 const defaultCategories = [
@@ -96,28 +94,6 @@ const defaultCategories = [
   },
 ];
 
-// Helper function to get user from token
-async function getUserFromToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null;
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as {
-      userId: string;
-    };
-
-    await connectToDatabase();
-    const user = await User.findById(decoded.userId);
-    return user;
-  } catch (error) {
-    console.error('Error getting user from token:', error);
-    return null;
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -145,25 +121,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Transform categories to include id field and remove _id
-    const transformedCategories = categories.map(category => ({
-      ...category,
-      id: (category._id as any).toString(),
-      _id: undefined
-    })) as any[];
-
-    // If no mainCategory specified, return organized by category
-    if (!mainCategory) {
-      const organized = {
-        income: transformedCategories.filter((cat: any) => cat.mainCategory === 'income'),
-        essentials: transformedCategories.filter((cat: any) => cat.mainCategory === 'essentials'),
-        commitments: transformedCategories.filter((cat: any) => cat.mainCategory === 'commitments'),
-        savings: transformedCategories.filter((cat: any) => cat.mainCategory === 'savings'),
-      };
-      return NextResponse.json({ categoriesByType: organized, categories: transformedCategories });
-    }
-
-    return NextResponse.json({ categories: transformedCategories });
+    return NextResponse.json({ categories });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
@@ -172,23 +130,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const user = await getUserFromToken(request);
-    if (!user) {
-      return NextResponse.json({ 
-        error: 'Authentication required',
-        requireSignIn: true 
-      }, { status: 401 });
-    }
-
-    // Check if user is anonymous
-    if (user.isAnonymous) {
-      return NextResponse.json({ 
-        error: 'Please sign in to create custom categories',
-        requireSignIn: true 
-      }, { status: 403 });
-    }
-
     await connectToDatabase();
     
     const body = await request.json();
@@ -208,14 +149,7 @@ export async function POST(request: NextRequest) {
 
     await category.save();
 
-    // Transform the response to include id field
-    const transformedCategory = {
-      ...category.toObject(),
-      id: category._id.toString(),
-      _id: undefined
-    };
-
-    return NextResponse.json({ category: transformedCategory });
+    return NextResponse.json({ category });
   } catch (error) {
     console.error('Error creating category:', error);
     return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });

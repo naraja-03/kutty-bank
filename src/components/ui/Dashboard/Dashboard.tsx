@@ -23,7 +23,8 @@ import ThreadSidebar from '../ThreadSidebar';
 import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
-import FamilyModal from '../FamilyModal';
+import FamilyBudgetWizard from '../FamilyBudgetWizard';
+import { FamilyBudgetData } from '../FamilyBudgetWizard';
 import { DashboardProps, QuickAction } from './types';
 import { calculateBudgetProgress, BudgetPeriod } from '../../../lib/budgetCalculations';
 import { useCreateFamilyMutation } from '../../../store/api/familyApi';
@@ -49,7 +50,6 @@ export default function Dashboard({ className }: DashboardProps) {
 
   const {
     currentFamily,
-    families,
     isLoading: familyLoading,
     needsFamilySelection,
     hasValidFamily,
@@ -241,33 +241,21 @@ export default function Dashboard({ className }: DashboardProps) {
     dispatch(closeThreadSidebar());
   };
 
-  const handleSelectFamily = async (familyId: string) => {
+  const handleCreateFamily = async (familyBudgetData: FamilyBudgetData) => {
     try {
-      dispatch(setCurrentFamily(familyId));
-      dispatch(updateUser({ familyId }));
+      // Convert FamilyBudgetData to the format expected by the API
+      const familyData = {
+        name: familyBudgetData.basicInfo.name,
+        targetSavingPerMonth: familyBudgetData.totalSavings,
+        members: [
+          {
+            email: user?.email || '',
+            name: user?.name || '',
+            role: 'admin' as const
+          }
+        ]
+      };
 
-      if (user?.id) {
-        await updateUserActiveFamily({ userId: user.id, familyId }).unwrap();
-      }
-
-      setShowFamilyModal(false);
-    } catch (error) {
-      console.error('Error updating active family:', error);
-
-      setShowFamilyModal(false);
-    }
-  };
-
-  const handleCreateFamily = async (familyData: {
-    name: string;
-    targetSavingPerMonth: number;
-    members: Array<{
-      email: string;
-      name: string;
-      role: 'admin' | 'member' | 'viewer';
-    }>;
-  }) => {
-    try {
       const newFamily = await createFamily(familyData).unwrap();
 
       dispatch(setCurrentFamily(newFamily.id));
@@ -481,14 +469,11 @@ export default function Dashboard({ className }: DashboardProps) {
       </BottomSheet>
 
       {showFamilyModal && (
-        <FamilyModal
+        <FamilyBudgetWizard
           isOpen={showFamilyModal}
           onClose={handleCloseFamilyModal}
-          onSelectFamily={handleSelectFamily}
-          onCreateFamily={handleCreateFamily}
-          families={families}
-          isLoading={familyLoading}
-          canDismiss={!!currentFamily}
+          onComplete={handleCreateFamily}
+          editMode={false}
         />
       )}
 

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Category from '@/models/Category';
-import User from '@/models/User';
-import jwt from 'jsonwebtoken';
 
-// Default categories organized by main category - these will be shown first
+// Default categories organized by main category
 const defaultCategories = [
   // Income categories
   {
@@ -28,26 +26,12 @@ const defaultCategories = [
     color: '#26DE81',
     isDefault: true,
   },
-  // Essential categories - organized for 50/30/20 rule
+  // Essential categories
   {
     name: 'Housing & Utilities',
     mainCategory: 'essentials',
     icon: 'Home',
     color: '#FF6B6B',
-    isDefault: true,
-  },
-  {
-    name: 'Food & Groceries',
-    mainCategory: 'essentials',
-    icon: 'ShoppingCart',
-    color: '#96CEB4',
-    isDefault: true,
-  },
-  {
-    name: 'Transportation',
-    mainCategory: 'essentials',
-    icon: 'Car',
-    color: '#54A0FF',
     isDefault: true,
   },
   {
@@ -57,12 +41,26 @@ const defaultCategories = [
     color: '#FF9FF3',
     isDefault: true,
   },
-  // Commitment categories - Fixed obligations
+  {
+    name: 'Living Expenses',
+    mainCategory: 'essentials',
+    icon: 'ShoppingCart',
+    color: '#96CEB4',
+    isDefault: true,
+  },
+  // Commitment categories
   {
     name: 'Loan EMI',
     mainCategory: 'commitments',
     icon: 'CreditCard',
     color: '#FECA57',
+    isDefault: true,
+  },
+  {
+    name: 'Billing',
+    mainCategory: 'commitments',
+    icon: 'FileText',
+    color: '#54A0FF',
     isDefault: true,
   },
   {
@@ -72,51 +70,29 @@ const defaultCategories = [
     color: '#A55EEA',
     isDefault: true,
   },
+  // Savings categories
   {
-    name: 'Subscriptions',
-    mainCategory: 'commitments',
-    icon: 'FileText',
-    color: '#4ECDC4',
+    name: 'Investments/SIP',
+    mainCategory: 'savings',
+    icon: 'TrendingUp',
+    color: '#F78C6C',
     isDefault: true,
   },
-  // Savings categories - Future goals
+  {
+    name: 'Bank Savings',
+    mainCategory: 'savings',
+    icon: 'Banknote',
+    color: '#2C3E50',
+    isDefault: true,
+  },
   {
     name: 'Emergency Fund',
     mainCategory: 'savings',
-    icon: 'Piggybank',
-    color: '#45B7D1',
-    isDefault: true,
-  },
-  {
-    name: 'Investment',
-    mainCategory: 'savings',
-    icon: 'TrendingUp',
-    color: '#26DE81',
+    icon: 'ShieldCheck',
+    color: '#1B9CFC',
     isDefault: true,
   },
 ];
-
-// Helper function to get user from token
-async function getUserFromToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null;
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as {
-      userId: string;
-    };
-
-    await connectToDatabase();
-    const user = await User.findById(decoded.userId);
-    return user;
-  } catch (error) {
-    console.error('Error getting user from token:', error);
-    return null;
-  }
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -145,23 +121,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Transform categories to include id field and remove _id
-    const transformedCategories = categories.map(category => ({
-      ...category,
-      id: (category._id as any).toString(),
-      _id: undefined
-    })) as any[];
-
-    // If no mainCategory specified, return organized by category
-    if (!mainCategory) {
-      const organized = {
-        income: transformedCategories.filter((cat: any) => cat.mainCategory === 'income'),
-        essentials: transformedCategories.filter((cat: any) => cat.mainCategory === 'essentials'),
-        commitments: transformedCategories.filter((cat: any) => cat.mainCategory === 'commitments'),
-        savings: transformedCategories.filter((cat: any) => cat.mainCategory === 'savings'),
+    // Transform _id to id for frontend compatibility
+    const transformedCategories = categories.map((category: any) => {
+      const { _id, ...rest } = category;
+      return {
+        ...rest,
+        id: _id.toString()
       };
-      return NextResponse.json({ categoriesByType: organized, categories: transformedCategories });
-    }
+    });
 
     return NextResponse.json({ categories: transformedCategories });
   } catch (error) {
@@ -172,23 +139,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const user = await getUserFromToken(request);
-    if (!user) {
-      return NextResponse.json({ 
-        error: 'Authentication required',
-        requireSignIn: true 
-      }, { status: 401 });
-    }
-
-    // Check if user is anonymous
-    if (user.isAnonymous) {
-      return NextResponse.json({ 
-        error: 'Please sign in to create custom categories',
-        requireSignIn: true 
-      }, { status: 403 });
-    }
-
     await connectToDatabase();
     
     const body = await request.json();
@@ -208,7 +158,7 @@ export async function POST(request: NextRequest) {
 
     await category.save();
 
-    // Transform the response to include id field
+    // Transform _id to id for frontend compatibility
     const transformedCategory = {
       ...category.toObject(),
       id: category._id.toString(),

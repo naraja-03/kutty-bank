@@ -112,4 +112,12 @@ export const {
   initializeAuth,
   setAnonymousUser 
 } = authSlice.actions;
+
+// Selectors
+export const selectUser = (state: { auth: AuthState }) => state.auth.user;
+export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
+export const selectIsAnonymous = (state: { auth: AuthState }) => state.auth.user?.isAnonymous || false;
+export const selectAuthToken = (state: { auth: AuthState }) => state.auth.token;
+export const selectIsLoading = (state: { auth: AuthState }) => state.auth.isLoading;
+
 export default authSlice.reducer;

@@ -1,9 +1,11 @@
 import BottomNav from '../../components/ui/BottomNav';
+import AuthGuard from '../../components/AuthGuard';
 import { MessageCircle } from 'lucide-react';
 
 export default function MessagesPage() {
   return (
-    <div className="min-h-screen text-white">
+    <AuthGuard requireAuth={true}>
+      <div className="min-h-screen text-white">
       <div className="sticky top-0 bg-black/20 backdrop-blur-md border-b border-gray-800/50 z-10">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
@@ -28,5 +30,6 @@ export default function MessagesPage() {
 
       <BottomNav />
     </div>
+    </AuthGuard>
   );
 }
