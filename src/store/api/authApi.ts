@@ -4,12 +4,13 @@ import { RootState } from '../index';
 export interface User {
   id: string;
   name: string;
-  username: string;
+  username?: string;
   email: string;
   profileImage?: string;
   role: 'admin' | 'member' | 'view-only';
   familyId?: string;
   families: string[]; // Array of family IDs
+  isAnonymous?: boolean;
 }
 
 export interface LoginRequest {
@@ -19,7 +20,7 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   name: string;
-  username: string;
+  username?: string;
   email: string;
   password: string;
 }

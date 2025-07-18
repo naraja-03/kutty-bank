@@ -2,6 +2,7 @@
 
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 import { RootState } from '../store';
 import {
   closeAddEntryModal,
@@ -9,6 +10,7 @@ import {
   closePeriodSelector,
 } from '../store/slices/uiSlice';
 import { setPeriodFromSelector } from '../store/slices/threadsSlice';
+import { initializeAuth } from '../store/slices/authSlice';
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
@@ -34,7 +36,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
 
-  const publicPaths = ['/login', '/register'];
+  // Initialize auth on app startup
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  const publicPaths = ['/login', '/register', '/welcome'];
   const isPublicPage = publicPaths.includes(pathname);
 
   const getGradientVariant = () => {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { useAnonymousGuard } from '@/hooks/useAnonymousGuard';
 import BottomSheet from '../BottomSheet';
 import {
   AddEntryModalProps,
@@ -30,6 +31,7 @@ export default function AddEntryModal({
 
   const isEditMode = !!editData;
   const { activeThread } = useSelector((state: RootState) => state.threads);
+  const { requireAuth } = useAnonymousGuard();
 
   useEffect(() => {
     const budgetId = activeThread?.isCustomBudget ? activeThread.budgetId : 'daily';
@@ -60,7 +62,12 @@ export default function AddEntryModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.amount <= 0 || !formData.category) return;
-    onSubmit(formData);
+    
+    // Check if user needs to sign in to save transactions
+    requireAuth(
+      () => onSubmit(formData),
+      'You need to sign in to save transactions. Sign in now?'
+    );
   };
 
   const handleClose = () => {

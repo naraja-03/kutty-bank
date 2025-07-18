@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter, AlertCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import {
   useGetTransactionsQuery,
@@ -305,6 +305,24 @@ export default function Dashboard({ className }: DashboardProps) {
       />
 
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 pb-20 w-full">
+        {/* Anonymous User Banner */}
+        {user?.isAnonymous && (
+          <div className="mb-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center space-x-3">
+            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-amber-200 font-medium">Guest Mode</p>
+              <p className="text-xs text-amber-300/80">
+                Your data won&apos;t be saved. <button 
+                  onClick={() => router.push('/welcome')}
+                  className="underline hover:text-amber-200 transition-colors"
+                >
+                  Sign in to save your progress
+                </button>
+              </p>
+            </div>
+          </div>
+        )}
+        
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Filter size={16} className="text-gray-400" />
