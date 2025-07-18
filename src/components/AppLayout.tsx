@@ -19,6 +19,7 @@ import AddEntryModal, { TransactionFormData } from './ui/AddEntryModal';
 import CustomThreadModal from './ui/CustomThreadModal';
 import PeriodSelector from './ui/PeriodSelector';
 import GradientBackground from './ui/GradientBackground';
+import BottomNav from './ui/BottomNav';
 import AuthGuard from './AuthGuard';
 
 const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -122,7 +123,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       ) : (
         <AuthGuard>
           <GradientBackground variant={getGradientVariant()}>
-            <div className="relative z-10 min-h-screen">{children}</div>
+            <div className="relative z-10 min-h-screen pb-20">{children}</div>
+
+            {/* Bottom Navigation */}
+            <BottomNav />
 
             <AddEntryModal
               isOpen={isAddEntryModalOpen}

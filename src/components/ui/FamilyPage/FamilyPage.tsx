@@ -23,7 +23,6 @@ import {
 import { FamilyPageProps, InviteFormData } from './types';
 import { RootState } from '../../../store';
 import { updateUser } from '../../../store/slices/authSlice';
-import BottomNav from '../BottomNav';
 import FamilySelectorModal from '../FamilySelectorModal';
 import ConfirmationModal from '../ConfirmationModal';
 import FormModal from '../FormModal';
@@ -196,7 +195,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             ))}
           </div>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -207,7 +205,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
         <div className="px-4 py-8 text-center">
           <p className="text-red-400">Error loading family data</p>
         </div>
-        <BottomNav />
       </div>
     );
   }
@@ -242,8 +239,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
             </button>
           </div>
         </div>
-
-        <BottomNav />
       </div>
     );
   }
@@ -452,8 +447,6 @@ export default function FamilyPage({ className }: FamilyPageProps) {
           setShowFamilySelector(false);
         }}
       />
-
-      <BottomNav />
     </div>
   );
 }

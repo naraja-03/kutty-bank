@@ -20,7 +20,6 @@ import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
 import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
 import ThreadSidebar from '../ThreadSidebar';
-import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
 import FamilyBudgetWizard from '../FamilyBudgetWizard';
@@ -494,8 +493,6 @@ export default function Dashboard({ className }: DashboardProps) {
         activeThread={activeThread}
         onThreadSelect={handleSelectThread}
       />
-
-      <BottomNav />
     </div>
   );
 }
