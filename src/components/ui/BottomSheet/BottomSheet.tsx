@@ -54,7 +54,7 @@ export default function BottomSheet({
             >
               <Dialog.Panel
                 className={clsx(
-                  'w-full transform overflow-hidden rounded-t-3xl bg-gray-900/90 backdrop-blur-xl border-t border-gray-700/50 shadow-2xl transition-all flex flex-col',
+                  'w-full transform overflow-hidden rounded-t-3xl bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl transition-all flex flex-col',
                   maxHeight,
                   className
                 )}
@@ -73,7 +73,7 @@ export default function BottomSheet({
                   {showCloseButton && (
                     <button
                       onClick={onClose}
-                      className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                      className="p-2 pt-0 rounded-full hover:bg-white/20 transition-colors"
                     >
                       <X className="w-5 h-5 text-white/70" />
                     </button>
