@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Target, Calendar, Filter, Plus, Hash } from 'lucide-react';
 import { clsx } from 'clsx';
 import {
   useGetTransactionsQuery,
@@ -19,7 +19,6 @@ import { openEditEntryModal, openPeriodSelector } from '../../../store/slices/ui
 import { setCurrentFamily, updateUser } from '../../../store/slices/authSlice';
 import { RootState } from '../../../store';
 import ThreadsHeader from '../ThreadsHeader';
-import ThreadSidebar from '../ThreadSidebar';
 import BottomNav from '../BottomNav';
 import BottomSheet from '../BottomSheet';
 import SwipeableTransactionCard from '../SwipeableTransactionCard';
@@ -33,7 +32,7 @@ import { useFamilyManager } from '../../../hooks/useFamilyManager';
 const quickActions: QuickAction[] = [
   { id: 'income', label: 'Income', icon: TrendingUp, value: '₹0', color: 'green' },
   { id: 'expenses', label: 'Expenses', icon: TrendingDown, value: '₹0', color: 'red' },
-  { id: 'balance', label: 'Balance', icon: Wallet, value: '₹0', color: 'blue' },
+  { id: 'balance', label: 'Balance', icon: Wallet, value: '₹0', color: 'neutral' },
   { id: 'goal', label: 'Savings Goal', icon: Target, value: '₹0', color: 'purple' },
 ];
 
@@ -335,6 +334,8 @@ export default function Dashboard({ className }: DashboardProps) {
                     'bg-gradient-to-br from-red-950/30 to-red-900/15 border-red-600/20',
                   action.color === 'blue' &&
                     'bg-gradient-to-br from-blue-950/30 to-blue-900/15 border-blue-600/20',
+                  action.color === 'neutral' &&
+                    'bg-gradient-to-br from-slate-950/40 to-slate-800/20 border-slate-500/25',
                   action.color === 'purple' &&
                     'bg-gradient-to-br from-purple-950/30 to-purple-900/15 border-purple-600/20'
                 )}
@@ -346,6 +347,7 @@ export default function Dashboard({ className }: DashboardProps) {
                       action.color === 'green' && 'text-green-400',
                       action.color === 'red' && 'text-red-400',
                       action.color === 'blue' && 'text-blue-400',
+                      action.color === 'neutral' && 'text-slate-300',
                       action.color === 'purple' && 'text-purple-400'
                     )}
                   />
@@ -474,13 +476,67 @@ export default function Dashboard({ className }: DashboardProps) {
         />
       )}
 
-      <ThreadSidebar
+      <BottomSheet
         isOpen={isThreadSidebarOpen}
         onClose={handleCloseThreadSidebar}
-        threads={allThreads}
-        activeThread={activeThread}
-        onThreadSelect={handleSelectThread}
-      />
+        title="Budget Periods"
+        subtitle="Select time periods & ranges"
+      >
+        <div className="space-y-4">
+          <button
+            onClick={() => {
+              console.log('New Custom Budget Period clicked');
+            }}
+            className="w-full bg-white text-black py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-gray-100 transition-colors"
+          >
+            <Plus size={16} />
+            <span>New Custom Budget</span>
+          </button>
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+              Available Budget Periods
+            </h3>
+
+            {allThreads.map(thread => {
+              const isActive = activeThread.id === thread.id;
+              
+              return (
+                <div
+                  key={thread.id}
+                  className={clsx(
+                    'w-full p-4 rounded-xl border text-left transition-all duration-200 relative',
+                    isActive
+                      ? 'bg-gray-800 border-white shadow-lg'
+                      : 'bg-gray-900/95 border-gray-800 hover:border-gray-700 hover:bg-gray-800'
+                  )}
+                >
+                  <button onClick={() => handleSelectThread(thread)} className="w-full text-left">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        {thread.value === 'week' && <Calendar size={16} className="text-blue-400" />}
+                        {thread.value === 'month' && <Calendar size={16} className="text-green-400" />}
+                        {thread.value === 'year' && <Calendar size={16} className="text-orange-400" />}
+                        {thread.value === 'custom' && <Hash size={16} className="text-pink-400" />}
+                        <span className="font-medium text-white">{thread.label}</span>
+                      </div>
+                      {isActive && (
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      )}
+                    </div>
+
+                    <div className="text-xs text-gray-400 mb-2">
+                      {thread.value === 'custom' && thread.startDate && thread.endDate
+                        ? `${thread.startDate.toLocaleDateString()} - ${thread.endDate.toLocaleDateString()}`
+                        : `${thread.value.charAt(0).toUpperCase() + thread.value.slice(1)} Period`}
+                    </div>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </BottomSheet>
 
       <BottomNav />
     </div>

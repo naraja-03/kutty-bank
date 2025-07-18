@@ -17,5 +17,5 @@ export interface QuickAction {
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   value: string;
-  color: 'green' | 'red' | 'blue' | 'purple';
+  color: 'green' | 'red' | 'blue' | 'purple' | 'neutral';
 }
