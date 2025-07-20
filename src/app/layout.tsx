@@ -4,6 +4,7 @@ import './globals.css';
 import { ReduxProvider } from '../store/ReduxProvider';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AppLayout from '../components/AppLayout';
+import { ThemeProvider } from '../contexts/ThemeContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -53,8 +54,10 @@ export const metadata: Metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#000000',
-  colorScheme: 'dark',
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#f8fafc', // Light theme color
+  colorScheme: 'light',
   viewportFit: 'cover',
 };
 
@@ -64,12 +67,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-hidden h-full w-full">
+    <html lang="en" className="light overflow-hidden h-full w-full">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#f8fafc" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="RighTrack" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
@@ -81,11 +84,13 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white overflow-hidden h-full w-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased  h-full w-full`}
       >
         <ErrorBoundary>
           <ReduxProvider>
-            <AppLayout>{children}</AppLayout>
+            <ThemeProvider>
+              <AppLayout>{children}</AppLayout>
+            </ThemeProvider>
           </ReduxProvider>
         </ErrorBoundary>
       </body>

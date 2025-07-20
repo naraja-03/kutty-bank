@@ -1,15 +1,21 @@
 @import 'tailwindcss';
 
 :root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+/* Dark theme variables */
+.dark {
   --background: #000000;
   --foreground: #ffffff;
 }
 
 html {
-  overflow: hidden;
-  height: 100%;
-  position: fixed;
-  width: 100%;
+  scroll-behavior: smooth;
+  /* PWA-specific fixes */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -19,11 +25,9 @@ body {
   min-height: 100vh;
   min-height: -webkit-fill-available;
   /* PWA-specific fixes */
-  position: relative;
-  overflow: hidden;
-  height: 100%;
   width: 100%;
   padding-top: env(safe-area-inset-top);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {
@@ -38,13 +42,6 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-html {
-  scroll-behavior: smooth;
-  /* PWA-specific fixes */
-  touch-action: manipulation;
-  -webkit-text-size-adjust: 100%;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -71,18 +68,14 @@ html {
   scrollbar-color: #333333 #111111;
 }
 
-/* Scrollbar hide utility */
-.scrollbar-hide {
-  /* IE and Edge */
-  -ms-overflow-style: none;
-
-  /* Firefox */
-  scrollbar-width: none;
-}
-
-/* Webkit */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Button fixes for proper alignment */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
 }
 
 /* Responsive improvements */
@@ -121,6 +114,18 @@ select:focus-visible {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 130ms;
+}
+
+/* Ensure proper scrolling */
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Fix for webkit overflow issues */
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* Sidebar animation improvements */
@@ -246,16 +251,10 @@ select:focus-visible {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
   }
-
-  #__next {
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-  }
 }
 
 @media screen and (max-width: 768px) {
   body {
-    overflow: hidden;
     -webkit-overflow-scrolling: touch;
   }
 }

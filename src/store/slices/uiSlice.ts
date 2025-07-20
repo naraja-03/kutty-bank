@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type Theme = 'light' | 'dark';
+
 interface EditTransactionData {
   id: string;
   amount: number;
@@ -29,6 +31,7 @@ interface UIState {
   error: string | null;
   currentTab: 'dashboard' | 'messages' | 'activity' | 'family';
   editTransactionData: EditTransactionData | null;
+  theme: Theme;
 }
 
 const initialState: UIState = {
@@ -42,6 +45,7 @@ const initialState: UIState = {
   error: null,
   currentTab: 'dashboard',
   editTransactionData: null,
+  theme: 'light',
 };
 
 const uiSlice = createSlice({
@@ -103,6 +107,35 @@ const uiSlice = createSlice({
     clearError: state => {
       state.error = null;
     },
+    setTheme: (state, action: PayloadAction<Theme>) => {
+      state.theme = action.payload;
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', action.payload);
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(action.payload);
+      }
+    },
+    toggleTheme: state => {
+      const newTheme = state.theme === 'light' ? 'dark' : 'light';
+      state.theme = newTheme;
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(newTheme);
+      }
+    },
+    initializeTheme: state => {
+      // Initialize theme from localStorage or use default
+      if (typeof window !== 'undefined') {
+        const savedTheme = localStorage.getItem('theme') as Theme;
+        const theme = savedTheme || 'light';
+        state.theme = theme;
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+      }
+    },
   },
 });
 
@@ -121,6 +154,9 @@ export const {
   setError,
   setCurrentTab,
   clearError,
+  setTheme,
+  toggleTheme,
+  initializeTheme,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

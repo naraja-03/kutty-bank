@@ -1,78 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
   <defs>
-    <!-- Glass morphism gradient -->
+    <!-- Clipping Path -->
+    <clipPath id="roundedClip">
+      <rect x="0" y="0" width="400" height="400" rx="90" ry="90"/>
+    </clipPath>
+
+    <!-- Glass Gradient -->
     <radialGradient id="glassGradient" cx="30%" cy="20%" r="90%">
-      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.25)" />
-      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.1)" />
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)" />
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.25)"/>
+      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.1)"/>
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)"/>
     </radialGradient>
-    
-    <!-- Border gradient for glass effect -->
+
+    <!-- Border Gradient -->
     <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.3)" />
-      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.1)" />
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.2)" />
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.3)"/>
+      <stop offset="50%" stop-color="rgba(255, 255, 255, 0.1)"/>
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.2)"/>
     </linearGradient>
+
+    <!-- Highlight Gradient -->
     
-    <!-- Highlight gradient for top shine -->
-    <linearGradient id="highlight" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.4)" />
-      <stop offset="30%" stop-color="rgba(255, 255, 255, 0.2)" />
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
-    </linearGradient>
-    
-    <!-- Blur filter for backdrop -->
-    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
-    </filter>
-    
-    <!-- Drop shadow for depth -->
+
+    <!-- Drop Shadow for Glass Only -->
     <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(0, 0, 0, 0.3)" flood-opacity="0.8"/>
-    </filter>
-    
-    <!-- Inner shadow -->
-    <filter id="innerShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feFlood flood-color="rgba(0, 0, 0, 0.2)"/>
-      <feComposite in="SourceGraphic"/>
-      <feGaussianBlur stdDeviation="2"/>
-      <feOffset dx="0" dy="2"/>
-      <feComposite operator="over" in="SourceGraphic"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(0, 0, 0, 0.3)"/>
     </filter>
   </defs>
 
-  <!-- Main glass container with shadow -->
-  <rect x="0" y="0" width="400" height="400" rx="90" ry="90" 
-        fill="url(#glassGradient)" 
-        stroke="url(#borderGradient)" 
-        stroke-width="1.5"
-        filter="url(#dropShadow)"
-        style="backdrop-filter: blur(20px);" />
-  
-  <!-- Top highlight for glass effect -->
-  <rect x="2" y="2" width="396" height="150" rx="88" ry="88" 
-        fill="url(#highlight)" 
-        opacity="0.6" />
-  
-  <!-- Subtle inner border -->
-  <rect x="1" y="1" width="398" height="398" rx="89" ry="89" 
-        fill="none" 
-        stroke="rgba(255, 255, 255, 0.1)" 
-        stroke-width="0.5" />
+  <g clip-path="url(#roundedClip)">
+    <!-- Black background -->
+    <rect x="0" y="0" width="400" height="400" rx="90" ry="90" fill="#111"/>
 
-  <!-- Logo with enhanced contrast -->
-  <g transform="translate(40, 40) scale(0.82)">
-    <!-- Logo background for better visibility -->
-    <path 
-      d="m159.4 198.6l173.4-171.6c0 0 42.1-9.8 35.1 33.2l-195.6 193.8c0 0-14.2 6.1-27.7-1.9l-107-103.3c0 0-8.1-39.9 36.9-33.3zm-127.4 46.2v120c0 0-0.6 8.5 9.2 9.2h46.2c0 0 7.5-1.5 7.4-11.1l1.8-118.1c0 0-2.4-9.3-9.2-9.2h-48c0 0-7.8 0.5-7.4 9.2zm84.9 36.1v86.1c0 0-0.6 6.1 9.3 6.6h46.1c0 0 7.6-1 7.4-7.9l1.8-84.8c0 0-2.4-6.7-9.2-6.6h-48c0 0-7.8 0.4-7.4 6.6zm84.9-39.6v123.2c0 0-0.6 8.8 9.2 9.5h46.2c0 0 7.5-1.5 7.4-11.4l1.8-121.3c0 0-2.4-9.5-9.2-9.4h-48c0 0-7.8 0.5-7.4 9.4zm83.1-68.9v187.2c0 0-0.7 13.3 9.2 14.4h46.1c0 0 7.6-2.3 7.4-17.3l1.9-184.3c0 0-2.5-14.5-9.3-14.4h-48c0 0-7.8 0.8-7.3 14.4z" 
-      fill="rgba(0, 0, 0, 0.3)"
-      transform="translate(2, 2)"
-    />
-    <!-- Main logo -->
-    <path 
-      d="m159.4 198.6l173.4-171.6c0 0 42.1-9.8 35.1 33.2l-195.6 193.8c0 0-14.2 6.1-27.7-1.9l-107-103.3c0 0-8.1-39.9 36.9-33.3zm-127.4 46.2v120c0 0-0.6 8.5 9.2 9.2h46.2c0 0 7.5-1.5 7.4-11.1l1.8-118.1c0 0-2.4-9.3-9.2-9.2h-48c0 0-7.8 0.5-7.4 9.2zm84.9 36.1v86.1c0 0-0.6 6.1 9.3 6.6h46.1c0 0 7.6-1 7.4-7.9l1.8-84.8c0 0-2.4-6.7-9.2-6.6h-48c0 0-7.8 0.4-7.4 6.6zm84.9-39.6v123.2c0 0-0.6 8.8 9.2 9.5h46.2c0 0 7.5-1.5 7.4-11.4l1.8-121.3c0 0-2.4-9.5-9.2-9.4h-48c0 0-7.8 0.5-7.4 9.4zm83.1-68.9v187.2c0 0-0.7 13.3 9.2 14.4h46.1c0 0 7.6-2.3 7.4-17.3l1.9-184.3c0 0-2.5-14.5-9.3-14.4h-48c0 0-7.8 0.8-7.3 14.4z" 
-      fill="#ffffff"
-      filter="url(#innerShadow)"
-    />
+    <!-- Glass overlay -->
+    <rect x="0" y="0" width="400" height="400" rx="90" ry="90" fill="url(#glassGradient)" stroke="url(#borderGradient)" stroke-width="1.5" filter="url(#dropShadow)"/>
+
+    <!-- Top shine -->
+    <rect x="2" y="2" width="396" height="150" rx="88" ry="88" fill="url(#highlight)" opacity="0.6"/>
+
+    <!-- Inner subtle stroke -->
+    <rect x="1" y="1" width="398" height="398" rx="89" ry="89" fill="none" stroke="rgba(255, 255, 255, 0.1)" stroke-width="0.5"/>
+
+    <!-- Inner Logo (Flat White, No Glow) -->
+    <g transform="translate(40, 40) scale(0.82)">
+      <path d="m159.4 198.6l173.4-171.6c0 0 42.1-9.8 35.1 33.2l-195.6 193.8c0 0-14.2 6.1-27.7-1.9l-107-103.3c0 0-8.1-39.9 36.9-33.3zm-127.4 46.2v120c0 0-0.6 8.5 9.2 9.2h46.2c0 0 7.5-1.5 7.4-11.1l1.8-118.1c0 0-2.4-9.3-9.2-9.2h-48c0 0-7.8 0.5-7.4 9.2zm84.9 36.1v86.1c0 0-0.6 6.1 9.3 6.6h46.1c0 0 7.6-1 7.4-7.9l1.8-84.8c0 0-2.4-6.7-9.2-6.6h-48c0 0-7.8 0.4-7.4 6.6zm84.9-39.6v123.2c0 0-0.6 8.8 9.2 9.5h46.2c0 0 7.5-1.5 7.4-11.4l1.8-121.3c0 0-2.4-9.5-9.2-9.4h-48c0 0-7.8 0.5-7.4 9.4zm83.1-68.9v187.2c0 0-0.7 13.3 9.2 14.4h46.1c0 0 7.6-2.3 7.4-17.3l1.9-184.3c0 0-2.5-14.5-9.3-14.4h-48c0 0-7.8 0.8-7.3 14.4z" fill="#ffffff"/>
+    </g>
   </g>
 </svg>
