@@ -1,2 +1,2 @@
-export { default } from './ConfirmationModal';
-export type { ConfirmationModalProps, ConfirmationVariant } from './ConfirmationModal';
+export { ConfirmationModal } from './ConfirmationModal';
+export type { ConfirmationModalProps } from './ConfirmationModal';
