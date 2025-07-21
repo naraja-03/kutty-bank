@@ -11,15 +11,40 @@ export const useFamilySetupRedirect = () => {
   const isAnonymous = user?.isAnonymous || false;
 
   useEffect(() => {
-    if (!isLoading && (isAuthenticated || isAnonymous)) {
-      // Check if user needs family setup
-      const needsFamilySetup = !user?.familyId;
-      
-      if (needsFamilySetup) {
-        router.push('/family-setup');
+    console.log('useFamilySetupRedirect - Auth state:', {
+      isAuthenticated,
+      isAnonymous,
+      isLoading,
+      user: user ? {
+        id: user.id,
+        name: user.name,
+        familyId: user.familyId,
+        isAnonymous: user.isAnonymous
+      } : null
+    });
+
+    // Add a small delay to ensure auth state is fully updated
+    const timeoutId = setTimeout(() => {
+      if (!isLoading && (isAuthenticated || isAnonymous)) {
+        const needsFamilySetup = !user?.familyId;
+        
+        console.log('useFamilySetupRedirect - Checking redirect:', {
+          needsFamilySetup,
+          userFamilyId: user?.familyId
+        });
+        
+        if (needsFamilySetup) {
+          console.log('useFamilySetupRedirect - Redirecting to /family-setup');
+          router.push('/family-setup');
+        } else {
+          console.log('useFamilySetupRedirect - User has familyId, redirecting to /dashboard');
+          router.push('/dashboard');
+        }
       }
-    }
-  }, [isAuthenticated, isAnonymous, user?.familyId, isLoading, router]);
+    }, 100); // Small delay to ensure state is updated
+
+    return () => clearTimeout(timeoutId);
+  }, [isAuthenticated, isAnonymous, user, isLoading, router]);
 
   return {
     needsFamilySetup: !user?.familyId && !isLoading,

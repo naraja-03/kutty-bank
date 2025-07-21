@@ -42,14 +42,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   
   const variants = {
     default: theme === 'dark' 
-      ? 'bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 focus:bg-white/10'
-      : 'bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:bg-white',
+      ? 'bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:border-purple-400  focus:bg-white/10'
+      : 'bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500  focus:bg-white',
     filled: theme === 'dark'
-      ? 'bg-gray-800/50 border border-purple-500/30 text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 focus:bg-gray-800/70'
-      : 'bg-gray-50 border border-purple-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:bg-white',
+      ? 'bg-gray-800/50 border border-purple-500/30 text-white placeholder-gray-400 focus:border-purple-400  focus:bg-gray-800/70'
+      : 'bg-gray-50 border border-purple-300 text-gray-900 placeholder-gray-500 focus:border-purple-500  focus:bg-white',
     outline: theme === 'dark'
-      ? 'bg-transparent border-2 border-purple-500/50 text-white placeholder-gray-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30'
-      : 'bg-transparent border-2 border-purple-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+      ? 'bg-transparent border-2 border-purple-500/50 text-white placeholder-gray-400 focus:border-purple-400 '
+      : 'bg-transparent border-2 border-purple-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 '
   };
 
   const sizes = {
@@ -73,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     ${sizes[size]}
     ${hasLeftIcon ? 'pl-10 lg:pl-12' : ''}
     ${hasRightIcon ? 'pr-10 lg:pr-12' : ''}
-    ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}
+    ${error ? 'border-red-500 focus:border-red-500' : ''}
     ${className}
   `.trim();
 

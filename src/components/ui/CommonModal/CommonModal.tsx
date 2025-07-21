@@ -73,7 +73,7 @@ export const CommonModal = ({
 
           {/* Mobile Bottom Sheet */}
           <motion.div
-            className="md:hidden fixed inset-x-0 bottom-0 z-50"
+            className="lg:hidden fixed inset-x-0 bottom-0 z-50"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -98,7 +98,7 @@ export const CommonModal = ({
               {/* Header */}
               {(title || showCloseButton) && (
                 <div className={`
-                  flex items-center justify-between px-4 py-3 
+                  flex items-end justify-end px-4 py-3 
                   ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'} 
                   border-b
                 `}>
@@ -128,7 +128,7 @@ export const CommonModal = ({
               )}
 
               {/* Content */}
-              <div className="p-4 overflow-y-auto max-h-[70vh]">
+              <div className="px-4 overflow-y-auto max-h-[70vh]">
                 {children}
               </div>
             </div>
@@ -136,7 +136,7 @@ export const CommonModal = ({
 
           {/* Desktop Center Modal */}
           <motion.div
-            className="hidden md:flex fixed inset-0 z-50 items-center justify-center p-4"
+            className="hidden lg:flex fixed inset-0 z-50 items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

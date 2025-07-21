@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { Sun, Moon } from 'lucide-react';
 import { useLoginMutation, useRegisterMutation } from '@/store/api/authApi';
 import { setAnonymousUser, loginSuccess } from '@/store/slices/authSlice';
@@ -24,6 +25,7 @@ export default function WelcomePage() {
   const [error, setError] = useState('');
 
   const dispatch = useDispatch();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
@@ -42,11 +44,11 @@ export default function WelcomePage() {
 
   const handleContinueAnonymously = () => {
     setIsAnonymousLoading(true);
-    dispatch(setAnonymousUser());
+    dispatch(setAnonymousUser(true));
     setTimeout(() => {
       setIsAnonymousLoading(false);
-      // The useFamilySetupRedirect hook will automatically redirect to family-setup
-      // since anonymous users don't have a familyId
+      console.log('Anonymous user set, redirecting to family-setup');
+      router.push('/family-setup');
     }, 1000);
   };
 
@@ -70,9 +72,21 @@ export default function WelcomePage() {
           password: data.password,
         }).unwrap();
 
+        console.log('Login successful, result:', result);
+
         if (result.token && result.user) {
+          console.log('Dispatching loginSuccess with user:', result.user);
           dispatch(loginSuccess({ token: result.token, user: result.user }));
-          // The useFamilySetupRedirect hook will handle routing based on user's familyId
+          console.log('loginSuccess dispatched, redirecting based on familyId');
+          
+          // Redirect directly after successful login
+          if (!result.user.familyId) {
+            console.log('No familyId, redirecting to family-setup');
+            router.push('/family-setup');
+          } else {
+            console.log('Has familyId, redirecting to dashboard');
+            router.push('/dashboard');
+          }
         }
       } else {
         const result = await register({
@@ -83,7 +97,14 @@ export default function WelcomePage() {
 
         if (result.token && result.user) {
           dispatch(loginSuccess({ token: result.token, user: result.user }));
-          // The useFamilySetupRedirect hook will handle routing based on user's familyId
+          // Redirect directly after successful registration
+          if (!result.user.familyId) {
+            console.log('No familyId after registration, redirecting to family-setup');
+            router.push('/family-setup');
+          } else {
+            console.log('Has familyId after registration, redirecting to dashboard');
+            router.push('/dashboard');
+          }
         }
       }
     } catch (err: unknown) {
@@ -100,7 +121,7 @@ export default function WelcomePage() {
   return (
     <WelcomeBackground>
       {/* Theme Toggle Button - Fixed Position */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50">
         <Button
           variant="outline"
           size="sm"

@@ -5,11 +5,10 @@ import { motion } from 'framer-motion';
 import { Trash2, CreditCard } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
-import { FamilySetupData } from './FamilySetupContainer';
+import { useFamilySetup, CategoryItem } from '@/contexts/FamilySetupContext';
+import { AvailableBalance } from './AvailableBalance';
 
 interface CommitmentsStepProps {
-  data: FamilySetupData;
-  updateData: (data: Partial<FamilySetupData>) => void;
   onNext: () => void;
   onPrev: () => void;
   isFirstStep: boolean;
@@ -27,37 +26,46 @@ const COMMITMENT_CATEGORIES = [
   'Other'
 ];
 
-export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: CommitmentsStepProps) => {
+export const CommitmentsStep = ({ onNext, onPrev }: CommitmentsStepProps) => {
   const { theme } = useTheme();
+  const { formData, updateFormData, budget } = useFamilySetup();
   const [selectedCategory, setSelectedCategory] = useState('Loan EMI');
+  const [customCategory, setCustomCategory] = useState('');
+  const [categoryName, setCategoryName] = useState('');
   const [amount, setAmount] = useState('');
 
   const addCommitment = () => {
     if (!amount || parseFloat(amount) <= 0) return;
 
+    const finalCategory = selectedCategory === 'Other' ? customCategory.trim() : selectedCategory;
+    if (selectedCategory === 'Other' && !customCategory.trim()) return;
+
+    // Use category name if provided, otherwise use the selected category
+    const displayName = categoryName.trim() || finalCategory;
+
     // Check if category already exists
-    const existingIndex = data.commitments.categories.findIndex(
-      item => item.name === selectedCategory
+    const existingIndex = formData.commitments.categories.findIndex(
+      (item: CategoryItem) => item.name === displayName
     );
 
     let updatedCategories;
     if (existingIndex >= 0) {
       // Update existing category
-      updatedCategories = [...data.commitments.categories];
+      updatedCategories = [...formData.commitments.categories];
       updatedCategories[existingIndex].amount += parseFloat(amount);
     } else {
       // Add new category
-      const newCategory = {
+      const newCategory: CategoryItem = {
         id: Date.now().toString(),
-        name: selectedCategory,
+        name: displayName,
         amount: parseFloat(amount),
       };
-      updatedCategories = [...data.commitments.categories, newCategory];
+      updatedCategories = [...formData.commitments.categories, newCategory];
     }
 
-    const totalCommitments = updatedCategories.reduce((sum, item) => sum + item.amount, 0);
+    const totalCommitments = updatedCategories.reduce((sum: number, item: CategoryItem) => sum + item.amount, 0);
 
-    updateData({
+    updateFormData({
       commitments: {
         categories: updatedCategories,
         totalCommitments,
@@ -65,13 +73,15 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
     });
 
     setAmount('');
+    setCustomCategory('');
+    setCategoryName('');
   };
 
   const removeCommitment = (id: string) => {
-    const updatedCategories = data.commitments.categories.filter(item => item.id !== id);
-    const totalCommitments = updatedCategories.reduce((sum, item) => sum + item.amount, 0);
+    const updatedCategories = formData.commitments.categories.filter((item: CategoryItem) => item.id !== id);
+    const totalCommitments = updatedCategories.reduce((sum: number, item: CategoryItem) => sum + item.amount, 0);
 
-    updateData({
+    updateFormData({
       commitments: {
         categories: updatedCategories,
         totalCommitments,
@@ -79,18 +89,12 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
     });
   };
 
-  const commitmentPercentage = data.income.totalIncome > 0 
-    ? (data.commitments.totalCommitments / data.income.totalIncome) * 100 
-    : 0;
-
-  const isOverBudget = commitmentPercentage > 30;
-
   return (
-    <div className="max-h-screen overflow-auto">
+    <div className="max-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl p-6 lg:p-8 border-2 ${
+        className={`rounded-2xl p-6 lg:p-8 mb-10 border-2 ${
           theme === 'dark'
             ? 'bg-gray-900/90 backdrop-blur-sm border-purple-500/30'
             : 'bg-white/90 backdrop-blur-sm border-purple-500/30'
@@ -110,35 +114,17 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
             Commitments
           </h2>
           <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-            Add your fixed monthly commitments (recommended: 30% of income)
+            Add your fixed monthly commitments
           </p>
         </div>
 
-        {/* Budget Status */}
-        {data.income.totalIncome > 0 && (
-          <div className={`border rounded-xl p-4 mb-6 ${
-            isOverBudget 
-              ? theme === 'dark'
-                ? 'bg-red-500/20 border-red-400/30'
-                : 'bg-red-50 border-red-300'
-              : theme === 'dark'
-                ? 'bg-orange-500/20 border-orange-400/30'
-                : 'bg-orange-50 border-orange-300'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>Commitment expenses:</span>
-              <div className="text-right">
-                <span className={`font-bold text-lg ${
-                  isOverBudget 
-                    ? theme === 'dark' ? 'text-red-400' : 'text-red-600'
-                    : theme === 'dark' ? 'text-orange-400' : 'text-orange-600'
-                }`}>
-                  {commitmentPercentage.toFixed(1)}%
-                </span>
-                <span className="text-gray-400 ml-2">(Target: 30%)</span>
-              </div>
-            </div>
-          </div>
+        {/* Available Balance */}
+        {budget.totalIncome > 0 && (
+          <AvailableBalance
+            totalIncome={budget.totalIncome}
+            usedAmount={formData.essentials.totalEssentials + formData.commitments.totalCommitments}
+            label="Commitment expenses"
+          />
         )}
 
         {/* Add Commitment Form */}
@@ -177,28 +163,63 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
                 </button>
               ))}
             </div>
+            
+            {/* Custom Category Input */}
+            {selectedCategory === 'Other' && (
+              <div className="mt-3">
+                <Input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Enter custom category name"
+                  className="w-full"
+                  variant={theme === 'dark' ? 'default' : 'filled'}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Amount Input */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-            }`}>
-              Monthly Amount *
-            </label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0"
-              className="w-full"
-              variant={theme === 'dark' ? 'default' : 'filled'}
-            />
+          {/* Category Name and Amount Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                Category Name (Optional)
+              </label>
+              <Input
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                placeholder={`e.g., ${selectedCategory === 'Other' ? customCategory || 'Custom name' : selectedCategory} details`}
+                className="w-full"
+                variant={theme === 'dark' ? 'default' : 'filled'}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                Monthly Amount *
+              </label>
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0"
+                className="w-full"
+                variant={theme === 'dark' ? 'default' : 'filled'}
+              />
+            </div>
           </div>
 
           <Button
             onClick={addCommitment}
-            disabled={!amount || parseFloat(amount) <= 0}
+            disabled={
+              !amount || 
+              parseFloat(amount) <= 0 || 
+              (selectedCategory === 'Other' && !customCategory.trim())
+            }
             className={`w-full ${
               theme === 'dark'
                 ? 'bg-red-500 hover:bg-red-600 text-white'
@@ -210,13 +231,13 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
         </div>
 
         {/* Commitments List */}
-        {data.commitments.categories.length > 0 && (
+        {formData.commitments.categories.length > 0 && (
           <div className="mb-6">
             <h3 className={`text-lg font-semibold mb-4 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
             }`}>Your Commitments</h3>
             <div className="space-y-3 max-h-64 overflow-y-auto">
-              {data.commitments.categories.map((commitment) => (
+              {formData.commitments.categories.map((commitment: CategoryItem) => (
                 <motion.div
                   key={commitment.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -248,12 +269,12 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
         )}
 
         {/* Total Commitments */}
-        {data.commitments.totalCommitments > 0 && (
+        {formData.commitments.totalCommitments > 0 && (
           <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4 mb-6">
             <div className="flex items-center justify-between">
               <span className="text-red-300 font-medium">Total Commitments:</span>
               <span className="text-red-400 font-bold text-xl">
-                ${data.commitments.totalCommitments.toLocaleString()}
+                ₹{formData.commitments.totalCommitments.toLocaleString()}
               </span>
             </div>
           </div>
@@ -270,7 +291,8 @@ export const CommitmentsStep = ({ data, updateData, onNext, onPrev }: Commitment
           </Button>
           <Button
             onClick={onNext}
-            className="flex items-center bg-purple-500 hover:bg-purple-600"
+            disabled={budget.isOverBudget}
+            className="flex items-center bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next →
           </Button>
