@@ -3,51 +3,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { FamilySetupProvider, useFamilySetup } from '@/contexts/FamilySetupContext';
 import { CommitmentsStep, EssentialsStep, FamilyInfoStep, IncomeStep, SavingsStep, SummaryStep } from './index';
-
-export interface FamilySetupData {
-  familyInfo: {
-    name: string;
-    trackingPeriod: 'daily' | 'weekly' | 'monthly';
-    startDate: string;
-  };
-  income: {
-    sources: Array<{
-      id: string;
-      category: string;
-      source: string;
-      amount: number;
-    }>;
-    totalIncome: number;
-  };
-  essentials: {
-    categories: Array<{
-      id: string;
-      name: string;
-      amount: number;
-    }>;
-    totalEssentials: number;
-  };
-  commitments: {
-    categories: Array<{
-      id: string;
-      name: string;
-      amount: number;
-    }>;
-    totalCommitments: number;
-  };
-  savings: {
-    categories: Array<{
-      id: string;
-      name: string;
-      amount: number;
-    }>;
-    totalSavings: number;
-    availableBalance: number;
-  };
-}
+import { useCreateFamilyMutation } from '@/store/api/familyApi';
 
 const STEPS = [
   { id: 'family-info', title: 'Family Info', component: FamilyInfoStep },
@@ -58,52 +18,19 @@ const STEPS = [
   { id: 'summary', title: 'Summary', component: SummaryStep },
 ];
 
-export const FamilySetupContainer = () => {
+const FamilySetupContent = () => {
   const router = useRouter();
   const { theme } = useTheme();
+  const { formData, budget } = useFamilySetup();
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<FamilySetupData>({
-    familyInfo: {
-      name: '',
-      trackingPeriod: 'monthly',
-      startDate: '1',
-    },
-    income: {
-      sources: [],
-      totalIncome: 0,
-    },
-    essentials: {
-      categories: [],
-      totalEssentials: 0,
-    },
-    commitments: {
-      categories: [],
-      totalCommitments: 0,
-    },
-    savings: {
-      categories: [],
-      totalSavings: 0,
-      availableBalance: 0,
-    },
-  });
-
-  const updateFormData = (stepData: Partial<FamilySetupData>) => {
-    setFormData(prev => {
-      const updated = { ...prev, ...stepData };
-      
-      // Recalculate available balance
-      const totalIncome = updated.income.totalIncome;
-      const totalEssentials = updated.essentials.totalEssentials;
-      const totalCommitments = updated.commitments.totalCommitments;
-      const availableBalance = totalIncome - totalEssentials - totalCommitments;
-      
-      updated.savings.availableBalance = Math.max(0, availableBalance);
-      
-      return updated;
-    });
-  };
+  const [createFamily] = useCreateFamilyMutation();
 
   const nextStep = () => {
+    // Prevent going to next step if over budget (except on the last step)
+    if (currentStep < STEPS.length - 1 && budget.isOverBudget && currentStep > 1) {
+      return; // Don't proceed if over budget
+    }
+    
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -117,70 +44,73 @@ export const FamilySetupContainer = () => {
 
   const handleComplete = async () => {
     try {
-      // API call to create family
-      const response = await fetch('/api/family', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        // Route to dashboard or family page
-        router.push('/dashboard');
-      } else {
-        console.error('Failed to create family');
-      }
+      console.log('Creating family with data:', formData);
+      // API call to create family using RTK Query
+      await createFamily(formData).unwrap();
+      router.push('/dashboard');
     } catch (error) {
-      console.error('Error creating family:', error);
+      if (error && typeof error === 'object' && 'data' in error) {
+        console.error('Error creating family:', error);
+      } else {
+        console.error('Error creating family:', error);
+      }
     }
   };
-
-  // Calculate budget percentages
-  const totalIncome = formData.income.totalIncome;
-  const essentialPercentage = totalIncome > 0 ? (formData.essentials.totalEssentials / totalIncome) * 100 : 0;
-  const commitmentPercentage = totalIncome > 0 ? (formData.commitments.totalCommitments / totalIncome) * 100 : 0;
-  const savingsPercentage = totalIncome > 0 ? (formData.savings.totalSavings / totalIncome) * 100 : 0;
 
   const CurrentStepComponent = STEPS[currentStep].component;
 
   return (
     <div className="min-h-screen overflow-auto">
       {/* Budget Rule Display - Fixed at top */}
-      {totalIncome > 0 && currentStep > 1 && (
-        <div className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b ${
-          theme === 'dark' 
-            ? 'bg-gray-900/10 border-purple-500/20' 
-            : 'bg-white/10 border-purple-300/30'
+      {budget.totalIncome > 0 && currentStep > 1 && (
+        <div className={`hidden xl:flex fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b ${
+          budget.isOverBudget
+            ? theme === 'dark' 
+              ? 'bg-red-900/20 border-red-500/30' 
+              : 'bg-red-50/90 border-red-300/50'
+            : theme === 'dark' 
+              ? 'bg-gray-900/10 border-purple-500/20' 
+              : 'bg-white/10 border-purple-300/30'
         }`}>
           <div className="max-w-7xl mx-auto px-4 py-2">
             <div className="flex items-center justify-center space-x-4 text-xs sm:text-sm">
               <div className="flex items-center space-x-2">
                 <span className={`font-medium ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-800'
-                }`}>Budget Rule:</span>
+                  budget.isOverBudget
+                    ? theme === 'dark' ? 'text-red-300' : 'text-red-700'
+                    : theme === 'dark' ? 'text-white' : 'text-gray-800'
+                }`}>
+                  {budget.isOverBudget ? 'Over Budget!' : 'Budget Rule:'}
+                </span>
+                {budget.isOverBudget && (
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    theme === 'dark' 
+                      ? 'bg-red-500/20 text-red-300' 
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {budget.totalSpendingPercentage.toFixed(1)}% of income
+                  </span>
+                )}
               </div>
               <div className="flex items-center space-x-1">
                 <span className="text-orange-400">Essentials:</span>
                 <span className={`font-medium ${
                   theme === 'dark' ? 'text-white' : 'text-gray-800'
-                }`}>{essentialPercentage.toFixed(1)}%</span>
+                }`}>{budget.essentialPercentage.toFixed(1)}%</span>
                 <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>(50%)</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span className="text-red-400">Commitments:</span>
                 <span className={`font-medium ${
                   theme === 'dark' ? 'text-white' : 'text-gray-800'
-                }`}>{commitmentPercentage.toFixed(1)}%</span>
+                }`}>{budget.commitmentPercentage.toFixed(1)}%</span>
                 <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>(30%)</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span className="text-purple-400">Savings:</span>
                 <span className={`font-medium ${
                   theme === 'dark' ? 'text-white' : 'text-gray-800'
-                }`}>{savingsPercentage.toFixed(1)}%</span>
+                }`}>{budget.savingsPercentage.toFixed(1)}%</span>
                 <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>(20%)</span>
               </div>
             </div>
@@ -188,13 +118,9 @@ export const FamilySetupContainer = () => {
         </div>
       )}
 
-      <div className={`flex flex-col xl:flex-row ${totalIncome > 0 && currentStep > 1 ? 'pt-12' : ''}`}>
+      <div className={`flex flex-col xl:flex-row ${budget.totalIncome > 0 && currentStep > 1 ? 'pt-12' : ''}`}>
         {/* Left Side - Progress Steps (Desktop) */}
-        <div className={`hidden xl:flex xl:w-2/5 flex-col justify-center p-8 ${
-          theme === 'dark' 
-            ? 'bg-gradient-to-br from-purple-900/20 to-blue-900/20' 
-            : 'bg-gradient-to-br from-purple-50 to-blue-50'
-        }`}>
+        <div className={"hidden xl:flex xl:w-2/5 flex-col justify-center p-8"}>
           <div className="max-w-md mx-auto w-full">
             <div className="mb-8">
               <h1 className={`text-3xl font-bold mb-2 ${
@@ -269,19 +195,6 @@ export const FamilySetupContainer = () => {
             : 'bg-gray-50/90 border-gray-200'
         }`}>
           <div className="flex items-center justify-between p-4">
-            {currentStep > 0 && (
-              <button
-                onClick={prevStep}
-                className={`flex items-center transition-colors ${
-                  theme === 'dark' 
-                    ? 'text-white hover:text-purple-300' 
-                    : 'text-gray-700 hover:text-purple-600'
-                }`}
-              >
-                <ChevronLeft size={20} className="mr-1" />
-                Back
-              </button>
-            )}
             <div className="flex-1 text-center">
               <h1 className={`text-lg text-center font-semibold ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
@@ -306,21 +219,6 @@ export const FamilySetupContainer = () => {
                 style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
               />
             </div>
-            {/* Step titles below progress bar - centered */}
-            <div className="flex justify-between mt-2 text-xs">
-              {STEPS.map((step, index) => (
-                <div
-                  key={step.id}
-                  className={`flex-1 text-center transition-colors ${
-                    index <= currentStep
-                      ? theme === 'dark' ? 'text-purple-300' : 'text-purple-600'
-                      : theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                  }`}
-                >
-                  {step.title}
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -337,11 +235,9 @@ export const FamilySetupContainer = () => {
               >
                 {CurrentStepComponent ? (
                   <CurrentStepComponent
-                    data={formData}
-                    updateData={updateFormData}
                     onNext={nextStep}
                     onPrev={prevStep}
-                    onSubmit={handleComplete}
+                    onSubmit={currentStep === STEPS.length - 1 ? handleComplete : () => {}}
                     isFirstStep={currentStep === 0}
                     isLastStep={currentStep === STEPS.length - 1}
                   />
@@ -357,5 +253,13 @@ export const FamilySetupContainer = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+export const FamilySetupContainer = () => {
+  return (
+    <FamilySetupProvider>
+      <FamilySetupContent />
+    </FamilySetupProvider>
   );
 };

@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, DollarSign, X } from 'lucide-react';
+import { Trash2, IndianRupee } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
-import { FamilySetupData } from './FamilySetupContainer';
+import { useFamilySetup, IncomeSource } from '@/contexts/FamilySetupContext';
 
 interface IncomeStepProps {
-  data: FamilySetupData;
-  updateData: (data: Partial<FamilySetupData>) => void;
   onNext: () => void;
   onPrev: () => void;
   isFirstStep: boolean;
   isLastStep: boolean;
+  isOverBudget?: boolean;
+  totalSpendingPercentage?: number;
 }
 
 const INCOME_CATEGORIES = [
@@ -23,9 +23,9 @@ const INCOME_CATEGORIES = [
   'Other'
 ];
 
-export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: IncomeStepProps) => {
+export const IncomeStep = ({ onNext, onPrev, isFirstStep }: IncomeStepProps) => {
   const { theme } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { formData, updateFormData } = useFamilySetup();
   const [selectedCategory, setSelectedCategory] = useState('Salary');
   const [customCategory, setCustomCategory] = useState('');
   const [source, setSource] = useState('');
@@ -44,27 +44,28 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
       amount: parseFloat(amount),
     };
 
-    const updatedSources = [...data.income.sources, newSource];
+    const updatedSources = [...formData.income.sources, newSource];
     const totalIncome = updatedSources.reduce((sum, item) => sum + item.amount, 0);
 
-    updateData({
+    updateFormData({
       income: {
         sources: updatedSources,
         totalIncome,
       },
     });
 
+    // Reset form
     setSource('');
     setAmount('');
     setCustomCategory('');
-    setShowAddModal(false);
+    setSelectedCategory('Salary');
   };
 
   const removeIncomeSource = (id: string) => {
-    const updatedSources = data.income.sources.filter(item => item.id !== id);
-    const totalIncome = updatedSources.reduce((sum, item) => sum + item.amount, 0);
+    const updatedSources = formData.income.sources.filter((item: IncomeSource) => item.id !== id);
+    const totalIncome = updatedSources.reduce((sum: number, item: IncomeSource) => sum + item.amount, 0);
 
-    updateData({
+    updateFormData({
       income: {
         sources: updatedSources,
         totalIncome,
@@ -73,7 +74,7 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
   };
 
   const handleNext = () => {
-    if (data.income.totalIncome > 0) {
+    if (formData.income.totalIncome > 0) {
       onNext();
     }
   };
@@ -83,7 +84,7 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl p-6 lg:p-8 border-2 ${
+        className={`rounded-2xl p-6 lg:p-8 mb-10 border-2 ${
           theme === 'dark'
             ? 'bg-gray-900/90 backdrop-blur-sm border-purple-500/30'
             : 'bg-white/90 backdrop-blur-sm border-purple-500/30'
@@ -93,7 +94,7 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
           <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
             theme === 'dark' ? 'bg-green-500/20' : 'bg-green-100'
           }`}>
-            <DollarSign className={`w-8 h-8 ${
+            <IndianRupee className={`w-8 h-8 ${
               theme === 'dark' ? 'text-green-400' : 'text-green-600'
             }`} />
           </div>
@@ -107,156 +108,29 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
           </p>
         </div>
 
-        {/* Add Income Button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className={`w-full text-center ${
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`border rounded-xl p-6 mb-6 ${
               theme === 'dark'
-                ? 'bg-green-500 hover:bg-green-600 text-white'
-                : 'bg-green-500 hover:bg-green-600 text-white'
+                ? 'bg-white/5 border-white/10'
+                : 'bg-gray-50 border-gray-200'
             }`}
           >
-            Add Income Source
-          </Button>
-        </div>
-
-        {/* Income List */}
-        {data.income.sources.length > 0 && (
-          <div className="mb-6">
             <h3 className={`text-lg font-semibold mb-4 ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>Your Income Sources</h3>
-            <div className="space-y-3">
-              {data.income.sources.map((income) => (
-                <motion.div
-                  key={income.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className={`rounded-lg p-4 flex items-center justify-between ${
-                    theme === 'dark'
-                      ? 'bg-gray-800/50 border border-gray-700'
-                      : 'bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
-                      <span className={`px-2 py-1 text-xs font-medium rounded mb-1 sm:mb-0 w-fit ${
-                        theme === 'dark'
-                          ? 'bg-purple-500/20 text-purple-300'
-                          : 'bg-purple-100 text-purple-700'
-                      }`}>
-                        {income.category}
-                      </span>
-                      <span className={`font-medium ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                      }`}>{income.source}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span className={`font-bold text-lg ${
-                      theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                    }`}>
-                      ${income.amount.toLocaleString()}
-                    </span>
-                    <button
-                      onClick={() => removeIncomeSource(income.id)}
-                      className={`transition-colors ${
-                        theme === 'dark'
-                          ? 'text-red-400 hover:text-red-300'
-                          : 'text-red-500 hover:text-red-400'
-                      }`}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Total Income */}
-        {data.income.totalIncome > 0 && (
-          <div className={`border rounded-xl p-4 mb-6 ${
-            theme === 'dark'
-              ? 'bg-green-500/20 border-green-400/30'
-              : 'bg-green-50 border-green-300'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`font-medium ${
-                theme === 'dark' ? 'text-green-300' : 'text-green-700'
-              }`}>Total Monthly Income:</span>
-              <span className={`font-bold text-xl ${
-                theme === 'dark' ? 'text-green-400' : 'text-green-600'
-              }`}>
-                ${data.income.totalIncome.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <Button
-            onClick={onPrev}
-            disabled={isFirstStep}
-            variant="outline"
-            className="flex items-center"
-          >
-            ← Previous
-          </Button>
-          <Button
-            onClick={handleNext}
-            disabled={data.income.totalIncome === 0}
-            className={`flex items-center ${
-              theme === 'dark'
-                ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                : 'bg-purple-500 hover:bg-purple-600 text-white'
-            }`}
-          >
-            Next →
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Add Income Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto ${
-              theme === 'dark'
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-gray-200'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-xl font-bold ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>Add Income Source</h3>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className={`transition-colors ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <X size={24} />
-              </button>
-            </div>
+            }`}>Add New Income Source</h3>
 
             <div className="space-y-4">
               {/* Category Selection */}
               <div>
-                <label className={`block text-sm font-medium mb-2 ${
+                <label className={`block text-sm font-medium mb-3 ${
                   theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
                 }`}>
                   Category *
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {INCOME_CATEGORIES.map((category) => (
                     <button
                       key={category}
@@ -295,47 +169,42 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
                 </div>
               )}
 
-              {/* Source Input */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Income Source *
-                </label>
-                <Input
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  placeholder="e.g., Raja Salary, Company ABC"
-                  className="w-full"
-                  variant={theme === 'dark' ? 'default' : 'filled'}
-                />
+              {/* Source and Amount in same row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Income Source *
+                  </label>
+                  <Input
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
+                    placeholder="e.g., Raja Salary, Company ABC"
+                    className="w-full"
+                    variant={theme === 'dark' ? 'default' : 'filled'}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Amount *
+                  </label>
+                  <Input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0"
+                    className="w-full"
+                    variant={theme === 'dark' ? 'default' : 'filled'}
+                  />
+                </div>
               </div>
 
-              {/* Amount Input */}
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Amount *
-                </label>
-                <Input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0"
-                  className="w-full"
-                  variant={theme === 'dark' ? 'default' : 'filled'}
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <Button
-                  onClick={() => setShowAddModal(false)}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-2">
                 <Button
                   onClick={addIncomeSource}
                   disabled={
@@ -350,13 +219,110 @@ export const IncomeStep = ({ data, updateData, onNext, onPrev, isFirstStep }: In
                       : 'bg-green-500 hover:bg-green-600 text-white'
                   }`}
                 >
-                  Add
+                  Add Income
                 </Button>
               </div>
             </div>
           </motion.div>
+
+        {/* Income List */}
+        {formData.income.sources.length > 0 && (
+          <div className="mb-6">
+            <h3 className={`text-lg font-semibold mb-4 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>Your Income Sources</h3>
+            <div className="space-y-3">
+              {formData.income.sources.map((income: IncomeSource) => (
+                <motion.div
+                  key={income.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className={`rounded-lg p-4 flex items-center justify-between ${
+                    theme === 'dark'
+                      ? 'bg-gray-800/50 border border-gray-700'
+                      : 'bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+                      <span className={`px-2 py-1 text-xs font-medium rounded mb-1 sm:mb-0 w-fit ${
+                        theme === 'dark'
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : 'bg-purple-100 text-purple-700'
+                      }`}>
+                        {income.category}
+                      </span>
+                      <span className={`font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>{income.source}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className={`font-bold text-lg ${
+                      theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                    }`}>
+                      ₹{income.amount.toLocaleString()}
+                    </span>
+                    <button
+                      onClick={() => removeIncomeSource(income.id)}
+                      className={`transition-colors ${
+                        theme === 'dark'
+                          ? 'text-red-400 hover:text-red-300'
+                          : 'text-red-500 hover:text-red-400'
+                      }`}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Total Income */}
+        {formData.income.totalIncome > 0 && (
+          <div className={`border rounded-xl p-4 mb-6 ${
+            theme === 'dark'
+              ? 'bg-green-500/20 border-green-400/30'
+              : 'bg-green-50 border-green-300'
+          }`}>
+            <div className="flex items-center justify-between">
+              <span className={`font-medium ${
+                theme === 'dark' ? 'text-green-300' : 'text-green-700'
+              }`}>Total Monthly Income:</span>
+              <span className={`font-bold text-xl ${
+                theme === 'dark' ? 'text-green-400' : 'text-green-600'
+              }`}>
+                ₹{formData.income.totalIncome.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="flex justify-between">
+          <Button
+            onClick={onPrev}
+            disabled={isFirstStep}
+            variant="outline"
+            className="flex items-center"
+          >
+            ← Previous
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={formData.income.totalIncome === 0}
+            className={`flex items-center ${
+              theme === 'dark'
+                ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                : 'bg-purple-500 hover:bg-purple-600 text-white'
+            }`}
+          >
+            Next →
+          </Button>
         </div>
-      )}
+      </motion.div>
     </div>
   );
 };

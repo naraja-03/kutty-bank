@@ -3,14 +3,14 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ICategory extends Document {
   _id: string;
   name: string;
-  mainCategory: 'income' | 'essentials' | 'commitments' | 'savings';
+  mainCategory: 'income' | 'essential' | 'commitment' | 'saving';
   userId?: mongoose.Types.ObjectId;
   familyId?: mongoose.Types.ObjectId;
   isDefault: boolean;
   icon?: string;
   color?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const CategorySchema = new Schema<ICategory>(
@@ -23,19 +23,18 @@ const CategorySchema = new Schema<ICategory>(
     mainCategory: {
       type: String,
       required: true,
-      enum: ['income', 'essentials', 'commitments', 'savings'],
+      enum: ['income', 'essential', 'commitment', 'saving'],
     },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: function() {
+      required: function () {
         return !this.isDefault;
       },
     },
     familyId: {
       type: Schema.Types.ObjectId,
       ref: 'Family',
-      required: false,
     },
     isDefault: {
       type: Boolean,
@@ -43,11 +42,9 @@ const CategorySchema = new Schema<ICategory>(
     },
     icon: {
       type: String,
-      required: false,
     },
     color: {
       type: String,
-      required: false,
     },
   },
   {
@@ -55,7 +52,7 @@ const CategorySchema = new Schema<ICategory>(
   }
 );
 
-// Index for better query performance
+// Indexes
 CategorySchema.index({ userId: 1, mainCategory: 1 });
 CategorySchema.index({ familyId: 1, mainCategory: 1 });
 

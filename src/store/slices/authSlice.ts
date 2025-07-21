@@ -27,7 +27,7 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
-      
+
       // Save to localStorage only for real authenticated users (not anonymous)
       if (!action.payload.user.isAnonymous && typeof window !== 'undefined') {
         localStorage.setItem('token', action.payload.token);
@@ -45,20 +45,20 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.isLoading = false;
-      
+
       // Clear localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
     },
-    setAnonymousUser: state => {
+    setAnonymousUser: (state, action: PayloadAction<boolean>) => {
       // Set anonymous user in memory only - no localStorage
       state.user = {
         id: 'anonymous',
         email: 'anonymous@guest.com',
         name: 'Guest User',
-        isAnonymous: true,
+        isAnonymous: action.payload,
         role: 'member',
         families: [],
       };
@@ -71,7 +71,7 @@ const authSlice = createSlice({
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
-        
+
         if (token && userStr) {
           try {
             const user = JSON.parse(userStr);
@@ -102,21 +102,22 @@ const authSlice = createSlice({
   },
 });
 
-export const { 
-  loginStart, 
-  loginSuccess, 
-  loginFailure, 
-  logout, 
-  updateUser, 
-  setCurrentFamily, 
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+  updateUser,
+  setCurrentFamily,
   initializeAuth,
-  setAnonymousUser 
+  setAnonymousUser,
 } = authSlice.actions;
 
 // Selectors
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
-export const selectIsAnonymous = (state: { auth: AuthState }) => state.auth.user?.isAnonymous || false;
+export const selectIsAnonymous = (state: { auth: AuthState }) =>
+  state.auth.user?.isAnonymous || false;
 export const selectAuthToken = (state: { auth: AuthState }) => state.auth.token;
 export const selectIsLoading = (state: { auth: AuthState }) => state.auth.isLoading;
 

@@ -3,12 +3,18 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import authSlice from './slices/authSlice';
 import uiSlice from './slices/uiSlice';
 import { authApi } from './api/authApi';
+import { transactionsApi } from './api/transactionsApi';
+import { familyApi } from './api/familyApi';
+import { categoriesApi } from './api/categoriesApi';
 
 export const store = configureStore({
   reducer: {
     auth: authSlice,
     ui: uiSlice,
     [authApi.reducerPath]: authApi.reducer,
+    [familyApi.reducerPath]: familyApi.reducer,
+    [categoriesApi.reducerPath]: categoriesApi.reducer,
+    [transactionsApi.reducerPath]: transactionsApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
@@ -43,6 +49,9 @@ export const store = configureStore({
       },
     }).concat(
       authApi.middleware,
+      categoriesApi.middleware,
+      familyApi.middleware,
+      transactionsApi.middleware,
     ),
   devTools: process.env.NODE_ENV !== 'production',
 });
